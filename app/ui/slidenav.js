@@ -56,7 +56,7 @@ define("ui/slidenav", ["config", "viewer", "jquery", "webix"], function(config, 
                     $$("samples").setValue(data[0].id);
                 });
             },
-            "onAfterRender": function() {
+            "onAfterRender": webix.once(function() {
                 $.get(config.BASE_URL + "/resource/lookup?path=/collection/" + config.COLLECTION_NAME)
                  .then(function(collection){
                     return $.get(config.BASE_URL + "/folder?parentType=collection&parentId=" + collection._id);
@@ -75,8 +75,8 @@ define("ui/slidenav", ["config", "viewer", "jquery", "webix"], function(config, 
                 }).done(function(data){
                     $$("thumbnails").clearAll();
                     $$("thumbnails").parse(data);
-                });
-            }
+                })
+            })
         }
     };
 
