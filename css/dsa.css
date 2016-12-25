@@ -1,0 +1,41 @@
+html, body{
+    height: 100%;
+    padding: 0px;
+    margin: 0px;
+}
+
+.webix_layout_toolbar.toolbar {
+    color: #fff;
+    font-size: 18px;
+    background: #fdfdfd;
+}
+  
+.webix_menu-x.menu  .webix_list_item{
+  	background: #fdfdfd;
+  	color:#666;
+  	line-height:50px;
+}
+  
+.webix_menu-x.menu .webix_list_item:hover{
+  background: #dfdfdf;
+}
+
+.webix_pager_item {
+    width: 50px;
+}
+.webix_pager_item_selected {
+    width: 50px;
+}
+
+.webix_dataview_item{
+  text-align:center;
+}
+
+.webix_dataview_item img { 
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.webix_accordionitem{
+    transition:width 0.5s;
+  }

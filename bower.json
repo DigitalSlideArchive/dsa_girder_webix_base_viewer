@@ -1,0 +1,23 @@
+{
+  "name": "viewer-template",
+  "authors": [
+    "Mohammed Khalilia <mohammed.khalilia@gmail.com>"
+  ],
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "openseadragon": "^2.2.1",
+    "webix": "^4.1.0",
+    "jquery": "^3.1.1",
+    "requirejs": "^2.3.2"
+  }
+}
