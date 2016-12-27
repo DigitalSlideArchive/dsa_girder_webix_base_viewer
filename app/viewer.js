@@ -1,3 +1,16 @@
+/* viewer.js
+
+Description:
+	This module initializes and defines the configurations for the Openseadragon
+	viewer. Any additional configurations and event handlers should be added here.
+
+Dependencies:
+	- osd: Openseadragon module
+
+Return:
+	- viewer - Openseadragon viewer object
+ */
+
 define("viewer", ["osd"], function(osd) {
 
     var viewer = osd({

@@ -1,11 +1,18 @@
 define("ui/slidenav", ["config", "viewer", "jquery", "webix"], function(config, viewer, $) {
 
+    webix.DataDriver.GirderItems = webix.extend({
+       
+        
+    }, webix.DataDriver.json);
+
+
     var thumbnailsPanel = {
         view: "dataview",
         id: "thumbnails",
         select: true,
         template: "<div class='webix_strong'>#name#</div><img src='" + config.BASE_URL + "/item/#_id#/tiles/thumbnail'/>",
         datatype: "json",
+        pager: "item_pager",
         type: {
             height: 170,
             width: 200
@@ -13,7 +20,7 @@ define("ui/slidenav", ["config", "viewer", "jquery", "webix"], function(config, 
         on: {
             "onItemClick": function(id, e, node) {
                 var item = this.getItem(id);
-                var url = config.BASE_URL + "/item/" + item._id + "/tiles";
+                var url = config.BASE_URL + "/item/" + item._id + "/tiles";22
 
                 $.get(url, function(tiles){
                     tileSource = {
@@ -32,6 +39,15 @@ define("ui/slidenav", ["config", "viewer", "jquery", "webix"], function(config, 
                 });
             }
         }
+    };
+
+    itemPager = {
+        view:"pager",
+        id: "item_pager",
+        template: "<center>{common.prev()}{common.page()}/#limit#{common.next()}(#count# slides)</center>",
+        animate:true,
+        size:5,
+        group:4
     };
 
     //dropdown for slide groups
@@ -93,7 +109,8 @@ define("ui/slidenav", ["config", "viewer", "jquery", "webix"], function(config, 
             "onChange": function(id) {
                 var item = this.getPopup().getBody().getItem(id);
                 var thumbs = $$("thumbnails");
-                var url = config.BASE_URL + "/item?limit=500&folderId=" + item._id;
+                //var url = config.BASE_URL + "/item?limit=500&folderId=" + item._id;
+                var url = config.BASE_URL + "/item?folderId=" + item._id;
                 thumbs.clearAll();
                 thumbs.load(url);
             }
@@ -123,7 +140,7 @@ define("ui/slidenav", ["config", "viewer", "jquery", "webix"], function(config, 
         },
         body: {
             rows: [
-                dropdown, samples_dropdown, thumbnailsPanel
+                dropdown, samples_dropdown, itemPager,  thumbnailsPanel
             ]
         },
         width: 220

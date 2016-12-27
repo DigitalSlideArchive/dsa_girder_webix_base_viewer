@@ -1,6 +1,22 @@
+/* config.js
+
+Description:
+	This module contains all the basic app configurations.
+
+Dependencies:
+	None
+
+Return:
+	- BASE_URL: URL to the Girder API
+	- COLLECTION_NAME: Girder collection name to pull data from
+ */
+
 define("config", function() {
 
+	//Specify the BASE API URL
     var BASE_URL = "http://candygram.neurology.emory.edu:8080/api/v1";
+
+    //What is the collection name we are pulling data from?
     var COLLECTION_NAME = "NeuroVision";
 
     return {
