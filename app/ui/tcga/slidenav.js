@@ -1,26 +1,36 @@
-define("ui/slidenav", ["config", "viewer", "jquery", "webix"], function(config, viewer, $) {
+define("tcga/slidenav", ["config", "viewer", "jquery", "webix"], function(config, viewer, $) {
 
-    webix.DataDriver.GirderItems = webix.extend({
-       
-        
-    }, webix.DataDriver.json);
-
+    webix.proxy.GirderItems = {
+      $proxy:true,
+      load:function(view, callback, details){
+        if (details){
+          var data = webix.ajax(this.source+"?limit="+details.count+"&offset="+details.start);
+        } else {
+          var data = webix.ajax(this.source); 
+        }
+         
+        data.then(function(resp){
+            webix.ajax.$callback(view, callback, resp.text());
+        }); 
+      }
+    };
 
     var thumbnailsPanel = {
         view: "dataview",
         id: "thumbnails",
         select: true,
         template: "<div class='webix_strong'>#name#</div><img src='" + config.BASE_URL + "/item/#_id#/tiles/thumbnail'/>",
-        datatype: "json",
         pager: "item_pager",
+        datatype: "json",
+        datafetch: 10,
         type: {
             height: 170,
             width: 200
         },
         on: {
-            "onItemClick": function(id, e, node) {
+            onItemClick: function(id, e, node) {
                 var item = this.getItem(id);
-                var url = config.BASE_URL + "/item/" + item._id + "/tiles";22
+                var url = config.BASE_URL + "/item/" + item._id + "/tiles";
 
                 $.get(url, function(tiles){
                     tileSource = {
@@ -54,7 +64,7 @@ define("ui/slidenav", ["config", "viewer", "jquery", "webix"], function(config, 
     //Data is pulled from DAS webservice
     dropdown = {
         view: "combo",
-        placeholder: "Select Slide Set",
+        placeholder: "Select Cohort",
         id: "slideset",
         options: {
             body: {
@@ -62,36 +72,25 @@ define("ui/slidenav", ["config", "viewer", "jquery", "webix"], function(config, 
             }
         },
         on: {
-            "onChange": function(id) {
+            onChange: function(id) {
                 var item = this.getPopup().getBody().getItem(id);
-                
-                $.get(config.BASE_URL + "/folder?parentType=folder&parentId=" + item._id, function(data){
+
+                $.get(config.BASE_URL + "/tcga/case?cohort=" + item._id, function(resp){
+                    var cases = resp["data"]
                     var sFoldersMenu = $$("samples").getPopup().getList();
                     sFoldersMenu.clearAll();
-                    sFoldersMenu.parse(data);
-                    $$("samples").setValue(data[0].id);
+                    sFoldersMenu.parse(cases);
+                    $$("samples").setValue(cases[0].id);
                 });
             },
-            "onAfterRender": webix.once(function() {
-                $.get(config.BASE_URL + "/resource/lookup?path=/collection/" + config.COLLECTION_NAME)
-                 .then(function(collection){
-                    return $.get(config.BASE_URL + "/folder?parentType=collection&parentId=" + collection._id);
-                }).then(function(folders){
-                    var foldersMenu = $$("slideset").getPopup().getList();
-                    foldersMenu.clearAll();
-                    foldersMenu.parse(folders);
-                    $$("slideset").setValue(folders[0].id);
-                    return $.get(config.BASE_URL + "/folder?parentType=folder&parentId=" + folders[0]._id);
-                }).then(function(data){
-                    var sFoldersMenu = $$("samples").getPopup().getList();
-                    sFoldersMenu.clearAll();
-                    sFoldersMenu.parse(data);
-                    $$("samples").setValue(data[0].id);
-                    return $.get(config.BASE_URL + "/item?limit=500&folderId=" + data[0]._id);
-                }).done(function(data){
-                    $$("thumbnails").clearAll();
-                    $$("thumbnails").parse(data);
-                })
+            onAfterRender: webix.once(function() {
+                $.get(config.BASE_URL + "/tcga/cohort", function(resp){
+                    var cohorts = resp["data"];
+                    var cohortList = $$("slideset").getPopup().getList();
+                    cohortList.clearAll();
+                    cohortList.parse(cohorts);
+                    $$("slideset").setValue(cohorts[0].id);
+                });    
             })
         }
     };
@@ -106,11 +105,10 @@ define("ui/slidenav", ["config", "viewer", "jquery", "webix"], function(config, 
             }
         },
         on: {
-            "onChange": function(id) {
+            onChange: function(id) {
                 var item = this.getPopup().getBody().getItem(id);
                 var thumbs = $$("thumbnails");
-                //var url = config.BASE_URL + "/item?limit=500&folderId=" + item._id;
-                var url = config.BASE_URL + "/item?folderId=" + item._id;
+                var url = config.BASE_URL + "/tcga/case/" + item._id + "/images";
                 thumbs.clearAll();
                 thumbs.load(url);
             }
@@ -126,15 +124,22 @@ define("ui/slidenav", ["config", "viewer", "jquery", "webix"], function(config, 
         header: "Slides " + wideIcon + narrowIcon,
         onClick:{
             wide:function(event, id){
-              $$("viewer_panel").config.width = 1;
-              $$(id).config.width = null; 
-              $$("root").resize();
+                var count = $$("thumbnails").count();
+                this.config.width = 205*6;
+                this.resize();
+
+              $$("item_pager").config.size = Math.min(30, count);
+              $$("item_pager").refresh();
+              $$("thumbnails").refresh();
               return false;
             }, 
             narrow:function(event, id){
-              $$(id).config.width = 220;
-              $$("viewer_panel").config.width = null; 
-              $$("root").resize();
+              this.config.width = 220;
+              this.resize();
+
+              $$("item_pager").config.size = 5;
+              $$("item_pager").refresh();
+              $$("thumbnails").refresh();
               return false;
             }
         },

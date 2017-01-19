@@ -1,4 +1,4 @@
-define("ui/header", function() {
+define("common/header", function() {
 
     header = {
         borderless: true,

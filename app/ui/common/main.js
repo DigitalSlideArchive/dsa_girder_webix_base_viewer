@@ -14,22 +14,10 @@ Return:
     - viewer - Openseadragon viewer object
  */
 
-define("ui/main", ["standard", "tcga", "config"], function(standard, tcga, config) {
+define("common/main", ["common/header"], function(header) {
 
-    function init(){
-        switch(config.ENDPOINTS){
-            case "standard":
-                standard.init();
-                break;
-            case "tcga":
-                tcga.init();
-                break;
-            default:
-                console.error("Invalid configuration: " + config.ENDPOINTS + " UI not found");
-        }
+    return{
+        header: header
     }
-   
-    return {
-        init: init
-    }
+  
 });

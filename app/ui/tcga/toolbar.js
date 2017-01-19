@@ -1,4 +1,4 @@
-define("ui/toolbar", function() {
+define("tcga/toolbar", function() {
 
     buttons = {
         height: 30,

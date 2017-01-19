@@ -9,8 +9,26 @@ require = {
         "app": "app/app"
     },
 
-    packages: [{
-        name: "ui",
-        location: "app/ui"
-    }]
+    packages: [
+        {
+            name: "ui",
+            location: "app/ui"
+        },
+        {
+            name: "standard",
+            location: "app/ui/standard"
+        },
+        {
+            name: "tcga",
+            location: "app/ui/tcga"
+        },
+        {
+            name: "widgets",
+            location: "app/ui/widgets"
+        },
+        {
+            name: "common",
+            location: "app/ui/common"
+        }
+    ]
 };

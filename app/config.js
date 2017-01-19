@@ -13,14 +13,21 @@ Return:
 
 define("config", function() {
 
-	//Specify the BASE API URL
-    var BASE_URL = "http://candygram.neurology.emory.edu:8080/api/v1";
-
     //What is the collection name we are pulling data from?
-    var COLLECTION_NAME = "NeuroVision";
+    var COLLECTION_NAME = "TCGA";
 
+    //which endpoints do we wanna use? TCGA or Girder default endpoints
+    ENDPOINTS = "tcga";
+
+    //Specify the BASE API URL
+    var BASE_URL = "http://digitalslidearchive.emory.edu:8080/api/v1";
+
+    if(ENDPOINTS == "tcga")
+        BASE_URL = "https://girder.neuro.emory.edu:443/api/v1";
+    
     return {
         BASE_URL: BASE_URL,
-        COLLECTION_NAME: COLLECTION_NAME
+        COLLECTION_NAME: COLLECTION_NAME,
+        ENDPOINTS: ENDPOINTS
     }
 });
