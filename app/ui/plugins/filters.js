@@ -1,4 +1,11 @@
-define("widgets/filters", ["webix"], function() {
+require(["webix"], function() {
+
+    $$("toolbar").addView( {
+        id: "apply_filter_btn",
+        label: "Apply Filters",
+        view: "button",
+        click: ("$$('filters_window').show();")
+    });
 
     //Window for slide filters
     var contrastSlider = {
@@ -157,5 +164,5 @@ define("widgets/filters", ["webix"], function() {
         $('.openseadragon-canvas').css('-webkit-filter', css);
     }
 
-    return filterWindow;
+    webix.ui(filterWindow);
 });

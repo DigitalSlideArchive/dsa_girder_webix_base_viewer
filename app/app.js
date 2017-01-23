@@ -30,5 +30,7 @@ you want to return to the return object
 define(["ui", "webix"], function(ui) {
     webix.ready(function() {
         ui.init();
+
+        require(["aperio", "filters"]);
     });
 });
