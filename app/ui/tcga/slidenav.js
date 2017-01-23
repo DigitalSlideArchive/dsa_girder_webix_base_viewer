@@ -1,4 +1,4 @@
-define("tcga/slidenav", ["config", "viewer", "jquery", "webix"], function(config, viewer, $) {
+define("tcga/slidenav", ["config", "viewer", "jquery", "pubsub", "webix"], function(config, viewer, $, pubsub) {
 
     webix.proxy.GirderItems = {
       $proxy:true,
@@ -30,6 +30,7 @@ define("tcga/slidenav", ["config", "viewer", "jquery", "webix"], function(config
         on: {
             onItemClick: function(id, e, node) {
                 var item = this.getItem(id);
+                pubsub.publish("SLIDE", item);
                 var url = config.BASE_URL + "/item/" + item._id + "/tiles";
 
                 $.get(url, function(tiles){

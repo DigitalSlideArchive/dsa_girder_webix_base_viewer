@@ -1,4 +1,24 @@
-require(["d3", "viewer"], function(d3, viewer) {
+require(["d3", "viewer", "pubsub", "config"], function(d3, viewer, pubsub, config) {
+
+    var imageWidth = 1;
+    pubsub.subscribe("SLIDE", function(msg, slide) {
+        var url = config.BASE_URL + "/item/" + slide._id + "/aperio";
+        $.get(url, function(aperio){
+            if(aperio.length){
+                $$("region_keyvalue").clearAll();
+                $$("region_attributes").clearAll();
+                $$("file_list").clearAll();
+                $$("file_list").parse(aperio);
+                $$("file_list").refresh();
+                $(".annotation_overlay").remove();
+
+                if(typeof slide.tiles !== "undefined"){
+                    imageWidth = 10000;
+                    $$("aperio_xml_tree").clearAll();
+                }
+            }
+        })
+    });
 
     webix.DataDriver.AperioXML = webix.extend({
         records:"/*/Annotation",
@@ -16,6 +36,7 @@ require(["d3", "viewer"], function(d3, viewer) {
         view: "button",
         click: ("$$('aperio_window').show();")
     });
+
 
     var aperioXmlTree = {
         view:"tree",

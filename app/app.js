@@ -24,8 +24,8 @@ Now obs is an object having the following properties
 
 If for some reason a module not returning the variable you 
 are looking for, then go to the module and add the variable 
-you want to return to the return object
- */
+you want to return to the return object 
+*/
 
 define(["ui", "webix"], function(ui) {
     webix.ready(function() {
