@@ -1,4 +1,4 @@
-require(["d3", "viewer", "pubsub", "config", "svg"], function(d3, viewer, pubsub, config, svg) {
+require(["d3", "viewer", "pubsub", "config", "svg", "jquery"], function(d3, viewer, pubsub, config, svg, $) {
 
      /*
     Let us declare some variables for this module

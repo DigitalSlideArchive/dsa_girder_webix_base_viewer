@@ -1,4 +1,4 @@
-define("tcga/slidenav", ["config", "viewer", "jquery", "pubsub", "slide", "webix"], function(config, viewer, $, pubsub, slide) {
+define("tcga/slidenav", ["config", "viewer", "pubsub", "slide", "jquery", "webix"], function(config, viewer, pubsub, slide, $) {
 
     webix.proxy.GirderItems = {
       $proxy:true,

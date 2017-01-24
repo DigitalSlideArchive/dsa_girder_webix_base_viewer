@@ -1,4 +1,4 @@
-define("slide", ["viewer", "config", "pubsub", "jquery"], function(viewer, config, pubsub, $){
+define("slide", ["viewer", "config", "pubsub"], function(viewer, config, pubsub){
 
 	function init(item){
 		$.extend(this, item);

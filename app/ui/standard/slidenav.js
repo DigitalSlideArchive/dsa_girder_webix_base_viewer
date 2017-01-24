@@ -1,4 +1,4 @@
-define("standard/slidenav", ["config", "viewer", "jquery", "slide", "webix"], function(config, viewer, $, slide) {
+define("standard/slidenav", ["config", "viewer", "slide", "jquery", "webix"], function(config, viewer, slide, $) {
 
     var thumbnailsPanel = {
         view: "dataview",
