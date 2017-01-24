@@ -1,11 +1,50 @@
 require(["webix"], function() {
 
+    /*
+    Update the toolbar: add the filters button to the 
+    main toolbar. This button allows the user to open
+    the filter widget (window)
+     */
     $$("toolbar").addView( {
         id: "apply_filter_btn",
         label: "Apply Filters",
         view: "button",
         click: ("$$('filters_window').show();")
     });
+
+    /*
+    reset()
+        Reset all sliders to default values
+     */
+    function reset() {
+        $$("contrast_slider").setValue(100);
+        $$("brightness_slider").setValue(100);
+        $$("saturation_slider").setValue(100);
+        $$("hue_rotate_slider").setValue(0);
+        $$("invert_slider").setValue(0);
+        $$("blur_slider").setValue(0);
+        $$("grayscale_slider").setValue(0);
+
+        apply();
+    }
+
+    /*
+    apply()
+        Set the values and apply the new style to Openseadragon
+        viewer
+     */
+    function apply() {
+        var css = 'contrast(' + $$("contrast_slider").getValue() + '%) ' +
+            'brightness(' + $$("brightness_slider").getValue() + '%) ' +
+            'hue-rotate(' + $$("hue_rotate_slider").getValue() + ') ' +
+            'saturate(' + $$("saturation_slider").getValue() + '%) ' +
+            'invert(' + $$("invert_slider").getValue() + '%) ' +
+            'grayscale(' + $$("grayscale_slider").getValue() + '%) ' +
+            'blur(' + $$("blur_slider").getValue() + 'px)';
+
+        $('.magic').css('-webkit-filter', css);
+        $('.openseadragon-canvas').css('-webkit-filter', css);
+    }
 
     //Window for slide filters
     var contrastSlider = {
@@ -138,31 +177,6 @@ require(["webix"], function() {
             ]
         }
     };
-
-    function reset() {
-        $$("contrast_slider").setValue(100);
-        $$("brightness_slider").setValue(100);
-        $$("saturation_slider").setValue(100);
-        $$("hue_rotate_slider").setValue(0);
-        $$("invert_slider").setValue(0);
-        $$("blur_slider").setValue(0);
-        $$("grayscale_slider").setValue(0);
-
-        apply();
-    }
-
-    function apply() {
-        var css = 'contrast(' + $$("contrast_slider").getValue() + '%) ' +
-            'brightness(' + $$("brightness_slider").getValue() + '%) ' +
-            'hue-rotate(' + $$("hue_rotate_slider").getValue() + ') ' +
-            'saturate(' + $$("saturation_slider").getValue() + '%) ' +
-            'invert(' + $$("invert_slider").getValue() + '%) ' +
-            'grayscale(' + $$("grayscale_slider").getValue() + '%) ' +
-            'blur(' + $$("blur_slider").getValue() + 'px)';
-
-        $('.magic').css('-webkit-filter', css);
-        $('.openseadragon-canvas').css('-webkit-filter', css);
-    }
 
     webix.ui(filterWindow);
 });

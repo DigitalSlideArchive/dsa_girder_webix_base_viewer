@@ -53,7 +53,7 @@ require(["d3", "viewer", "pubsub", "config", "svg"], function(d3, viewer, pubsub
         }
     }, webix.DataDriver.xml);
 
-        /*
+    /*
     clearAll()
         Clear all views within the aperio widgets. This will clear:
         - file list

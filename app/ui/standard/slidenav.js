@@ -1,4 +1,4 @@
-define("standard/slidenav", ["config", "viewer", "jquery", "webix"], function(config, viewer, $) {
+define("standard/slidenav", ["config", "viewer", "jquery", "slide", "webix"], function(config, viewer, $, slide) {
 
     var thumbnailsPanel = {
         view: "dataview",
@@ -15,23 +15,13 @@ define("standard/slidenav", ["config", "viewer", "jquery", "webix"], function(co
         on: {
             onItemClick: function(id, e, node) {
                 var item = this.getItem(id);
-                var url = config.BASE_URL + "/item/" + item._id + "/tiles";
-
-                $.get(url, function(tiles){
-                    tileSource = {
-                        width: tiles.sizeX,
-                        height: tiles.sizeY,
-                        tileWidth: tiles.tileWidth,
-                        tileHeight: tiles.tileHeight,
-                        minLevel: 0,
-                        maxLevel: tiles.levels - 1,
-                        getTileUrl: function(level, x, y) {
-                            return config.BASE_URL + "/item/" + item._id + "/tiles/zxy/" + level + "/" + x + "/" + y;
-                        }
-                    };
-
-                    viewer.open(tileSource);
-                });
+                slide.init(item);
+            },
+            onAfterRender: function(){
+                if(this.getFirstId()){
+                    var item = this.getItem(this.getFirstId());
+                    slide.init(item);
+                }
             }
         }
     };
