@@ -21,8 +21,8 @@ define("tcga/slidenav", ["config", "viewer", "pubsub", "slide", "jquery", "webix
         select: true,
         template: "<div class='webix_strong'>#name#</div><img src='" + config.BASE_URL + "/item/#_id#/tiles/thumbnail'/>",
         pager: "item_pager",
-        datatype: "json",
-        datafetch: 10,
+        datatype: "GirderItems",
+        datafetch: 0,
         type: {
             height: 170,
             width: 200
