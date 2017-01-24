@@ -29,7 +29,7 @@ require(["d3", "viewer", "pubsub", "config", "svg"], function(d3, viewer, pubsub
      */
     pubsub.subscribe("SLIDE", function(msg, slide) {
         imageWidth = slide.tiles.sizeX;
-        clearAllViews();
+        clearAll();
         $.get(config.BASE_URL + "/item/" + slide._id + "/aperio", function(aperio){
             $$("aperio_window_btn").disable();
             if(aperio.length){
@@ -53,7 +53,82 @@ require(["d3", "viewer", "pubsub", "config", "svg"], function(d3, viewer, pubsub
         }
     }, webix.DataDriver.xml);
 
+        /*
+    clearAll()
+        Clear all views within the aperio widgets. This will clear:
+        - file list
+        - region key value datatable
+        - region attributes
+        - Aperio XML tree view
+        - remove any overlays
+     */
+    function clearAll(){
+        $$("region_keyvalue").clearAll();
+        $$("region_attributes").clearAll();
+        $$("file_list").clearAll();
+        $$("aperio_xml_tree").clearAll();
+        $(".annotation_overlay").remove();
+    }
 
+    /*
+    clearAllButFiles()
+        This is the same as the function above except it will
+        not clear the files list
+     */
+    function clearAllButFiles(){
+        $$("region_keyvalue").clearAll();
+        $$("region_attributes").clearAll();
+        $$("aperio_xml_tree").clearAll();
+        $(".annotation_overlay").remove();
+    }
+
+    /*
+    transformVertices()
+        Map the Aperio coordinates to Openseadragon
+        coordinate system
+
+        Arguments:
+            array - vertices
+            int - imageWidth
+
+        Return:
+            string - coordinates, space separated
+     */
+    function transformVertices(vertices, imageWidth) {
+        coordinates = new Array();
+        scaleFactor = 1 / imageWidth;
+        $.each(vertices, function(index, vertex) {
+            x = parseFloat(vertex.X) * scaleFactor;
+            y = parseFloat(vertex.Y) * scaleFactor;
+            coordinates.push(x + "," + y);
+        });
+
+        return coordinates.join(" ")
+    }
+
+    /*
+    rgb2hex()
+        Converts RGB values to Hex code
+
+        Arguments:
+            string - rgb string
+
+        Return:
+            string - hex code
+     */
+    function rgb2hex(rgb) {
+        rgb = "0".repeat(9 - rgb.length) + rgb;
+        var r = parseInt(rgb.substring(0,3));
+        var g = parseInt(rgb.substring(3,3));
+        var b = parseInt(rgb.substring(7,3));
+    
+        var h = b | (g << 8) | (r << 16);
+        return '#' + "0".repeat(6 - h.toString(16).length) + h.toString(16);
+    }
+
+    /*
+    Start of the Aperio UI widget/window
+     */
     var aperioXmlTree = {
         view:"tree",
         type:"lineTree",
@@ -111,6 +186,7 @@ require(["d3", "viewer", "pubsub", "config", "svg"], function(d3, viewer, pubsub
                           .attr('stroke', item.LineColor)
                           .attr('stroke-width', 0.001);
                       
+                        //set whatever handler for each region
                         (function(region){
                             $("#"+overlayId).hover(function(){
                                 $(this).css({stroke: "red", "stroke-width": 0.002});
@@ -151,10 +227,7 @@ require(["d3", "viewer", "pubsub", "config", "svg"], function(d3, viewer, pubsub
                 var url = config.BASE_URL + "/item/" + item._id + "/files";
                 $.get(url, function(files){
                     var url = config.BASE_URL + "/file/" + files[0]._id + "/download";
-                    $$("region_keyvalue").clearAll();
-                    $$("region_attributes").clearAll();
-                    $$("aperio_xml_tree").clearAll();
-                    $(".boundaryClass").remove();
+                    clearAllButFiles();
                     $$("aperio_xml_tree").load(url);
                 });
             }
@@ -174,26 +247,19 @@ require(["d3", "viewer", "pubsub", "config", "svg"], function(d3, viewer, pubsub
 
     };
 
-    var ROIColumns = [{
-        id: "Id"
-    }, {
-        id: "AnnotationId", header: "Annotation ID"
-    }, {
-        id: "AreaMicrons", header: "Area Microns"
-    }, {
-        id: "LengthMicrons", header: "Length Microns"
-    }, {
-        id: "NegativeROA", header: "Negative ROA"
-    }, {
-        id: "Zoom", fillspace:true
-    }];
-
     var layoutROIInfo = {
         view: "datatable",
         width: "auto",
         id: "region_attributes",
         select: true,
-        columns: ROIColumns
+        columns: [
+            {id: "Id"}, 
+            {id: "AnnotationId", header: "Annotation ID"}, 
+            {id: "AreaMicrons", header: "Area Microns"}, 
+            {id: "LengthMicrons", header: "Length Microns"}, 
+            {id: "NegativeROA", header: "Negative ROA"}, 
+            {id: "Zoom", fillspace:true}
+        ]
     };
 
     var aperioWindow = {
@@ -227,36 +293,6 @@ require(["d3", "viewer", "pubsub", "config", "svg"], function(d3, viewer, pubsub
             ]
         }
     };
-
-    function clearAllViews(){
-        $$("region_keyvalue").clearAll();
-        $$("region_attributes").clearAll();
-        $$("file_list").clearAll();
-        $$("aperio_xml_tree").clearAll();
-        $(".annotation_overlay").remove();
-    }
-
-    function transformVertices(vertices, imageWidth) {
-        coordinates = new Array();
-        scaleFactor = 1 / imageWidth;
-        $.each(vertices, function(index, vertex) {
-            x = parseFloat(vertex.X) * scaleFactor;
-            y = parseFloat(vertex.Y) * scaleFactor;
-            coordinates.push(x + "," + y);
-        });
-
-        return coordinates.join(" ")
-    }
-
-    function rgb2hex (rgb) {
-        rgb = "0".repeat(9 - rgb.length) + rgb;
-        var r = parseInt(rgb.substring(0,3));
-        var g = parseInt(rgb.substring(3,3));
-        var b = parseInt(rgb.substring(7,3));
-    
-        var h = b | (g << 8) | (r << 16);
-        return '#' + "0".repeat(6 - h.toString(16).length) + h.toString(16);
-    }
 
     webix.ui(aperioWindow);
 });

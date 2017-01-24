@@ -8,6 +8,7 @@ require = {
         "jquery": "bower_components/jquery/dist/jquery.min",
         "pubsub": "bower_components/PubSubJS/src/pubsub",
         "config": "app/config",
+        "slide": "app/slide",
         "viewer": "app/viewer",
         "app": "app/app",
         "aperio": "app/ui/plugins/aperio",

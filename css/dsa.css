@@ -38,4 +38,8 @@ html, body{
 
 .webix_accordionitem{
     transition:width 0.5s;
-  }
+}
+
+.webix_tree_item.webix_selected {
+    background-color:lightblue;
+}

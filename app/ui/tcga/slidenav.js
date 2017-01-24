@@ -1,4 +1,4 @@
-define("tcga/slidenav", ["config", "viewer", "jquery", "pubsub", "webix"], function(config, viewer, $, pubsub) {
+define("tcga/slidenav", ["config", "viewer", "jquery", "pubsub", "slide", "webix"], function(config, viewer, $, pubsub, slide) {
 
     webix.proxy.GirderItems = {
       $proxy:true,
@@ -50,6 +50,32 @@ define("tcga/slidenav", ["config", "viewer", "jquery", "pubsub", "webix"], funct
 
                     viewer.open(tileSource);
                 });
+            },
+            onAfterRender: function(){
+                if(this.getFirstId()){
+                    var item = this.getItem(this.getFirstId());
+                    slide.init(item);
+                    var url = config.BASE_URL + "/item/" + item._id + "/tiles";
+
+                    $.get(url, function(tiles){
+                        item.tiles = tiles;
+                        pubsub.publish("SLIDE", item);
+
+                        tileSource = {
+                            width: tiles.sizeX,
+                            height: tiles.sizeY,
+                            tileWidth: tiles.tileWidth,
+                            tileHeight: tiles.tileHeight,
+                            minLevel: 0,
+                            maxLevel: tiles.levels - 1,
+                            getTileUrl: function(level, x, y) {
+                                return config.BASE_URL + "/item/" + item._id + "/tiles/zxy/" + level + "/" + x + "/" + y;
+                            }
+                        };
+
+                        viewer.open(tileSource);
+                    });
+                }
             }
         }
     };
