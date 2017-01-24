@@ -30,10 +30,12 @@ define("tcga/slidenav", ["config", "viewer", "jquery", "pubsub", "webix"], funct
         on: {
             onItemClick: function(id, e, node) {
                 var item = this.getItem(id);
-                pubsub.publish("SLIDE", item);
                 var url = config.BASE_URL + "/item/" + item._id + "/tiles";
 
                 $.get(url, function(tiles){
+                    item.tiles = tiles;
+                    pubsub.publish("SLIDE", item);
+
                     tileSource = {
                         width: tiles.sizeX,
                         height: tiles.sizeY,

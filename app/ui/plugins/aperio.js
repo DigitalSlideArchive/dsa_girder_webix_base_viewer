@@ -1,25 +1,48 @@
-require(["d3", "viewer", "pubsub", "config"], function(d3, viewer, pubsub, config) {
+require(["d3", "viewer", "pubsub", "config", "svg"], function(d3, viewer, pubsub, config, svg) {
 
-    var imageWidth = 1;
+     /*
+    Let us declare some variables for this module
+     */
+    var imageWidth = null;
+    
+    /*
+    Update the toolbar: add the aperio button to the 
+    main toolbar. This button allows the user to open
+    the Aperio widget (window)
+     */
+    $$("toolbar").addView({
+        id: "aperio_window_btn",
+        label: "Aperio Annotations",
+        view: "button",
+        "disabled": true,
+        click: ("$$('aperio_window').show();")
+    });
+
+    /*
+    Keep listening for changes to the SLIDE variable that gets
+    published by the slidenav module.
+
+    If SLIDE changes, then update the Aperio view, by clearing all
+    previously loaded data and load the new Aperio files.
+
+    If no Aperio files are found, disable the button!
+     */
     pubsub.subscribe("SLIDE", function(msg, slide) {
-        var url = config.BASE_URL + "/item/" + slide._id + "/aperio";
-        $.get(url, function(aperio){
+        imageWidth = slide.tiles.sizeX;
+        clearAllViews();
+        $.get(config.BASE_URL + "/item/" + slide._id + "/aperio", function(aperio){
+            $$("aperio_window_btn").disable();
             if(aperio.length){
-                $$("region_keyvalue").clearAll();
-                $$("region_attributes").clearAll();
-                $$("file_list").clearAll();
+                $$("aperio_window_btn").enable();
                 $$("file_list").parse(aperio);
-                $$("file_list").refresh();
-                $(".annotation_overlay").remove();
-
-                if(typeof slide.tiles !== "undefined"){
-                    imageWidth = 10000;
-                    $$("aperio_xml_tree").clearAll();
-                }
             }
         })
     });
 
+    /*
+    Define data driver to parse the Aperio XML
+    file to load it into tree view
+     */
     webix.DataDriver.AperioXML = webix.extend({
         records:"/*/Annotation",
         child:function(obj){
@@ -30,25 +53,15 @@ require(["d3", "viewer", "pubsub", "config"], function(d3, viewer, pubsub, confi
         }
     }, webix.DataDriver.xml);
 
-    $$("toolbar").addView({
-        id: "aperio_window_btn",
-        label: "Aperio Annotations",
-        view: "button",
-        click: ("$$('aperio_window').show();")
-    });
-
 
     var aperioXmlTree = {
         view:"tree",
         type:"lineTree",
         threeState: true,
         select: true,
-        url:"http://digitalslidearchive.emory.edu/v1/aperio/home/mkhali8/test.xml",
         datatype:"AperioXML",
         id: "aperio_xml_tree",
-        ready:function(){
-            this.openAll();
-        },
+        url: "http://digitalslidearchive.emory.edu/v1/aperio/home/mkhali8/test.xml",
         template:function(obj, common){
            var icons = common.icon(obj, common) + common.checkbox(obj, common) + common.folder(obj, common);
            var text = "";
@@ -118,7 +131,6 @@ require(["d3", "viewer", "pubsub", "config"], function(d3, viewer, pubsub, confi
                 var attr = [];
                 $.each(item, function(key, val){
                     attr.push({"key": key, "value":val});
-
                 });
 
                 $$("region_keyvalue").clearAll();
@@ -135,11 +147,16 @@ require(["d3", "viewer", "pubsub", "config"], function(d3, viewer, pubsub, confi
         select: true,
         on: {
             onItemClick: function(id){
-                $$("region_keyvalue").clearAll();
-                $$("region_attributes").clearAll();
-                $$("aperio_xml_tree").clearAll();
-                $$("aperio_xml_tree").load(this.getItem(id).url);
-                $(".boundaryClass").remove();
+                var item = this.getItem(id);
+                var url = config.BASE_URL + "/item/" + item._id + "/files";
+                $.get(url, function(files){
+                    var url = config.BASE_URL + "/file/" + files[0]._id + "/download";
+                    $$("region_keyvalue").clearAll();
+                    $$("region_attributes").clearAll();
+                    $$("aperio_xml_tree").clearAll();
+                    $(".boundaryClass").remove();
+                    $$("aperio_xml_tree").load(url);
+                });
             }
         }
     };
@@ -210,6 +227,14 @@ require(["d3", "viewer", "pubsub", "config"], function(d3, viewer, pubsub, confi
             ]
         }
     };
+
+    function clearAllViews(){
+        $$("region_keyvalue").clearAll();
+        $$("region_attributes").clearAll();
+        $$("file_list").clearAll();
+        $$("aperio_xml_tree").clearAll();
+        $(".annotation_overlay").remove();
+    }
 
     function transformVertices(vertices, imageWidth) {
         coordinates = new Array();
