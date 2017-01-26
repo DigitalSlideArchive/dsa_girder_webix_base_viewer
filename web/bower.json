@@ -22,6 +22,7 @@
     "bower": "*",
     "install": "^1.0.4",
     "PubSubJS": "pubsub-js#^1.5.4",
-    "svg-overlay": "*"
+    "svg-overlay": "*",
+    "d3": "^4.4.4"
   }
 }
