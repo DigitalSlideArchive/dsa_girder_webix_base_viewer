@@ -32,7 +32,7 @@ define("tcga/slidenav", ["config", "viewer", "pubsub", "slide", "jquery", "webix
                 var item = this.getItem(id);
                 slide.init(item);
             },
-            onAfterRender: function(){
+            onAfterLoad: function(){
                 if(this.getFirstId()){
                     var item = this.getItem(this.getFirstId());
                     slide.init(item);
@@ -65,12 +65,16 @@ define("tcga/slidenav", ["config", "viewer", "pubsub", "slide", "jquery", "webix
             onChange: function(id) {
                 var item = this.getPopup().getBody().getItem(id);
 
+                var url = config.BASE_URL + "/tcga/cohort/" + item._id + "/images";
+                $$("thumbnails").clearAll();
+                $$("thumbnails").load(url);
+             
                 $.get(config.BASE_URL + "/tcga/case?cohort=" + item._id, function(resp){
                     var cases = resp["data"]
                     var sFoldersMenu = $$("samples").getPopup().getList();
+                    $$("samples").setValue();
                     sFoldersMenu.clearAll();
                     sFoldersMenu.parse(cases);
-                    $$("samples").setValue(cases[0].id);
                 });
             },
             onAfterRender: webix.once(function() {
@@ -80,6 +84,10 @@ define("tcga/slidenav", ["config", "viewer", "pubsub", "slide", "jquery", "webix
                     cohortList.clearAll();
                     cohortList.parse(cohorts);
                     $$("slideset").setValue(cohorts[0].id);
+
+                    var url = config.BASE_URL + "/tcga/cohort/" + cohorts[0]._id + "/images";
+                    $$("thumbnails").clearAll();
+                    $$("thumbnails").load(url); 
                 });    
             })
         }
@@ -96,11 +104,13 @@ define("tcga/slidenav", ["config", "viewer", "pubsub", "slide", "jquery", "webix
         },
         on: {
             onChange: function(id) {
-                var item = this.getPopup().getBody().getItem(id);
-                var thumbs = $$("thumbnails");
-                var url = config.BASE_URL + "/tcga/case/" + item._id + "/images";
-                thumbs.clearAll();
-                thumbs.load(url);
+                if(id){
+                    var item = this.getPopup().getBody().getItem(id);
+                    var thumbs = $$("thumbnails");
+                    var url = config.BASE_URL + "/tcga/case/" + item._id + "/images";
+                    thumbs.clearAll();
+                    thumbs.load(url);
+                }
             }
         }
     };
