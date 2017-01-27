@@ -20,7 +20,7 @@ define("config", function() {
     ENDPOINTS = "tcga";
 
     //Specify the BASE API URL
-    var BASE_URL = "http://candygram.neurology.emory.edu:8080/api/v1";
+    var BASE_URL = "https://girder.neuro.emory.edu:443/api/v1";//"http://candygram.neurology.emory.edu:8080/api/v1";
     
     return {
         BASE_URL: BASE_URL,

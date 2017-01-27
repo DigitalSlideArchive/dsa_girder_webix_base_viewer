@@ -14,7 +14,7 @@ require(["d3", "viewer", "pubsub", "config", "svg", "jquery"], function(d3, view
         id: "aperio_window_btn",
         label: "Aperio Annotations",
         view: "button",
-        "disabled": true,
+        disabled: true,
         click: ("$$('aperio_window').show();")
     });
 
@@ -63,8 +63,7 @@ require(["d3", "viewer", "pubsub", "config", "svg", "jquery"], function(d3, view
         - remove any overlays
      */
     function clearAll(){
-        $$("region_keyvalue").clearAll();
-        $$("region_attributes").clearAll();
+        $$("region_properties").clearAll();
         $$("file_list").clearAll();
         $$("aperio_xml_tree").clearAll();
         $(".annotation_overlay").remove();
@@ -76,8 +75,7 @@ require(["d3", "viewer", "pubsub", "config", "svg", "jquery"], function(d3, view
         not clear the files list
      */
     function clearAllButFiles(){
-        $$("region_keyvalue").clearAll();
-        $$("region_attributes").clearAll();
+        $$("region_properties").clearAll();
         $$("aperio_xml_tree").clearAll();
         $(".annotation_overlay").remove();
     }
@@ -121,7 +119,7 @@ require(["d3", "viewer", "pubsub", "config", "svg", "jquery"], function(d3, view
         var r = parseInt(rgb.substring(0,3));
         var g = parseInt(rgb.substring(3,3));
         var b = parseInt(rgb.substring(7,3));
-    
+      
         var h = b | (g << 8) | (r << 16);
         return '#' + "0".repeat(6 - h.toString(16).length) + h.toString(16);
     }
@@ -143,7 +141,6 @@ require(["d3", "viewer", "pubsub", "config", "svg", "jquery"], function(d3, view
 
             if(obj.$level == 1){
                 text = "Annotation " + obj.Id;
-                obj.LineColor = rgb2hex(obj.LineColor);
             }
             if(obj.$level == 2){
                 var allheader = [];
@@ -161,7 +158,7 @@ require(["d3", "viewer", "pubsub", "config", "svg", "jquery"], function(d3, view
         on:{
             onItemCheck: function(){
                 $(".annotation_overlay").remove();
-                $$("region_attributes").clearAll();
+                $$("region_properties").clearAll();
                 var regionAttr = [];
 
                 $.each(this.getChecked(), function(index, id){
@@ -170,7 +167,8 @@ require(["d3", "viewer", "pubsub", "config", "svg", "jquery"], function(d3, view
 
                     if(item.$level == 3){  
                         var annotationId = tree.getParentId(tree.getParentId(id));
-                        item.LineColor = tree.getItem(annotationId).LineColor;
+                        item.LineColor = rgb2hex(tree.getItem(annotationId).LineColor);
+                     
                         item.AnnotationId = tree.getItem(annotationId).Id;
                         regionAttr.push(item);
                         var overlayId = "region_overlay_" + item.AnnotationId + "_" + item.Id;
@@ -189,18 +187,15 @@ require(["d3", "viewer", "pubsub", "config", "svg", "jquery"], function(d3, view
                         //set whatever handler for each region
                         (function(region){
                             $("#"+overlayId).hover(function(){
-                                $(this).css({stroke: "red", "stroke-width": 0.002});
-                                webix.message("Region: " + region.Id + 
-                                              "<br/>Area (Microns): " + region.AreaMicrons + 
-                                              "<br/>Length (Microns):" + region.LengthMicrons);
+                                $(this).css({"stroke-width": 0.002});
                             }, function(){
-                                $(this).css({stroke: region.LineColor, "stroke-width": 0.001});
+                                $(this).css({"stroke-width": 0.001});
                             });
                         })(item); 
                     }
                 });
               
-                $$("region_attributes").parse(regionAttr); 
+                $$("region_properties").parse(regionAttr); 
             },
             onItemClick: function(id){
                 item = this.getItem(id);
@@ -209,15 +204,22 @@ require(["d3", "viewer", "pubsub", "config", "svg", "jquery"], function(d3, view
                     attr.push({"key": key, "value":val});
                 });
 
-                $$("region_keyvalue").clearAll();
-                $$("region_keyvalue").parse(attr);
+                var overlayId = "region_overlay_" + item.AnnotationId + "_" + item.Id;
+                $("#"+overlayId).css({"stroke-width": 0.003});
+                $("#"+overlayId).animate({"stroke-width": 0.001}, 2000);
+                       
+                $$("region_properties").clearAll();
+                $$("region_properties").parse(attr);
+            },
+            onAfterLoad: function(){
+                this.openAll();
+                this.checkAll();
             }
         }
     };
 
     var fileList = {
         view: "list",
-        height: 200,
         id: "file_list",
         template: "#name#",
         select: true,
@@ -235,31 +237,20 @@ require(["d3", "viewer", "pubsub", "config", "svg", "jquery"], function(d3, view
     };
 
     var parameterList = {
-        view: "datatable",
-        width: "auto",
-        id: "region_keyvalue",
-        columns: [{
-            'id': "key"
-        }, {
-            'id': "value", fillspace:true
-        }],
-        autoConfig: true
-
-    };
-
-    var layoutROIInfo = {
-        view: "datatable",
-        width: "auto",
-        id: "region_attributes",
-        select: true,
-        columns: [
-            {id: "Id"}, 
-            {id: "AnnotationId", header: "Annotation ID"}, 
-            {id: "AreaMicrons", header: "Area Microns"}, 
-            {id: "LengthMicrons", header: "Length Microns"}, 
-            {id: "NegativeROA", header: "Negative ROA"}, 
-            {id: "Zoom", fillspace:true}
-        ]
+        header: "Properties",
+        collapsed: true,
+        body:{
+            id: "region_properties",
+            view: "datatable",
+            autoConfig: true,
+            columns: [{
+                id: "key",
+                header: "Property",
+                width: 150
+            }, {
+                id: "value", header: "Value", fillspace:true
+            }]
+        }
     };
 
     var aperioWindow = {
@@ -283,15 +274,9 @@ require(["d3", "viewer", "pubsub", "config", "svg", "jquery"], function(d3, view
                 click: "$$('aperio_window').hide();"
             }]
         },
-        height: 400,
-        width: 700,
-        body: {
-            rows: [{
-                    cols: [fileList, aperioXmlTree, parameterList]
-                },
-                layoutROIInfo
-            ]
-        }
+        height: 500,
+        width: 900,
+        body: {cols: [fileList, aperioXmlTree, parameterList]}
     };
 
     webix.ui(aperioWindow);
