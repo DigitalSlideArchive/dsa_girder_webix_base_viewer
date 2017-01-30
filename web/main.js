@@ -11,8 +11,8 @@ require = {
         "slide": "app/slide",
         "viewer": "app/viewer",
         "app": "app/app",
-        "aperio": "app/ui/plugins/aperio",
-        "filters": "app/ui/plugins/filters",
+        "aperio": "app/plugins/aperio",
+        "filters": "app/plugins/filters",
     },
 
     shim:{
