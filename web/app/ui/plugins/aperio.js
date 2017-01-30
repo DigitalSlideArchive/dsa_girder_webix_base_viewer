@@ -127,8 +127,39 @@ require(["d3", "viewer", "pubsub", "config", "svg", "jquery"], function(d3, view
     /*
     Start of the Aperio UI widget/window
      */
-    var aperioXmlTree = {
+    var aperioXmlTree = {rows:[
+        {view: "form",
+         height: 30,
+         margin: 0,
+         padding: 0,
+         elements:[{
+            cols:[
+                { view:"button", type:"icon", icon:"plus-square", tooltip:"Expand All", width: 35, click: 
+                    function(){
+                        $$("aperio_xml_tree").openAll();
+                    }
+                },
+                { view:"button", type:"icon", icon:"minus-square", tooltip:"Minimize All", width: 35, click: 
+                    function(){
+                        $$("aperio_xml_tree").closeAll();
+                    }
+                },
+                { view:"button", type:"icon", icon:"check-square", tooltip:"Select All", width: 35, click: 
+                    function(){
+                        $$("aperio_xml_tree").checkAll();
+                    }
+                },
+                { view:"button", type:"icon", icon:"square-o", tooltip:"Unselect All", width: 35, click: 
+                    function(){
+                        $$("aperio_xml_tree").uncheckAll();
+                    }
+                },
+            ]
+         }
+         ]},
+        {
         view:"tree",
+        width: 300,
         type:"lineTree",
         threeState: true,
         select: true,
@@ -216,6 +247,7 @@ require(["d3", "viewer", "pubsub", "config", "svg", "jquery"], function(d3, view
                 this.checkAll();
             }
         }
+        }]
     };
 
     var fileList = {
@@ -223,6 +255,7 @@ require(["d3", "viewer", "pubsub", "config", "svg", "jquery"], function(d3, view
         id: "file_list",
         template: "#name#",
         select: true,
+        width: 300,
         on: {
             onItemClick: function(id){
                 var item = this.getItem(id);
