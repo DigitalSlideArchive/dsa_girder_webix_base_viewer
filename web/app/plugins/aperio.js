@@ -299,10 +299,6 @@ require(["d3", "viewer", "pubsub", "config", "svg", "jquery"], function(d3, view
                 label: "Aperio Annotations"
             }, {
                 view: "icon",
-                icon: "question-circle",
-                click: "webix.message('About pressed')"
-            }, {
-                view: "icon",
                 icon: "times-circle",
                 click: "$$('aperio_window').hide();"
             }]

@@ -69,7 +69,7 @@ define("tcga/slidenav", ["config", "viewer", "pubsub", "slide", "jquery", "webix
                 $$("thumbnails").clearAll();
                 $$("thumbnails").load(url);
              
-                $.get(config.BASE_URL + "/tcga/case?cohort=" + item._id, function(resp){
+                $.get(config.BASE_URL + "/tcga/case?limit=2000&cohort=" + item._id, function(resp){
                     var cases = resp["data"]
                     var sFoldersMenu = $$("samples").getPopup().getList();
                     $$("samples").setValue();
