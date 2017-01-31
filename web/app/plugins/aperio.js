@@ -258,13 +258,10 @@ require(["d3", "viewer", "pubsub", "config", "svg", "jquery"], function(d3, view
         width: 300,
         on: {
             onItemClick: function(id){
-                var item = this.getItem(id);
-                var url = config.BASE_URL + "/item/" + item._id + "/files";
-                $.get(url, function(files){
-                    var url = config.BASE_URL + "/file/" + files[0]._id + "/download";
-                    clearAllButFiles();
-                    $$("aperio_xml_tree").load(url);
-                });
+                var aperio = this.getItem(id);
+                var url = config.BASE_URL + "/file/" + aperio.file._id + "/download";
+                clearAllButFiles();
+                $$("aperio_xml_tree").load(url);
             }
         }
     };
@@ -286,7 +283,7 @@ require(["d3", "viewer", "pubsub", "config", "svg", "jquery"], function(d3, view
         }
     };
 
-    var aperioWindow = {
+    var view = {
         view: "window",
         id: "aperio_window",
         move: true,
@@ -308,5 +305,5 @@ require(["d3", "viewer", "pubsub", "config", "svg", "jquery"], function(d3, view
         body: {cols: [fileList, aperioXmlTree, parameterList]}
     };
 
-    webix.ui(aperioWindow);
+    webix.ui(view);
 });

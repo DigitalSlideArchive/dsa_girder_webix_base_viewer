@@ -13,6 +13,7 @@ require = {
         "app": "app/app",
         "aperio": "app/plugins/aperio",
         "filters": "app/plugins/filters",
+        "pathology": "app/plugins/pathology",
     },
 
     shim:{
