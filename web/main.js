@@ -14,6 +14,7 @@ require = {
         "aperio": "app/plugins/aperio",
         "filters": "app/plugins/filters",
         "pathology": "app/plugins/pathology",
+        "metadata": "app/plugins/metadata",
     },
 
     shim:{
