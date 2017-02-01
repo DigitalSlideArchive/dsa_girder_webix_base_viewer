@@ -25,14 +25,16 @@ require(["pubsub", "config"], function(pubsub, config) {
     pubsub.subscribe("SLIDE", function(msg, slide) {
         var url = config.BASE_URL + "/tcga/pathology?case=" + slide.tcga.caseId;
         $$("pathology_window_btn").disable();
-        $.get(url, function(reports){
-            if(reports.data.length > 0){
-                var url = config.BASE_URL + "/file/" + reports[0].file._id + "/download";
-                var content = "<embed src='"+ url +"' width='100%' height='100%' pluginspage='http://www.adobe.com/products/acrobat/readstep2.html'>"
+        $.get(url, function(resp){
+            var reports = resp.data;
+            
+            if(reports.length > 0){
+                //var url = config.BASE_URL + "/file/" + reports[0].file._id + "/download";
+                //var content = "<embed src='"+ url +"' width='100%' height='100%' pluginspage='http://www.adobe.com/products/acrobat/readstep2.html'>"
                 
                 $$("pathology_window_btn").enable();
                 $$("report_list").parse(reports);
-                $$("pdfviewer").define("template", content);
+                //$$("pdfviewer").define("template", content);
             }
         })
     });
@@ -65,10 +67,11 @@ require(["pubsub", "config"], function(pubsub, config) {
                     on: {
                         onItemClick: function(id){
                             var report = this.getItem(id);
-                            var url = config.BASE_URL + "/file/" + report.file._id + "/download";
+                            var url = config.BASE_URL + "/file/" + report.file._id + "/download?contentDisposition=inline";
+                            
                             var content = "<embed src='"+ url +"' width='100%' height='100%' pluginspage='http://www.adobe.com/products/acrobat/readstep2.html'>"
                             $$("pdfviewer").define("template", content);
-                            $$('pathology_report_pdf').show(); 
+                            $$("pdfviewer").refresh();
                         }
                     }
                 },

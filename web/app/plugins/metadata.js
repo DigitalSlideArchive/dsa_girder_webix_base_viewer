@@ -1,5 +1,10 @@
 require(["pubsub", "config"], function(pubsub, config) {
 
+    /*
+    Declare some variables
+     */
+     var caseId = null;
+
      /*
     Update the toolbar: add the pathology button to the 
     main toolbar. This button allows the user to open
@@ -23,11 +28,17 @@ require(["pubsub", "config"], function(pubsub, config) {
     If no pathology files are found, disable the button!
     */
     pubsub.subscribe("SLIDE", function(msg, slide) {
+        caseId = slide.tcga.caseId;
         var url = config.BASE_URL + "/tcga/case/" + slide.tcga.caseId + "/metadata/tables";
-        $$("metadata_window_btn").disable();
+       
         $.get(url, function(tables){
             if(tables.length){
+                $$("metadata_tables").define("options", tables);
+                $$("metadata_tables").setValue(tables[0].id);
                 $$("metadata_window_btn").enable();
+            }
+            else{
+                $$("metadata_window_btn").disable();
             }
         })
     });
@@ -54,12 +65,11 @@ require(["pubsub", "config"], function(pubsub, config) {
                 {
                     view: "combo",
                     id: "metadata_tables",
+                    value: 1,
                     on: {
                         onChange: function(id){
-
                             var table = this.getPopup().getBody().getItem(id);
-                            var url = config.BASE_URL + "/tcga/" + slide.tcga.caseId + "/metadata/" + table;
-                            $$("metadata_table").clearAll();
+                            var url = config.BASE_URL + "/tcga/case/" + caseId + "/metadata/" + table.id;
 
                             $.get(url, function(resp){
                                 meta = []
@@ -67,7 +77,8 @@ require(["pubsub", "config"], function(pubsub, config) {
                                     meta.push({"key": key, "value": val});
                                 })
 
-                                $$("metadata_table").parse(meta);
+                                $$("metadata_list").clearAll();
+                                $$("metadata_list").parse(meta);
                             })
                         }
                     }
@@ -77,7 +88,7 @@ require(["pubsub", "config"], function(pubsub, config) {
                     width:800,
                     height:450,
                     select:"row",
-                    id: "metadata_table",
+                    id: "metadata_list",
                     columns:[
                         { id: "key", header: "Key", width: 250},
                         { id: "value", header: "Value", fillspace:true}
