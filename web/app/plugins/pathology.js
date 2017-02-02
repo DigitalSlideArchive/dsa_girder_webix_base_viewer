@@ -24,7 +24,6 @@ require(["pubsub", "config"], function(pubsub, config) {
     */
     pubsub.subscribe("SLIDE", function(msg, slide) {
         var url = config.BASE_URL + "/tcga/pathology?case=" + slide.tcga.caseId;
-        $$("pathology_window_btn").disable();
         $.get(url, function(resp){
             var reports = resp.data;
             
@@ -34,6 +33,9 @@ require(["pubsub", "config"], function(pubsub, config) {
                 reportList.clearAll();
                 reportList.parse(reports);
                 $$("report_list").setValue(reports[0].id);
+            }
+            else{
+                $$("pathology_window_btn").disable();
             }
         })
     });
@@ -69,7 +71,6 @@ require(["pubsub", "config"], function(pubsub, config) {
                         onChange: function(id){
                             var report = this.getPopup().getBody().getItem(id);
                             var url = config.BASE_URL + "/file/" + report.file._id + "/download?contentDisposition=inline";
-                            
                             var content = "<embed src='"+ url +"' width='100%' height='100%' pluginspage='http://www.adobe.com/products/acrobat/readstep2.html'>"
                             $$("pdfviewer").define("template", content);
                             $$("pdfviewer").refresh();
