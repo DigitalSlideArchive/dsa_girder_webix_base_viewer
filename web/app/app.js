@@ -31,6 +31,7 @@ define(["ui", "webix"], function(ui) {
     webix.ready(function() {
         ui.init();
 
-        require(["aperio", "filters", "pathology", "metadata"]);
+        require(["aperio", "filters"]);
+        //require(["aperio", "filters", "pathology", "metadata"]);
     });
 });

@@ -7,7 +7,7 @@ define("standard/slidenav", ["config", "viewer", "slide", "jquery", "webix"], fu
         template: "<div class='webix_strong'>#name#</div><img src='" + config.BASE_URL + "/item/#_id#/tiles/thumbnail'/>",
         pager: "item_pager",
         datatype: "json",
-        datafetch: 2,
+        datafetch: 5,
         type: {
             height: 170,
             width: 200
@@ -31,8 +31,8 @@ define("standard/slidenav", ["config", "viewer", "slide", "jquery", "webix"], fu
         id: "item_pager",
         template: "<center>{common.prev()}{common.page()}/#limit#{common.next()}(#count# slides)</center>",
         animate:true,
-        size:2,
-        group:3
+        size:5,
+        group:4
     };
 
     //dropdown for slide groups
