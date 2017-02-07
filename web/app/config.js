@@ -17,11 +17,11 @@ define("config", function() {
     var COLLECTION_NAME = "ADRC";
 
     //which endpoints do we wanna use? TCGA or Girder default endpoints
-    ENDPOINTS = "standard";
+    ENDPOINTS = "tcga";
 
     //Specify the BASE API URL
-    var BASE_URL = "http://candygram.neurology.emory.edu:8080/api/v1";
-    //var BASE_URL = "https://girder.neuro.emory.edu:443/api/v1";
+    //var BASE_URL = "http://candygram.neurology.emory.edu:8080/api/v1";
+    var BASE_URL = "https://girder.neuro.emory.edu:443/api/v1";
     
     return {
         BASE_URL: BASE_URL,
