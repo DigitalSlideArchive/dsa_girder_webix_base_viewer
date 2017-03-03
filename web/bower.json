@@ -23,6 +23,9 @@
     "install": "^1.0.4",
     "PubSubJS": "pubsub-js#^1.5.4",
     "svg-overlay": "*",
-    "d3": "^4.4.4"
+    "d3": "^4.4.4",
+    "crossroads": "^0.12.2",
+    "hasher": "^1.2.0",
+    "js-signals": "^1.0.0"
   }
 }
