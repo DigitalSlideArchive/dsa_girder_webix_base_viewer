@@ -27,11 +27,11 @@ are looking for, then go to the module and add the variable
 you want to return to the return object 
 */
 
-define(["ui", "routes", "webix"], function(ui, routes) {
+define(["ui", "webix"], function(ui) {
     webix.ready(function() {
         ui.init();
 
-        require(["aperio", "filters"]);
+        require(["routes", "aperio", "filters"]);
         //require(["aperio", "filters", "pathology", "metadata"]);
     });
 });

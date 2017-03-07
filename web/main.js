@@ -22,7 +22,7 @@ require = {
     },
 
     shim:{
-        "svg": ["osd"]    
+        "svg": ["osd"]
     },
 
     packages: [
