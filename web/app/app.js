@@ -27,11 +27,16 @@ are looking for, then go to the module and add the variable
 you want to return to the return object 
 */
 
-define(["ui", "webix"], function(ui) {
+define(["ui", "config", "webix"], function(ui, config) {
     webix.ready(function() {
         ui.init();
 
-        require(["routes", "aperio", "filters"]);
-        //require(["aperio", "filters", "pathology", "metadata"]);
+        webix.extend($$("viewer_panel"), webix.ProgressBar);
+        webix.extend($$("viewer_panel"), webix.OverlayBox);
+
+        if(config.ENDPOINTS == "standard")
+        	require(["routes", "aperio", "filters"]);
+       	else
+        	require(["routes", "aperio", "filters", "pathology", "metadata"]);
     });
 });

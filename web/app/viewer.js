@@ -11,7 +11,7 @@ Return:
 	- viewer - Openseadragon viewer object
  */
 
-define("viewer", ["osd"], function(osd) {
+define("viewer", ["osd", "pubsub"], function(osd, pubsub) {
 
     var viewer = osd({
         id: 'image_viewer',
