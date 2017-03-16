@@ -15,7 +15,7 @@ require(["d3", "viewer", "pubsub", "config", "svg", "jquery"], function(d3, view
         label: "Aperio Annotations",
         view: "button",
         disabled: true,
-        click: ("$$('aperio_window').show();")
+        click: onWindowOpen
     });
 
     /*
@@ -46,12 +46,29 @@ require(["d3", "viewer", "pubsub", "config", "svg", "jquery"], function(d3, view
     webix.DataDriver.AperioXML = webix.extend({
         records:"/*/Annotation",
         child:function(obj){
+            if(obj.$level == 1 && obj.ReadOnly == "1")
+                return;
             if(obj.$level == 1)
                 return obj.Regions;
             if(obj.$level == 2)
                 return obj.Region;
         }
     }, webix.DataDriver.xml);
+
+    /*
+    onWindowOpen()
+        Actions that should be taken when the user clicks the slide Aperio button
+        - Show the window
+        - Select the first Aperio file
+        - Load the Aperio XML tree and display the annotations
+     */
+    function onWindowOpen(){
+        $$('aperio_window').show();
+        var aperio = $$("file_list").getItem($$("file_list").getFirstId());
+        var url = config.BASE_URL + "/file/" + aperio.file._id + "/download";
+        $$("file_list").select($$("file_list").getFirstId())
+        $$("aperio_xml_tree").load(url);
+    }
 
     /*
     clearAll()
@@ -84,7 +101,10 @@ require(["d3", "viewer", "pubsub", "config", "svg", "jquery"], function(d3, view
     transformVertices()
         Map the Aperio coordinates to Openseadragon
         coordinate system
-
+        type 0: polygon
+        type 1: rectangle
+        type 2: circle/ellipse
+        
         Arguments:
             array - vertices
             int - imageWidth
@@ -167,24 +187,33 @@ require(["d3", "viewer", "pubsub", "config", "svg", "jquery"], function(d3, view
         id: "aperio_xml_tree",
         url: "http://digitalslidearchive.emory.edu/v1/aperio/home/mkhali8/test.xml",
         template:function(obj, common){
-           var icons = common.icon(obj, common) + common.checkbox(obj, common) + common.folder(obj, common);
-           var text = "";
+            var icons = common.icon(obj, common) + common.checkbox(obj, common) + common.folder(obj, common);
+            var text = "";
+            var readOnly = "1";
 
             if(obj.$level == 1){
                 text = "Annotation " + obj.Id;
+                readOnly = obj.ReadOnly;
             }
             if(obj.$level == 2){
                 var allheader = [];
                 for(var i = 0; i<obj.RegionAttributeHeaders.AttributeHeader.length; i++)
                     allheader.push(obj.RegionAttributeHeaders.AttributeHeader[i].Name);
                 text = "Regions";
+                readOnly = $$("aperio_xml_tree").getItem(obj.$parent).ReadOnly;
             }
             if(obj.$level == 3){
                 text = "Region " + obj.Id;
-                obj.Coords = transformVertices(obj.Vertices.Vertex, imageWidth);
+                readOnly = $$("aperio_xml_tree").getItem($$("aperio_xml_tree").getItem(obj.$parent).$parent).ReadOnly;
+
+                if(readOnly == "0")
+                    obj.Coords = transformVertices(obj.Vertices.Vertex, imageWidth);
             }
 
-            return icons + text;
+            if(readOnly == "0")
+                return icons + text;
+
+            return "";
         },
         on:{
             onItemCheck: function(){

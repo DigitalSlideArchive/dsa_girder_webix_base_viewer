@@ -17,7 +17,7 @@ Return:
 define("ui/main", ["standard", "tcga", "config"], function(standard, tcga, config) {
 
     function init(){
-        switch(config.ENDPOINTS){
+        switch(config.UI){
             case "standard":
                 standard.init();
                 break;
@@ -25,7 +25,7 @@ define("ui/main", ["standard", "tcga", "config"], function(standard, tcga, confi
                 tcga.init();
                 break;
             default:
-                console.error("Invalid configuration: " + config.ENDPOINTS + " UI not found");
+                console.error("Invalid configuration: " + config.UI + " UI not found");
         }
     }
    

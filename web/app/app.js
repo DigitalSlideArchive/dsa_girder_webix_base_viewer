@@ -34,7 +34,7 @@ define(["ui", "config", "webix"], function(ui, config) {
         webix.extend($$("viewer_panel"), webix.ProgressBar);
         webix.extend($$("viewer_panel"), webix.OverlayBox);
 
-        if(config.ENDPOINTS == "standard")
+        if(config.UI == "standard")
         	require(["routes", "aperio", "filters"]);
        	else
         	require(["routes", "aperio", "filters", "pathology", "metadata"]);

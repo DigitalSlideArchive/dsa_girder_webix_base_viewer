@@ -2,7 +2,7 @@ define("slide", ["viewer", "config", "pubsub"], function(viewer, config, pubsub)
 
 	function init(item){
 		$.extend(this, item);
-
+		
        	$.ajax({
        		context: this,
        		url: config.BASE_URL + "/item/" + this._id + "/tiles",
@@ -10,7 +10,7 @@ define("slide", ["viewer", "config", "pubsub"], function(viewer, config, pubsub)
 				this.tiles = tiles;
 				itemId = this._id;
 	            pubsub.publish("SLIDE", this);
-	         
+	
 	   			tileSource = {
 	            	width: tiles.sizeX,
 	                height: tiles.sizeY,
