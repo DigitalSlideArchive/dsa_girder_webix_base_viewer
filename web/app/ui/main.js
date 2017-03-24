@@ -27,6 +27,10 @@ define("ui/main", ["standard", "tcga", "config"], function(standard, tcga, confi
             default:
                 console.error("Invalid configuration: " + config.UI + " UI not found");
         }
+
+        webix.event(window, 'resize', function(){
+            $$("root").resize();
+        });
     }
    
     return {

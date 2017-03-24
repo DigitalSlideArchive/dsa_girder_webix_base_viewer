@@ -35,7 +35,7 @@ define(["ui", "config", "webix"], function(ui, config) {
         webix.extend($$("viewer_panel"), webix.OverlayBox);
 
         if(config.UI == "standard")
-        	require(["routes", "aperio", "filters"]);
+        	require(["routes", "aperio", "filters", "annotations"]);
        	else
         	require(["routes", "aperio", "filters", "pathology", "metadata"]);
     });

@@ -1,6 +1,8 @@
 require = {
     urlArgs: "bust=" + (+new Date),
     paths: {
+        "fabric": "bower_components/fabric.js/dist/fabric.min",
+        "osdfabric": "bower_components/OpenseadragonFabricjsOverlay/openseadragon-fabricjs-overlay",
         "hasher": "bower_components/hasher/dist/js/hasher.min",
         "signals": "bower_components/js-signals/dist/signals.min",
         "crossroads": "bower_components/crossroads/dist/crossroads.min",
@@ -19,9 +21,10 @@ require = {
         "filters": "app/plugins/filters",
         "pathology": "app/plugins/pathology",
         "metadata": "app/plugins/metadata",
+        "annotations": "app/plugins/annotations"
     },
 
-    shim:{
+    shims:{
         "svg": ["osd"]
     },
 

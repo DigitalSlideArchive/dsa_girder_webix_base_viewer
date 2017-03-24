@@ -1,5 +1,5 @@
-require(["d3", "viewer", "pubsub", "config", "svg", "jquery"], function(d3, viewer, pubsub, config, svg, $) {
-
+require(["d3", "viewer", "pubsub", "config", "svg", "jquery", "fabric"], function(d3, viewer, pubsub, config, svg, $) {
+    
      /*
     Let us declare some variables for this module
      */
@@ -46,8 +46,6 @@ require(["d3", "viewer", "pubsub", "config", "svg", "jquery"], function(d3, view
     webix.DataDriver.AperioXML = webix.extend({
         records:"/*/Annotation",
         child:function(obj){
-            if(obj.$level == 1 && obj.ReadOnly == "1")
-                return;
             if(obj.$level == 1)
                 return obj.Regions;
             if(obj.$level == 2)
@@ -101,9 +99,6 @@ require(["d3", "viewer", "pubsub", "config", "svg", "jquery"], function(d3, view
     transformVertices()
         Map the Aperio coordinates to Openseadragon
         coordinate system
-        type 0: polygon
-        type 1: rectangle
-        type 2: circle/ellipse
         
         Arguments:
             array - vertices
@@ -121,7 +116,7 @@ require(["d3", "viewer", "pubsub", "config", "svg", "jquery"], function(d3, view
             coordinates.push(x + "," + y);
         });
 
-        return coordinates.join(" ")
+        return coordinates.join(" ");
     }
 
     /*
@@ -234,16 +229,30 @@ require(["d3", "viewer", "pubsub", "config", "svg", "jquery"], function(d3, view
                         var overlayId = "region_overlay_" + item.AnnotationId + "_" + item.Id;
                         var overlayClass = "annotation_overlay";
 
-                        d3.select(viewer.svgOverlay().node()).append("polygon")
-                          .attr("points",item.Coords)
-                          .style('fill', "white")
-                          .style('fill-opacity', 0)
-                          .attr('opacity', 1)
-                          .attr('class', overlayClass)
-                          .attr('id', overlayId)
-                          .attr('stroke', item.LineColor)
-                          .attr('stroke-width', 0.001);
-                      
+                        //type 2: circle/ellipse
+                        if(item.Type == "2"){
+                            coords = item.Coords.split(/[\s,]/);
+                            x1 = parseFloat(coords[0]), y1 = parseFloat(coords[1]), x2 = parseFloat(coords[2]), y2 = parseFloat(coords[3]);
+                            shape = d3.select(viewer.svgOverlay().node()).append("ellipse")
+                                        .attr("cx", (x1 + x2)/2)                //center x coordinate
+                                        .attr("cy", (y1 + y2)/2)                //center y coordinate
+                                        .attr("rx", Math.abs(x1 - x2))          //horizontal radius
+                                        .attr("ry", Math.abs(y1 - y2));         //vertical radius
+                        }
+                        //else assume type 0: polygon
+                        else{
+                            shape = d3.select(viewer.svgOverlay().node()).append("polygon")
+                              .attr("points",item.Coords);
+                        }
+
+                        shape.style('fill', "white")
+                              .style('fill-opacity', 0)
+                              .attr('opacity', 1)
+                              .attr('class', overlayClass)
+                              .attr('id', overlayId)
+                              .attr('stroke', item.LineColor)
+                              .attr('stroke-width', 0.001);
+
                         //set whatever handler for each region
                         (function(region){
                             $("#"+overlayId).hover(function(){
