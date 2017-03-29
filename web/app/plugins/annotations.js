@@ -1,12 +1,10 @@
 require(["viewer", "osdfabric", "fabric"], function(viewer, osdfabric) {
 
-     viewer.setControlsEnabled(false);
-        viewer.setMouseNavEnabled(false);
     var overlay = viewer.fabricjsOverlay(); 
     var canvas = overlay.fabricCanvas(); 
-    var annotationMode = false;
-    selectionOff();
-
+    console.log(canvas)
+    var drawing = null;
+    
     var tools = {
         height: 25,
         cols:[
@@ -18,9 +16,9 @@ require(["viewer", "osdfabric", "fabric"], function(viewer, osdfabric) {
                 label: "<span class='webix_icon fa-icon fa-circle-o'>",
                 on: {
                     onItemClick: function() {
-                        annotationMode = true;
+                        drawing = "ellipse";
                         selectionOff();
-                        drawEllipse();
+                        drawOn();
                     }
                 }
             },
@@ -32,9 +30,9 @@ require(["viewer", "osdfabric", "fabric"], function(viewer, osdfabric) {
                 label: "<span class='webix_icon fa-icon fa-square-o'>",
                 on: {
                     onItemClick: function() {
-                        annotationMode = true;
+                        drawing = "rect";
                         selectionOff();
-                        drawRectangle();
+                        drawOn();
                     }
                 }
             },
@@ -46,7 +44,7 @@ require(["viewer", "osdfabric", "fabric"], function(viewer, osdfabric) {
                 label: "<span class='webix_icon fa-icon fa-map-marker'>",
                 on: {
                     onItemClick: function() {
-                       annotationMode = true;
+                       
                     }
                 }
             },
@@ -58,7 +56,8 @@ require(["viewer", "osdfabric", "fabric"], function(viewer, osdfabric) {
                 label: "<span class='webix_icon fa-icon fa-check'>",
                 on: {
                     onItemClick: function() {
-                        annotationMode = false;
+                        drawing = null;
+                        drawOff();
                         selectionOn();
                     }
                 }
@@ -71,9 +70,24 @@ require(["viewer", "osdfabric", "fabric"], function(viewer, osdfabric) {
                 label: "<span class='webix_icon fa-icon fa-trash-o'>",
                 on: {
                     onItemClick: function() {
-                        annotationMode = false;
                        deleteSelected();
                     }
+                }
+            },
+            { 
+                view:"toggle", 
+                width: 100,
+                offLabel:"Drawing On", 
+                onLabel:"Drawing Off",
+                value: true,
+                click: function(){
+                   if(this.data.value){
+                        drawOn();
+                   }
+                   else{
+                    selectionOff()
+                        drawOff();
+                   }
                 }
             },
             {}
@@ -81,21 +95,105 @@ require(["viewer", "osdfabric", "fabric"], function(viewer, osdfabric) {
         ]
     };
 
-    function selectionOn(){
-        //canvas.isDrawingMode = false;
-        canvas.selection = true;
+    function drawOff(){
+        viewer.setControlsEnabled(true);
+        viewer.setMouseNavEnabled(true);
         canvas.off('mouse:down');
         canvas.off('mouse:move');
         canvas.off('mouse:up');
+    }
+
+    function drawOn(){
+        drawOff();
+        console.log("enable drawing")
+        viewer.setControlsEnabled(false);
+        viewer.setMouseNavEnabled(false);
+
+        var shape, isDown, origin;
+        console.log(canvas)
+        canvas.on('mouse:down', function(o){
+            console.log("mouse:down")
+            isDown = true;
+            origin = canvas.getPointer(o.e);
+
+            if(drawing == "rect"){
+                var pointer = canvas.getPointer(o.e);
+                shape = new fabric.Rect({
+                    left: origin.x,
+                    top: origin.y,
+                    originX: 'left',
+                    originY: 'top',
+                    width: pointer.x-origin.x,
+                    height: pointer.y-origin.y,
+                    fill: 'rgba(0,0,0,0)',
+                    stroke: 'red',
+                    strokeWidth: 10,
+                    angle: 0
+                });
+            }
+            else if(drawing == "ellipse"){
+                var pointer = canvas.getPointer(o.e);
+                shape = new fabric.Ellipse({
+                    left: pointer.x,
+                    top: pointer.y,
+                    fill: 'rgba(0,0,0,0)',
+                    stroke: 'blue',
+                    strokeWidth: 10,
+                    selectable: true,
+                    originX: 'center', originY: 'center',
+                    rx: 5,
+                    ry: 1
+                });
+            }
+            else{
+                return;
+            }
+
+            canvas.add(shape);
+        });
+
+        canvas.on('mouse:move', function(o){
+            if (!isDown) return;
+
+            var pointer = canvas.getPointer(o.e);
+
+            if(drawing == "rect"){
+                if(origin.x>pointer.x){
+                     shape.set({ left: Math.abs(pointer.x) });
+                }
+                if(origin.y>pointer.y){
+                     shape.set({ top: Math.abs(pointer.y) });
+                }
+
+                shape.set({ width: Math.abs(origin.x - pointer.x) });
+                shape.set({ height: Math.abs(origin.y - pointer.y) });
+            }
+
+            if(drawing == "ellipse"){
+                shape.set({ rx: Math.abs(origin.x - pointer.x),ry:Math.abs(origin.y - pointer.y) });
+            }
+
+            canvas.renderAll();
+        });
+
+        canvas.on('mouse:up', function(o){
+           isDown = false;
+        });
+    }
+
+    function selectionOn(){
+        //canvas.isDrawingMode = false;
+        viewer.setControlsEnabled(false);
+        viewer.setMouseNavEnabled(false);
+        canvas.selection = true;
         canvas.forEachObject(function(o){ o.setCoords() })
     }
 
     function selectionOff(){
         //canvas.isDrawingMode = true;
+        viewer.setControlsEnabled(true);
+        viewer.setMouseNavEnabled(true);
         canvas.selection = false;
-        canvas.on('mouse:down');
-        canvas.on('mouse:move');
-        canvas.on('mouse:up');
         canvas.forEachObject(function(o){ o.setCoords() })
     }
 
@@ -134,56 +232,58 @@ require(["viewer", "osdfabric", "fabric"], function(viewer, osdfabric) {
     }
 
     function drawEllipse(){
-        var ellip, iseDown, eorigin;
-
-        canvas.observe('mouse:down', function(o){
-        iseDown = true;
-        var pointer = canvas.getPointer(o.e);
-        eorigin = canvas.getPointer(o.e);
-        ellip = new fabric.Ellipse({
-            left: pointer.x,
-            top: pointer.y,
-            strokeWidth: 1,
-            stroke: 'black',
-            fill: 'white',
-            selectable: true,
-            originX: 'center', originY: 'center',
-             rx: 5,
-            ry: 1
-          });
-          canvas.add(ellip);
+        var ellipse, isDown, origin;
+        console.log(canvas)
+        canvas.on('mouse:down', function(o){
+            if(drawing != "ellipse") return;
+            isDown = true;
+            var pointer = canvas.getPointer(o.e);
+            origin = canvas.getPointer(o.e);
+            ellipse = new fabric.Ellipse({
+                left: pointer.x,
+                top: pointer.y,
+                fill: 'rgba(0,0,0,0)',
+                stroke: 'blue',
+                strokeWidth: 10,
+                selectable: true,
+                originX: 'center', originY: 'center',
+                rx: 5,
+                ry: 1
+            });
+            canvas.add(ellipse);
         });
 
         canvas.observe('mouse:move', function(o){
-          if (!iseDown) return;
+          if (!isDown) return;
           var pointer = canvas.getPointer(o.e);
-          ellip.set({ rx: Math.abs(eorigin.x - pointer.x),ry:Math.abs(eorigin.y - pointer.y) });
+          ellipse.set({ rx: Math.abs(origin.x - pointer.x),ry:Math.abs(origin.y - pointer.y) });
           canvas.renderAll();
         });
 
         canvas.on('mouse:up', function(o){
-          iseDown = false;
+          isDown = false;
         });
     }
 
     function drawRectangle(){
-        var rect, isDown, rorigin;
-
+        var rect, isDown, origin;
+        
         canvas.on('mouse:down', function(o){
-            console.log("draw rect")
+            if(drawing != "rect") return;
             isDown = true;
-            rorigin = canvas.getPointer(o.e);
+            origin = canvas.getPointer(o.e);
             var pointer = canvas.getPointer(o.e);
             rect = new fabric.Rect({
-                left: rorigin.x,
-                top: rorigin.y,
+                left: origin.x,
+                top: origin.y,
                 originX: 'left',
                 originY: 'top',
-                width: pointer.x-rorigin.x,
-                height: pointer.y-rorigin.y,
-                angle: 0,
-                fill: 'rgba(255,0,0,0.2)',
-                transparentCorners: false
+                width: pointer.x-origin.x,
+                height: pointer.y-origin.y,
+                fill: 'rgba(0,0,0,0)',
+                stroke: 'red',
+                strokeWidth: 10,
+                angle: 0
             });
             canvas.add(rect);
         });
@@ -192,15 +292,15 @@ require(["viewer", "osdfabric", "fabric"], function(viewer, osdfabric) {
             if (!isDown) return;
             var pointer = canvas.getPointer(o.e);
 
-            if(rorigin.x>pointer.x){
+            if(origin.x>pointer.x){
                 rect.set({ left: Math.abs(pointer.x) });
             }
-            if(rorigin.y>pointer.y){
+            if(origin.y>pointer.y){
                 rect.set({ top: Math.abs(pointer.y) });
             }
 
-            rect.set({ width: Math.abs(rorigin.x - pointer.x) });
-            rect.set({ height: Math.abs(rorigin.y - pointer.y) });
+            rect.set({ width: Math.abs(origin.x - pointer.x) });
+            rect.set({ height: Math.abs(origin.y - pointer.y) });
 
             canvas.renderAll();
         });
