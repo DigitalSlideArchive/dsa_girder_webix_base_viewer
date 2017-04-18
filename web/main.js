@@ -9,6 +9,7 @@ require = {
         "d3": "bower_components/d3/d3.min",
         "svg": "bower_components/svg-overlay/openseadragon-svg-overlay",
         "osd": "bower_components/openseadragon/built-openseadragon/openseadragon/openseadragon.min",
+        "geo": "bower_components/geojs/geo",
         "webix": "bower_components/webix/codebase/webix",
         "jquery": "bower_components/jquery/dist/jquery.min",
         "pubsub": "bower_components/PubSubJS/src/pubsub",

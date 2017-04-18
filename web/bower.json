@@ -27,6 +27,10 @@
     "crossroads": "^0.12.2",
     "hasher": "^1.2.0",
     "js-signals": "^1.0.0",
-    "fabric.js": "fabric#^1.7.8"
+    "fabric.js": "fabric#^1.7.8",
+    "geojs": "^0.11.1"
+  },
+  "resolutions": {
+    "d3": "^4.4.4"
   }
 }
