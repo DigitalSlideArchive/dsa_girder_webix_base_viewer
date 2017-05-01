@@ -12,8 +12,7 @@ var tools = {
                 label: "<span class='webix_icon fa-icon fa-circle-o'>",
                 on: {
                     onItemClick: function() {
-                        draw('rectangle');
-                        console.log("draw rect")
+                        draw('polygon');
                     }
                 }
             },
@@ -37,7 +36,7 @@ var tools = {
                 label: "<span class='webix_icon fa-icon fa-map-marker'>",
                 on: {
                     onItemClick: function() {
-                       draw('rectangle');
+                       draw('point');
                     }
                 }
             },
