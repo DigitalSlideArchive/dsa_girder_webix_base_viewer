@@ -1,4 +1,4 @@
-require(["viewer", "slide", "geo"], function(viewer, slide, geo) {
+require(["viewer", "slide", "geo", "pubsub"], function(viewer, slide, geo, pubsub) {
 
     
 var tools = {
@@ -47,6 +47,9 @@ var tools = {
     };
 $$("viewer_root").addView(tools, 1);
 
+var layer, map;
+
+pubsub.subscribe("SLIDE", function(msg, slide) {
 // initialize the geojs viewer
 const params = geo.util.pixelCoordinateParams('#geojs', slide.tiles.sizeX, slide.tiles.sizeY, slide.tiles.tileWidth, slide.tiles.tileHeight);
 
@@ -54,11 +57,19 @@ const params = geo.util.pixelCoordinateParams('#geojs', slide.tiles.sizeX, slide
 params.map.clampZoom = false;
 params.map.clampBoundsX = false;
 params.map.clampBoundsY = false;
-var map = geo.map(params.map);
-var layer = map.createLayer('annotation');
+map = geo.map(params.map);
+layer = map.createLayer('annotation');
 
 // turn off geojs map navigation
-map.interactor().options({ actions: [] });
+map.interactor().options({ actions: [] });   
+
+// add handlers to tie navigation events together
+viewer.addHandler('open', setBounds);
+viewer.addHandler('animation', setBounds);   
+
+map.geoOn(geo.event.annotation.state, created);  
+});
+
 
 // get the current bounds from the osd viewer
 function getBounds() {
@@ -76,9 +87,7 @@ function setBounds() {
     });
 }
 
-// add handlers to tie navigation events together
-viewer.addHandler('open', setBounds);
-viewer.addHandler('animation', setBounds);
+
 
 // add a handler for when an annotation is created
 function created(evt) {
@@ -87,7 +96,7 @@ function created(evt) {
     // write out the annotation definition
     console.log(evt.annotation.features()[0]);
 }
-map.geoOn(geo.event.annotation.state, created);
+
 
 // add handlers for drawing annotations
 function draw(type) {

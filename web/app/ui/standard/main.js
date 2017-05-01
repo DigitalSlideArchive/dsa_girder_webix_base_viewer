@@ -25,7 +25,7 @@ define("standard/main", ["standard/slidenav", "common/toolbar", "common/header",
                 {
                     id: "viewer_panel",
                     view: "template",
-                    content: "image_viewer"
+                    content: "geo_osd"
                 }
             ]
         };
