@@ -37,6 +37,6 @@ define(["ui", "config", "webix"], function(ui, config) {
         if(config.UI == "standard")
         	require(["routes", "aperio", "filters", "annotations"]);
        	else
-        	require(["routes", "aperio", "filters", "pathology", "metadata"]);
+        	require(["routes", "aperio", "filters", "pathology", "metadata", "login"]);
     });
 });

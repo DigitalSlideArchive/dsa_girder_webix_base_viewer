@@ -22,11 +22,14 @@ require = {
         "filters": "app/plugins/filters",
         "pathology": "app/plugins/pathology",
         "metadata": "app/plugins/metadata",
-        "annotations": "app/plugins/annotations"
+        "annotations": "app/plugins/annotations",
+        "login": "app/login",
+        "session": "app/session"
     },
 
     shims:{
-        "svg": ["osd"]
+        "svg": ["osd"],
+        "common": ["login"]
     },
 
     packages: [
