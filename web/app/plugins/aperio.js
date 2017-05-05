@@ -1,10 +1,10 @@
-require(["d3", "viewer", "pubsub", "config", "svg", "jquery", "fabric"], function(d3, viewer, pubsub, config, svg, $) {
+require(["d3", "viewer", "pubsub", "config", "svg", "jquery", "session", "fabric"], function(d3, viewer, pubsub, config, svg, $, session) {
     
      /*
     Let us declare some variables for this module
      */
     var imageWidth = null;
-    
+
     /*
     Update the toolbar: add the aperio button to the 
     main toolbar. This button allows the user to open
@@ -32,7 +32,7 @@ require(["d3", "viewer", "pubsub", "config", "svg", "jquery", "fabric"], functio
         clearAll();
         $.get(config.BASE_URL + "/item/" + slide._id + "/aperio", function(aperio){
             $$("aperio_window_btn").disable();
-            if(aperio.length){
+            if(aperio.length && session.valid()){
                 $$("aperio_window_btn").enable();
                 $$("file_list").parse(aperio);
             }

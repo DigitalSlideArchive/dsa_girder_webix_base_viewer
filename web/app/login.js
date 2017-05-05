@@ -1,4 +1,4 @@
-define("login", ["config", "jquery", "session"], function(config, $, session) {
+define("login", ["config", "jquery", "session", "webix"], function(config, $, session) {
 
     webix.ui({
         view:"window",
@@ -31,7 +31,7 @@ define("login", ["config", "jquery", "session"], function(config, $, session) {
             success: function(resp){
                 session.create(resp);
                 $$('login_window').hide();
-                $$('header_menu').updateItem("login_btn", {value:"Logout"})
+                $$('header_menu').updateItem("login_btn", {value:"Logout (" + session.username() + ")"})
             },
             error: function(){
                 console.log("login fail")

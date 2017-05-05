@@ -1,6 +1,7 @@
-define("session", ["config", "jquery"], function(config, $) {
+define("session", ["config", "jquery", "pubsub"], function(config, $, pubsub) {
 
     var user = null;
+    load();
 
     function create(token){
         window.localStorage.setItem("Girder-Token", JSON.stringify(token));
@@ -10,7 +11,7 @@ define("session", ["config", "jquery"], function(config, $) {
    function load(){
         var tmp = window.localStorage.getItem("Girder-Token");
         if(tmp){
-            user = JSON.parse(tmp)
+            user = JSON.parse(tmp);
             return user;
         }
 

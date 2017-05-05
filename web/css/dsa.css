@@ -2,6 +2,7 @@ html, body{
     height: 100%;
     padding: 0px;
     margin: 0px;
+    overflow-y: hidden;
 }
 
 .webix_layout_toolbar.toolbar {
@@ -13,7 +14,8 @@ html, body{
 .webix_menu-x.menu  .webix_list_item{
   	background: #fdfdfd;
   	color:#666;
-  	line-height:50px;
+  	line-height:10px;
+    font-size:10px;
 }
   
 .webix_menu-x.menu .webix_list_item:hover{
