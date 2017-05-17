@@ -23,6 +23,7 @@ require = {
         "pathology": "app/plugins/pathology",
         "metadata": "app/plugins/metadata",
         "annotations": "app/plugins/annotations",
+        "derm": "app/plugins/derm",
         "login": "app/login",
         "session": "app/session"
     },

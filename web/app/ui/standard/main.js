@@ -36,7 +36,8 @@ define("standard/main", ["standard/slidenav", "common/toolbar", "common/header",
             container: "main_layout",
             id: "root",
             rows: [
-                header, {
+                header, 
+                {   id: "layout_body",
                     cols: [
                         slidenav, {
                             view: "resizer"
