@@ -22,6 +22,7 @@ define("login", ["config", "jquery", "session", "webix"], function(config, $, se
     });
 
     function login(){
+       console.log($$('username').getValue(), $$('password').getValue())
         $.ajax({
             url: config.BASE_URL + "/user/authentication",
             method: "GET",
@@ -29,9 +30,11 @@ define("login", ["config", "jquery", "session", "webix"], function(config, $, se
                 Authorization: "Basic " + btoa($$('username').getValue() + ":" + $$('password').getValue())
             },
             success: function(resp){
+                session.destroy();
                 session.create(resp);
                 $$('login_window').hide();
                 $$('header_menu').updateItem("login_btn", {value:"Logout (" + session.username() + ")"})
+                window.location.reload(true);
             },
             error: function(){
                 console.log("login fail")
@@ -42,6 +45,7 @@ define("login", ["config", "jquery", "session", "webix"], function(config, $, se
     function logout(){
         session.destroy();
         $$('header_menu').updateItem("login_btn", {value:"Login"})
+        window.location.reload(true);
     }
 
     return{

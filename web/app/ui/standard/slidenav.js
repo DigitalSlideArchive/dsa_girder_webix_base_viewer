@@ -64,6 +64,7 @@ define("standard/slidenav", ["config", "viewer", "slide", "jquery", "webix"], fu
                 }).then(function(folders){
                     var foldersMenu = $$("slideset").getPopup().getList();
                     foldersMenu.clearAll();
+                    folders = shuffle(folders);
                     foldersMenu.parse(folders);
                     $$("slideset").setValue(folders[0].id);
                     return $.get(config.BASE_URL + "/folder?parentType=folder&parentId=" + folders[0]._id);
@@ -96,7 +97,11 @@ define("standard/slidenav", ["config", "viewer", "slide", "jquery", "webix"], fu
                 var thumbs = $$("thumbnails");
                 var url = config.BASE_URL + "/item?folderId=" + item._id;
                 thumbs.clearAll();
-                thumbs.load(url);
+
+                $.get(config.BASE_URL + "/item?folderId=" + item._id, function(data){
+                    thumbs.parse(data);
+                })
+                //thumbs.load(url);
             }
         }
     };
@@ -137,6 +142,23 @@ define("standard/slidenav", ["config", "viewer", "slide", "jquery", "webix"], fu
         width: 220
     };
 
+    function shuffle(arra1) {
+        var ctr = arra1.length, temp, index;
+
+        // While there are elements in the array
+            while (ctr > 0) {
+        // Pick a random index
+                index = Math.floor(Math.random() * ctr);
+        // Decrease ctr by 1
+                ctr--;
+        // And swap the last element with it
+                temp = arra1[ctr];
+                arra1[ctr] = arra1[index];
+                arra1[index] = temp;
+            }
+
+        return arra1;
+    }
 
     return slidesPanel;
 });

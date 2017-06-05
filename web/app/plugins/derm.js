@@ -1,11 +1,46 @@
-require(["pubsub", "session", "config"], function(pubsub, session, config) {
+require(["pubsub", "session", "config", "jquery"], function(pubsub, session, config, $) {
 
+	var currentCaseId = null;
+	var count = 0;
 	var max_time = 2*60;
 	var minutes = max_time/60;
 	var seconds = 0;
-	var timer;
+	var timer = null;
+	var slide = null;
+	var stain_count = 1;
+	var stain_fields = [
+		{ template:"Stain #1", type:"section"},
+		{view: "label", label: "Stain:"},
+		{
+			view: "combo", 
+			index: stain_count,
+			name: "stain1.type", 
+			options: ["CD31", "CD34", "ERG", "CD3", "CD4", "CD5", "CD8", "CD20", "CD45", "CD56", "BCL2", "BCL6", "CD10", "Cyclin D1", "MUM1", "S100", "SOX10", "MITF", "MELAN-A", "HHV8", "Congo Red", "Spirochete", "PAS", "GMS", "Mucicarmine", "AFB", "CK7", "CK20", "AE1/AE3", "Other"],
+			on:{
+				onChange: function(stain){
+					var key = "stain"+ this.data.index +"_type_other";
+					if(stain == "Other"){
+						$$(key).show();
+					}
+					else{
+						$$(key).hide();
+					}
+				}
+			}
+		},
+		{view: "text", name:"stain1.type_other", id: "stain1_type_other", placeholder: "Specify other stains", hidden: true},
+		{view: "label", label: "IHC Stain:"},
+		{view: "radio", name: "stain1.ihc", options: [{value: "Positive"}, {value: "Negative"}]},
+		{view: "label", label: "Additional Comments"},
+		{view: "textarea", name: "stain1.comments", height: 80}
+	]
+
+	$$("slidenav").disable();
 
 	if(!session.valid()){
+		$$("login_window").show();
+		$$("loading_window").hide();
+		
 		var elements = [
 			{
 				view: "template",
@@ -14,11 +49,17 @@ require(["pubsub", "session", "config"], function(pubsub, session, config) {
 			},
 			{}
 		];
-	} else{
+	} else {
 		var elements = [
 			{
 				template: "Hello #username#, the expected completion is no more than 10 minutes.",
 				data: {username: session.username()},
+				autoheight: true
+			},
+			{
+				id: "case_counter",
+				template: "<div style='text-align:center'>Case #count# of #total#</div>",
+				data: {count: count, total: "NA"},
 				autoheight: true
 			},
 			{
@@ -34,30 +75,26 @@ require(["pubsub", "session", "config"], function(pubsub, session, config) {
 				body: {
 					rows:[
 						{view: "label", label: "Can you make a diagnosis?"},
-						{view: "radio", options: [{value: "Yes"}, {value: "No"}]},
+						{view: "radio", name: "diagnosed", options: [{value: "Yes"}, {value: "No"}]},
 						{view: "label", label: "Additional Comments"},
-						{view: "textarea", height: 80},
+						{view: "textarea", name:"comments", height: 80},
 					]
 				}
 			},
+			{rows: webix.copy(stain_fields)},
 			{
-				view: "fieldset",
-				label: "Slide Level Questions",
-				body: {
-					rows:[
-						{view: "label", label: "Stain:"},
-						{view: "combo", options: ["H&E"]},
-						{view: "label", label: "IHC Stain:"},
-						{view: "radio", options: [{value: "Postitive"}, {value: "Negative"}]},
-						{view: "label", label: "Additional Comments"},
-						{view: "textarea", height: 80},
-					]
-				}
+				view: "button",
+				value: "Add Stain",
+				type:"form",
+				width: 100,
+				align: "center",
+				click: addStain
 			},
 			{
 				view: "button",
+				id: "save_btn",
 				value: "Save",
-				type:"form",
+				type:"danger",
 				width: 100,
 				align: "center",
 				click: save
@@ -66,12 +103,60 @@ require(["pubsub", "session", "config"], function(pubsub, session, config) {
 		]
 	}
 
+	function addStain(){
+		var fields = webix.copy(stain_fields);
+		fields[0].template = "Stain #" + ++stain_count;
+		fields[2].index = stain_count;
+		fields[2].name = "stain" + stain_count + ".type";
+		fields[3].name = "stain" + stain_count + ".type_other";
+		fields[3].id = "stain" + stain_count + "_type_other";
+		fields[5].name = "stain" + stain_count + ".ihc";
+		fields[7].name = "stain" + stain_count + ".comment";
+		$$("derm_form").addView({ rows: fields }, 3 + stain_count);
+	}
+
+	function nextSlide(){
+		if($$("thumbnails").getNextId(slide.id) == undefined){
+			$$("thumbnails").remove(slide.id);
+			var foldersMenu = $$("slideset").getPopup().getList();
+        	$$("slideset").setValue(foldersMenu.getNextId($$("slideset").getValue()));
+		} 
+		else{
+			$$("thumbnails").remove(slide.id);
+		}
+	}
+
 	/*
 	save form
 	 */
 	function save(){
-		var duration = max_time - minutes*60 - seconds;
-		console.log(duration + " seconds");
+		var tmp = $$('derm_form').getValues();
+		var user_key = session.username() + "_" + "answers";
+		var data = {};
+		data[user_key] = {
+			duration: max_time - minutes*60 - seconds,
+			diagnosed: tmp.diagnosed,
+			comments: tmp.comments,
+			stain: []
+		};
+		
+		for(var key in tmp)
+			if(key.startsWith("stain")) 
+				data[user_key].stain.push(tmp[key])
+
+		$.ajax({
+			url: config.BASE_URL + "/item/" + slide._id + "/metadata",
+			method: "PUT",
+			contentType: "application/json; charset=utf-8",
+			data: JSON.stringify(data),
+			success: function(){
+				console.log("success");
+				nextSlide();
+			},
+			error: function(){
+				console.log("error");
+			}
+		});
 	}
 
 	/*
@@ -83,7 +168,23 @@ require(["pubsub", "session", "config"], function(pubsub, session, config) {
 
     If no Aperio files are found, disable the button!
      */
-    pubsub.subscribe("SLIDE", function(msg, slide) {
+    pubsub.subscribe("SLIDE", function(msg, data) {
+    	slide = data;
+
+    	if(currentCaseId != slide.folderId)
+    		count++;
+
+    	currentCaseId = slide.folderId;
+    	$$("case_counter").setValues({count: count, total: $$("slideset").getPopup().getList().count()});
+    	
+    	var key = session.username() + "_answers";
+    	if(slide.item.hasOwnProperty("meta") && slide.item.meta.hasOwnProperty(key)){
+    		nextSlide();
+    	} 
+    	else{
+    		$$("loading_window").hide();
+    	}
+
     	minutes = max_time/60;
         seconds = 0;
         $$("derm_form").enable();
@@ -96,7 +197,7 @@ require(["pubsub", "session", "config"], function(pubsub, session, config) {
 						clearInterval(timer);
 						timer = null;
 						$$("timer").setValues({minutes: "Timeout", seconds: ""}); 
-						$$("derm_form").disable();	
+						$$("save_btn").disable();	
 					}
 					minutes--;
 					seconds = 60;
@@ -106,14 +207,26 @@ require(["pubsub", "session", "config"], function(pubsub, session, config) {
     	}
     });
 
+    webix.ui({
+		view:"window",
+		id: "loading_window",
+		height:50,
+		width:300,
+		head:"Navigating, please wait...",
+		position:"center",
+		modal:true
+	}).show();
+
 	/*
 	Add the panel dynamicaly as a forth column when this plugin
 	is loaded.
 	 */
 	var panel = {
 		id: "derm_form",
+		complexData:true,
 		view: "form",
 		width: 300,
+		scroll:"y", 
 		elements: elements
 	};
 

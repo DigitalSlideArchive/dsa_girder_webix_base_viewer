@@ -27,7 +27,14 @@ are looking for, then go to the module and add the variable
 you want to return to the return object 
 */
 
-define(["ui", "config", "webix"], function(ui, config) {
+define(["ui", "config", "jquery", "session", "webix"], function(ui, config, $, session) {
+
+    if(session.valid()){
+        $.ajaxSetup({
+            headers: {'Girder-Token': session.token()}
+        });
+    }
+    
     webix.ready(function() {
         ui.init();
 
