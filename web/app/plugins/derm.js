@@ -2,7 +2,7 @@ require(["pubsub", "session", "config", "jquery"], function(pubsub, session, con
 
 	var currentCaseId = null;
 	var count = 0;
-	var max_time = 2*60;
+	var max_time = 1*60;
 	var minutes = max_time/60;
 	var seconds = 0;
 	var timer = null;
@@ -35,7 +35,8 @@ require(["pubsub", "session", "config", "jquery"], function(pubsub, session, con
 		{view: "textarea", name: "stain1.comments", height: 80}
 	]
 
-	$$("slidenav").disable();
+	$$("slideset").disable();
+	$$("samples").disable();
 
 	if(!session.valid()){
 		$$("login_window").show();
@@ -52,7 +53,7 @@ require(["pubsub", "session", "config", "jquery"], function(pubsub, session, con
 	} else {
 		var elements = [
 			{
-				template: "Hello #username#, the expected completion is no more than 10 minutes.",
+				template: "Hello #username#, the expected completion time is no more than 10 minutes.",
 				data: {username: session.username()},
 				autoheight: true
 			},
@@ -115,15 +116,25 @@ require(["pubsub", "session", "config", "jquery"], function(pubsub, session, con
 		$$("derm_form").addView({ rows: fields }, 3 + stain_count);
 	}
 
-	function nextSlide(){
-		if($$("thumbnails").getNextId(slide.id) == undefined){
-			$$("thumbnails").remove(slide.id);
-			var foldersMenu = $$("slideset").getPopup().getList();
-        	$$("slideset").setValue(foldersMenu.getNextId($$("slideset").getValue()));
-		} 
-		else{
-			$$("thumbnails").remove(slide.id);
-		}
+	function nextCase(){
+		var foldersMenu = $$("slideset").getPopup().getList();
+		$$("slideset").setValue(foldersMenu.getNextId($$("slideset").getValue()));
+
+		/*timer = setInterval(function(){ 
+				$$("timer").setValues({minutes: minutes + " minutes", seconds: seconds + " seconds"}); 
+				if(seconds == 0){
+					if(minutes == 0 && seconds == 0){
+						clearInterval(timer);
+						timer = null;
+						$$("timer").setValues({minutes: "Timeout", seconds: "(Refresh the page to start again)"}); 
+						$$("save_btn").disable();	
+					}
+					minutes--;
+					seconds = 60;
+				}
+				seconds--;
+			}, 1000);*/
+
 	}
 
 	/*
@@ -145,13 +156,14 @@ require(["pubsub", "session", "config", "jquery"], function(pubsub, session, con
 				data[user_key].stain.push(tmp[key])
 
 		$.ajax({
-			url: config.BASE_URL + "/item/" + slide._id + "/metadata",
+			url: config.BASE_URL + "/folder/" + currentCaseId + "/metadata",
 			method: "PUT",
 			contentType: "application/json; charset=utf-8",
 			data: JSON.stringify(data),
 			success: function(){
 				console.log("success");
-				nextSlide();
+				$$('derm_form').clear();
+				nextCase();
 			},
 			error: function(){
 				console.log("error");
@@ -170,33 +182,31 @@ require(["pubsub", "session", "config", "jquery"], function(pubsub, session, con
      */
     pubsub.subscribe("SLIDE", function(msg, data) {
     	slide = data;
-
-    	if(currentCaseId != slide.folderId)
+    	console.log(currentCaseId, slide.item.folderId)
+    	if(currentCaseId != slide.item.folderId)
     		count++;
 
-    	currentCaseId = slide.folderId;
     	$$("case_counter").setValues({count: count, total: $$("slideset").getPopup().getList().count()});
     	
     	var key = session.username() + "_answers";
     	if(slide.item.hasOwnProperty("meta") && slide.item.meta.hasOwnProperty(key)){
-    		nextSlide();
+    		nextCase();
     	} 
     	else{
     		$$("loading_window").hide();
     	}
 
-    	minutes = max_time/60;
-        seconds = 0;
-        $$("derm_form").enable();
+        if(timer == null || currentCaseId != slide.item.folderId){
+        	minutes = max_time/60;
+        	seconds = 0;
 
-        if(timer == null){
 	        timer = setInterval(function(){ 
 				$$("timer").setValues({minutes: minutes + " minutes", seconds: seconds + " seconds"}); 
 				if(seconds == 0){
 					if(minutes == 0 && seconds == 0){
 						clearInterval(timer);
 						timer = null;
-						$$("timer").setValues({minutes: "Timeout", seconds: ""}); 
+						$$("timer").setValues({minutes: "Timeout", seconds: "(Refresh the page to start again)"}); 
 						$$("save_btn").disable();	
 					}
 					minutes--;
@@ -205,6 +215,8 @@ require(["pubsub", "session", "config", "jquery"], function(pubsub, session, con
 				seconds--;
 			}, 1000);
     	}
+
+    	currentCaseId = slide.item.folderId;
     });
 
     webix.ui({
