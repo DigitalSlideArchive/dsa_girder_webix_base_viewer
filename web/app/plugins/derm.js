@@ -2,7 +2,7 @@ require(["pubsub", "session", "config", "jquery"], function(pubsub, session, con
 
 	var currentCaseId = null;
 	var count = 0;
-	var max_time = 1*60;
+	var max_time = 10*60;
 	var minutes = max_time/60;
 	var seconds = 0;
 	var timer = null;
