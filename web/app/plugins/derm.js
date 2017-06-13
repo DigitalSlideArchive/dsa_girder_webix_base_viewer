@@ -1,6 +1,7 @@
 require(["pubsub", "session", "config", "jquery"], function(pubsub, session, config, $) {
 
 	var currentCaseId = null;
+	var original_element = null;
 	var count = 0;
 	var max_time = 10*60;
 	var minutes = max_time/60;
@@ -57,12 +58,12 @@ require(["pubsub", "session", "config", "jquery"], function(pubsub, session, con
 				data: {username: session.username()},
 				autoheight: true
 			},
-			{
+			/*{
 				id: "case_counter",
 				template: "<div style='text-align:center'>Case #count# of #total#</div>",
 				data: {count: count, total: "NA"},
 				autoheight: true
-			},
+			},*/
 			{
 				id: "timer",
 				template: "<div style='color:red;text-align:center;font-size:20px'>#minutes# #seconds#</div>",
@@ -102,6 +103,8 @@ require(["pubsub", "session", "config", "jquery"], function(pubsub, session, con
 			},
 			{}
 		]
+		startTimer();
+		original_elements = webix.copy(elements);
 	}
 
 	function addStain(){
@@ -113,28 +116,35 @@ require(["pubsub", "session", "config", "jquery"], function(pubsub, session, con
 		fields[3].id = "stain" + stain_count + "_type_other";
 		fields[5].name = "stain" + stain_count + ".ihc";
 		fields[7].name = "stain" + stain_count + ".comment";
-		$$("derm_form").addView({ rows: fields }, 3 + stain_count);
+		$$("derm_form").addView({ rows: fields }, 2 + stain_count);
 	}
 
 	function nextCase(){
 		var foldersMenu = $$("slideset").getPopup().getList();
 		$$("slideset").setValue(foldersMenu.getNextId($$("slideset").getValue()));
+		startTimer();
+	}
 
-		/*timer = setInterval(function(){ 
-				$$("timer").setValues({minutes: minutes + " minutes", seconds: seconds + " seconds"}); 
-				if(seconds == 0){
-					if(minutes == 0 && seconds == 0){
-						clearInterval(timer);
-						timer = null;
-						$$("timer").setValues({minutes: "Timeout", seconds: "(Refresh the page to start again)"}); 
-						$$("save_btn").disable();	
-					}
-					minutes--;
-					seconds = 60;
+	function startTimer(){
+		minutes = max_time/60;
+        seconds = 0;
+        clearInterval(timer);
+        timer = null;
+
+	    timer = setInterval(function(){ 
+			$$("timer").setValues({minutes: minutes + " minutes", seconds: seconds + " seconds"}); 
+			if(seconds == 0){
+				if(minutes == 0 && seconds == 0){
+					clearInterval(timer);
+					timer = null;
+					$$("timer").setValues({minutes: "Timeout", seconds: "(refresh the page to start again)"}); 
+					$$("save_btn").disable();	
 				}
-				seconds--;
-			}, 1000);*/
-
+				minutes--;
+				seconds = 60;
+			}
+			seconds--;
+		}, 1000);
 	}
 
 	/*
@@ -163,6 +173,10 @@ require(["pubsub", "session", "config", "jquery"], function(pubsub, session, con
 			success: function(){
 				console.log("success");
 				$$('derm_form').clear();
+				webix.ui(original_elements, $$("derm_form"));
+				stain_count = 1;
+				clearInterval(timer);
+				timer = null;
 				nextCase();
 			},
 			error: function(){
@@ -182,21 +196,36 @@ require(["pubsub", "session", "config", "jquery"], function(pubsub, session, con
      */
     pubsub.subscribe("SLIDE", function(msg, data) {
     	slide = data;
-    	console.log(currentCaseId, slide.item.folderId)
-    	if(currentCaseId != slide.item.folderId)
-    		count++;
+    
+    	//if(currentCaseId != slide.item.folderId)
+    	//	count++;
 
-    	$$("case_counter").setValues({count: count, total: $$("slideset").getPopup().getList().count()});
+    	//$$("case_counter").setValues({count: count, total: $$("slideset").getPopup().getList().count()});
     	
     	var key = session.username() + "_answers";
-    	if(slide.item.hasOwnProperty("meta") && slide.item.meta.hasOwnProperty(key)){
-    		nextCase();
+
+    	$.get(config.BASE_URL + "/folder/" + slide.folderId, function(resp){
+    		if(resp.hasOwnProperty("meta") && resp.meta.hasOwnProperty(key)){
+    			//count = resp.meta[key].total_completed;
+    			//console.log(resp);
+    			nextCase();
+    		}
+    		else{
+    			$$("loading_window").hide();
+    		}
+   
+    	});
+
+    	/*if(slide.item.hasOwnProperty("meta") && slide.item.meta.hasOwnProperty(key)){
+
+    		
     	} 
     	else{
     		$$("loading_window").hide();
-    	}
-
-        if(timer == null || currentCaseId != slide.item.folderId){
+    	}*/
+    	console.log(timer, currentCaseId, slide.item.folderId)
+        /*if(timer == null || currentCaseId != slide.item.folderId){
+        	console.log("in")
         	minutes = max_time/60;
         	seconds = 0;
 
@@ -206,7 +235,7 @@ require(["pubsub", "session", "config", "jquery"], function(pubsub, session, con
 					if(minutes == 0 && seconds == 0){
 						clearInterval(timer);
 						timer = null;
-						$$("timer").setValues({minutes: "Timeout", seconds: "(Refresh the page to start again)"}); 
+						$$("timer").setValues({minutes: "Timeout", seconds: "(refresh the page to start again)"}); 
 						$$("save_btn").disable();	
 					}
 					minutes--;
@@ -214,7 +243,7 @@ require(["pubsub", "session", "config", "jquery"], function(pubsub, session, con
 				}
 				seconds--;
 			}, 1000);
-    	}
+    	}*/
 
     	currentCaseId = slide.item.folderId;
     });
