@@ -1,8 +1,10 @@
 require(["pubsub", "session", "config", "jquery"], function(pubsub, session, config, $) {
 
+	var user_key = session.username() + "_" + "answers";
+	var user_prog_key = session.username() + "_" + "progress";
 	var currentCaseId = null;
 	var original_element = null;
-	var count = 0;
+	var count = 1;
 	var max_time = 10*60;
 	var minutes = max_time/60;
 	var seconds = 0;
@@ -52,18 +54,26 @@ require(["pubsub", "session", "config", "jquery"], function(pubsub, session, con
 			{}
 		];
 	} else {
+		$.get(config.BASE_URL + "/folder/5931a19292ca9a000d43c49e", function(resp){
+			console.log(resp)
+			count = 0;
+			if(resp.meta.hasOwnProperty(user_prog_key)){
+				count = resp.meta[user_prog_key];
+			}
+		});
+
 		var elements = [
 			{
 				template: "Hello #username#, the expected completion time is no more than 10 minutes.",
 				data: {username: session.username()},
 				autoheight: true
 			},
-			/*{
+			{
 				id: "case_counter",
 				template: "<div style='text-align:center'>Case #count# of #total#</div>",
 				data: {count: count, total: "NA"},
 				autoheight: true
-			},*/
+			},
 			{
 				id: "timer",
 				template: "<div style='color:red;text-align:center;font-size:20px'>#minutes# #seconds#</div>",
@@ -152,7 +162,6 @@ require(["pubsub", "session", "config", "jquery"], function(pubsub, session, con
 	 */
 	function save(){
 		var tmp = $$('derm_form').getValues();
-		var user_key = session.username() + "_" + "answers";
 		var data = {};
 		data[user_key] = {
 			duration: max_time - minutes*60 - seconds,
@@ -171,7 +180,18 @@ require(["pubsub", "session", "config", "jquery"], function(pubsub, session, con
 			contentType: "application/json; charset=utf-8",
 			data: JSON.stringify(data),
 			success: function(){
+				count++;
+				var progress = {};
+				progress[user_prog_key] = count;
 				console.log("success");
+
+				$.ajax({
+					url: config.BASE_URL + "/folder/5931a19292ca9a000d43c49e/metadata",
+					method: "PUT",
+					contentType: "application/json; charset=utf-8",
+					data: JSON.stringify(progress)
+				});
+
 				$$('derm_form').clear();
 				webix.ui(original_elements, $$("derm_form"));
 				stain_count = 1;
@@ -200,7 +220,7 @@ require(["pubsub", "session", "config", "jquery"], function(pubsub, session, con
     	//if(currentCaseId != slide.item.folderId)
     	//	count++;
 
-    	//$$("case_counter").setValues({count: count, total: $$("slideset").getPopup().getList().count()});
+    	$$("case_counter").setValues({count: count, total: $$("slideset").getPopup().getList().count()});
     	
     	var key = session.username() + "_answers";
 
