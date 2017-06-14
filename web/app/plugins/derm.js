@@ -133,7 +133,7 @@ require(["pubsub", "session", "config", "jquery"], function(pubsub, session, con
 		fields[3].id = "stain" + stain_count + "_type_other";
 		fields[5].name = "stain" + stain_count + ".ihc";
 		fields[7].name = "stain" + stain_count + ".comment";
-		$$("derm_form").addView({ rows: fields }, 2 + stain_count);
+		$$("derm_form").addView({ rows: fields }, 3 + stain_count);
 	}
 
 	function nextCase(){
