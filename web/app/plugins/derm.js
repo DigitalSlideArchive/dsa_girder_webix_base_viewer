@@ -64,7 +64,7 @@ require(["pubsub", "session", "config", "jquery"], function(pubsub, session, con
 
 		var elements = [
 			{
-				template: "Hello #username#, the expected completion time is no more than 10 minutes.",
+				template: "Hello #username#, the expected completion time is no more than 10 minutes. After 10 minutes the app will timeout.",
 				data: {username: session.username()},
 				autoheight: true
 			},
@@ -74,10 +74,17 @@ require(["pubsub", "session", "config", "jquery"], function(pubsub, session, con
 				data: {count: count, total: "NA"},
 				autoheight: true
 			},
-			{
+			/*{
 				id: "timer",
 				template: "<div style='color:red;text-align:center;font-size:20px'>#minutes# #seconds#</div>",
 				data: {minutes: minutes + " minutes", seconds: seconds + " seconds"},
+				align: "center",
+				autoheight: true
+			},*/
+			{
+				id: "msg",
+				template: "<div style='color:red;text-align:center;font-size:20px'>#msg#</div>",
+				data: {msg: ""},
 				align: "center",
 				autoheight: true
 			},
@@ -142,12 +149,12 @@ require(["pubsub", "session", "config", "jquery"], function(pubsub, session, con
         timer = null;
 
 	    timer = setInterval(function(){ 
-			$$("timer").setValues({minutes: minutes + " minutes", seconds: seconds + " seconds"}); 
+			//$$("timer").setValues({minutes: minutes + " minutes", seconds: seconds + " seconds"}); 
 			if(seconds == 0){
 				if(minutes == 0 && seconds == 0){
 					clearInterval(timer);
 					timer = null;
-					$$("timer").setValues({minutes: "Timeout", seconds: "(refresh the page to start again)"}); 
+					$$("msg").setValues({msg: "Timeout (refresh the page to start again)"}); 
 					$$("save_btn").disable();	
 				}
 				minutes--;
