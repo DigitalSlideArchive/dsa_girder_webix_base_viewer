@@ -5,6 +5,7 @@ define("session", ["config", "jquery", "pubsub"], function(config, $, pubsub) {
 
     function create(token){
         window.localStorage.setItem("Girder-Token", JSON.stringify(token));
+        document.cookie = 'girderToken=' + token.authToken.token;
         user = token;
     }
 
@@ -20,6 +21,7 @@ define("session", ["config", "jquery", "pubsub"], function(config, $, pubsub) {
 
    function destroy(){
         user = null;
+        document.cookie = 'girderToken=;expires=Thu, 01 Jan 1970 00:00:01 GMT;';
         window.localStorage.removeItem("Girder-Token");
    }
 
@@ -28,6 +30,7 @@ define("session", ["config", "jquery", "pubsub"], function(config, $, pubsub) {
    }
 
    function token(){
+        document.cookie = 'girderToken=' + user.authToken.token;
         return user.authToken.token;
    }
 

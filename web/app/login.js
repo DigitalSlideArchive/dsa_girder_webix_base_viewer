@@ -8,18 +8,40 @@ define("login", ["config", "jquery", "session", "webix"], function(config, $, se
         modal:true,
         body:{
             view: "form", 
+            id: "login_form",
             width: 400,
+            rules:{
+                $all: webix.rules.isNotEmpty
+            },
+            elementsConfig:{
+                labelPosition: "top",
+                labelWidth: 140,
+                bottomPadding: 18
+            },
             elements:[
-                { id: "username", view:"text", label:"Username"},
-                { id: "password", view:"text", type:"password", label:"Password"},
+                { id: "login_message", view:"template", template: "<span style='color:red'>#message#</span>", data: {message:""}, borderless:true, autoheight: true},
+                { id: "username", view:"text", label:"Username", name: "username", invalidMessage: "Username can not be empty"},
+                { id: "password", view:"text", label:"Password", name: "password", type:"password", invalidMessage: "Password can not be empty"},
                 { margin:5, cols:[
-                    { view:"button", value:"Login" , type:"form", click: login},
-                    { view:"button", value:"Cancel", click: ("$$('login_window').hide();")}
-                ]},
-                { id: "login_message", view:"label", value: ""},
+                    { view:"button", value:"Login", type:"form", click: function(){
+                            if($$("login_form").validate()){
+                                login();
+                            }
+                        }
+                    },
+                    { view:"button", value:"Cancel", click: function(){
+                            $$("login_form").clear();
+                            $$("login_form").clearValidation();
+                            $$("login_message").define("data", {message: ""});
+                            $$('login_window').hide();
+                        }
+                    }
+                ]}
             ]
         }
     });
+
+    webix.UIManager.addHotKey("enter", login, $$("login_form"));
 
     function login(){
         $.ajax({
@@ -34,8 +56,8 @@ define("login", ["config", "jquery", "session", "webix"], function(config, $, se
                 $$('header_menu').updateItem("login_btn", {value:"Logout (" + session.username() + ")"})
                 window.location.reload(true);
             },
-            error: function(){
-                console.log("login fail")
+            error: function(resp){
+                $$("login_message").define("data", {message: "Error: " + resp.statusText});
             }
         });
     }

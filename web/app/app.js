@@ -31,8 +31,7 @@ define(["ui", "config", "jquery", "session", "webix"], function(ui, config, $, s
 
     if(session.valid()){
         $.ajaxSetup({
-            headers: {'Girder-Token': session.token()},
-           // beforeSend: function(xhr){xhr.setRequestHeader('Girder-Token', session.token());},
+            headers: {'Girder-Token': session.token()}
         });
 
         webix.ajax().headers({

@@ -98,6 +98,11 @@ define("tcga/slidenav", ["config", "viewer", "pubsub", "slide", "jquery", "webix
         placeholder: "Select Sample",
         id: "samples",
         options: {
+            filter:function(item, value){
+                if(item.name.toString().toLowerCase().indexOf(value.toLowerCase()) > -1)
+                  return true;
+                return false;
+            },
             body: {
                 template: "#name#"
             }
