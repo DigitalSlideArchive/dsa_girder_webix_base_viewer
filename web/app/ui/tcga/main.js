@@ -14,11 +14,12 @@ Return:
     - viewer - Openseadragon viewer object
  */
 
-define("tcga/main", ["tcga/slidenav", "common/toolbar", "common/header", "webix"], function(slidenav, toolbar, header) {
+define("tcga/main", ["tcga/slidenav", "common/toolbar", "common/header", "common/footer", "webix"], function(slidenav, toolbar, header, footer) {
 
     function init() {
         //This is the Openseadragon layer
         viewerPanel = {
+            borderless: true,
             rows: [toolbar, {
                 view: "template",
                 id: "viewer_panel",
@@ -37,7 +38,12 @@ define("tcga/main", ["tcga/slidenav", "common/toolbar", "common/header", "webix"
                         slidenav, {
                             view: "resizer"
                         },
-                        viewerPanel
+                        {
+                            rows:[
+                                viewerPanel,
+                                footer
+                            ]
+                        }
                     ]
                 }
             ]

@@ -43,7 +43,8 @@ define("tcga/slidenav", ["config", "viewer", "pubsub", "slide", "jquery", "webix
     itemPager = {
         view:"pager",
         id: "item_pager",
-        template: "<center>{common.prev()}{common.page()}/#limit#{common.next()}(#count# slides)</center>",
+        height:45,
+        template: "<center>{common.prev()}{common.page()}/#limit#{common.next()}<br/>(#count# slides)</center>",
         animate:true,
         size:5,
         group:4

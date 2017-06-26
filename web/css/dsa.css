@@ -79,3 +79,12 @@ html, body{
 #geojs .geojs-layer{
   pointer-events: none;
 }
+
+.footer{
+  background-color: #3498DB;
+}
+
+.footer span{
+  font-size:12px;
+  color: #ffffff;
+}
