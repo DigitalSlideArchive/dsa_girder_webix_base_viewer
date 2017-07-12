@@ -20,6 +20,7 @@ define("standard/main", ["standard/slidenav", "common/toolbar", "common/header",
         //This is the Openseadragon layer
         viewerPanel = {
             id: "viewer_root",
+            borderless: true,
             rows: [
                 toolbar,
                 {

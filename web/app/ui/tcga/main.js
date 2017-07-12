@@ -19,11 +19,12 @@ define("tcga/main", ["tcga/slidenav", "common/toolbar", "common/header", "common
     function init() {
         //This is the Openseadragon layer
         viewerPanel = {
+            id: "viewer_root",
             borderless: true,
             rows: [toolbar, {
                 view: "template",
                 id: "viewer_panel",
-                content: "image_viewer"
+                content: "geo_osd"
             }]
         };
         
