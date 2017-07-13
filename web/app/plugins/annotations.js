@@ -151,6 +151,7 @@ require(["viewer", "slide", "geo", "pubsub"], function(viewer, slide, geo, pubsu
             id: "annotations_table",
             editable:true,
             height:400,
+            select: true,
             activeContent:{
                 strokeWidth: {
                     id: "stroke_width_counter",
@@ -181,6 +182,8 @@ require(["viewer", "slide", "geo", "pubsub"], function(viewer, slide, geo, pubsu
                         onChange: function(val){
                             var item = $$("annotations_table").getItem(this.config.$masterId.row);
                             var annotation = layer.annotationById(item.id);
+                            console.log(item)
+                            console.log(annotation)
                             var opt = annotation.options('style');
                             opt[this.config.$masterId.column] = val;
                             annotation.options({style: opt}).draw(); 
@@ -207,6 +210,7 @@ require(["viewer", "slide", "geo", "pubsub"], function(viewer, slide, geo, pubsu
                 }
             },
             columns:[
+                { id:"trash", header:"", template:"{common.trashIcon()}", width: 30},
                 { id:"id", header:"ID", width: 50},
                 { id:"name", header:"Name"},
                 { id:"type", header:"Type"},
@@ -214,8 +218,16 @@ require(["viewer", "slide", "geo", "pubsub"], function(viewer, slide, geo, pubsu
                 { id:"strokeColor", header:"Stroke Color", editor:"color", template: color2},
                 { id:"fillOpacity", header:"Fill Opacity", template: "{common.fillOpacity()}", width: 120},
                 { id:"strokeOpacity", header:"Stroke Opacity", template: "{common.strokeOpacity()}", width: 120},
-                { id:"strokeWidth", header: "Stroke Width", template: "{common.strokeWidth()}", width: 120}
+                { id:"strokeWidth", header: "Stroke Width", template: "{common.strokeWidth()}", width: 120},
             ],
+            onClick:{
+                "fa-trash":function(e, id){
+                    var item = this.getItem(id.row);
+                    var annotation = layer.annotationById(item.id);
+                    layer.removeAnnotation(annotation);
+                    this.remove(id.row);
+                }
+            },
             on:{
                 onAfterEditStop:function(state, editor){
                     var item = this.getItem(editor.row);
@@ -223,6 +235,13 @@ require(["viewer", "slide", "geo", "pubsub"], function(viewer, slide, geo, pubsu
                     var opt = annotation.options('style');
                     opt[editor.column] = state.value;
                     annotation.options({style: opt}).draw();
+                },
+                onItemClick: function(id){
+                    var item = this.getItem(id.row);
+                    var annotation = layer.annotationById(item.id);
+                    var opt = annotation.options('style');
+                    
+
                 }
             }
         }
