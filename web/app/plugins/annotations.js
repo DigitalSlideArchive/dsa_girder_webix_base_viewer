@@ -55,7 +55,6 @@ require(["viewer", "slide", "geo", "pubsub"], function(viewer, slide, geo, pubsu
                 }
             },
             {}
-
         ]
     };
 
@@ -112,7 +111,8 @@ require(["viewer", "slide", "geo", "pubsub"], function(viewer, slide, geo, pubsu
             fillColor: "rgb(" + fill.r + "," + fill.g + "," + fill.b + ")",
             fillOpacity: evt.annotation.options('style').fillOpacity,
             strokeColor: "rgb(" + stroke.r + ", " + stroke.g + ", " + stroke.b + ")",
-            strokeOpacity: evt.annotation.options('style').strokeOpacity
+            strokeOpacity: evt.annotation.options('style').strokeOpacity,
+            strokeWidth: evt.annotation.options('style').strokeWidth
         });
 
         $$("annotations_table").clearAll(); 
@@ -128,13 +128,15 @@ require(["viewer", "slide", "geo", "pubsub"], function(viewer, slide, geo, pubsu
     var color1 = "#fillColor# <span style='background-color:#fillColor#; border-radius:4px; padding-right:10px;'>&nbsp</span>";
     var color2 = "#strokeColor# <span style='background-color:#strokeColor#; border-radius:4px; padding-right:10px;'>&nbsp</span>";
 
+    webix.protoUI({name:"activeList"}, webix.ui.datatable,webix.ActiveContent);
+
     webix.ui({
         view: "window",
         id: "annotations_window",
         move: true,
         resize: true,
         height: 300,
-        width: 700,
+        width: 850,
         head:{
             view: "toolbar",
             margin:-4,
@@ -144,17 +146,75 @@ require(["viewer", "slide", "geo", "pubsub"], function(viewer, slide, geo, pubsu
             ]
         },
         body: {
-            view: "datatable",
+            view: "activeList",
+            rowHeight: 40,
             id: "annotations_table",
             editable:true,
+            height:400,
+            activeContent:{
+                strokeWidth: {
+                    id: "stroke_width_counter",
+                    view: "counter",
+                    width: 100,
+                    min: 0,
+                    step: 0.2,
+                    earlyInit:true,
+                    on:{
+                        onChange: function(val){
+                            var item = $$("annotations_table").getItem(this.config.$masterId.row);
+                            var annotation = layer.annotationById(item.id);
+                            var opt = annotation.options('style');
+                            opt[this.config.$masterId.column] = val;
+                            annotation.options({style: opt}).draw(); 
+                        }
+                    }
+                },
+                fillOpacity: {
+                    id: "fill_opacity_counter",
+                    view: "counter",
+                    width: 100,
+                    min: 0,
+                    max: 1,
+                    step: 0.1,
+                    earlyInit:true,
+                    on:{
+                        onChange: function(val){
+                            var item = $$("annotations_table").getItem(this.config.$masterId.row);
+                            var annotation = layer.annotationById(item.id);
+                            var opt = annotation.options('style');
+                            opt[this.config.$masterId.column] = val;
+                            annotation.options({style: opt}).draw(); 
+                        }
+                    }
+                },
+                strokeOpacity: {
+                    id: "stroke_opacity_counter",
+                    view: "counter",
+                    width: 100,
+                    min: 0,
+                    max: 1,
+                    step: 0.1,
+                    earlyInit:true,
+                    on:{
+                        onChange: function(val){
+                            var item = $$("annotations_table").getItem(this.config.$masterId.row);
+                            var annotation = layer.annotationById(item.id);
+                            var opt = annotation.options('style');
+                            opt[this.config.$masterId.column] = val;
+                            annotation.options({style: opt}).draw(); 
+                        }
+                    }
+                }
+            },
             columns:[
                 { id:"id", header:"ID", width: 50},
                 { id:"name", header:"Name"},
                 { id:"type", header:"Type"},
                 { id:"fillColor", header:"Fill Color", editor:"color", template: color1},
-                { id:"fillOpacity", header:"Fill Opacity", editor: "text"},
                 { id:"strokeColor", header:"Stroke Color", editor:"color", template: color2},
-                { id:"strokeOpacity", header:"Stroke Opacity", editor: "text", width: 150}
+                { id:"fillOpacity", header:"Fill Opacity", template: "{common.fillOpacity()}", width: 120},
+                { id:"strokeOpacity", header:"Stroke Opacity", template: "{common.strokeOpacity()}", width: 120},
+                { id:"strokeWidth", header: "Stroke Width", template: "{common.strokeWidth()}", width: 120}
             ],
             on:{
                 onAfterEditStop:function(state, editor){
