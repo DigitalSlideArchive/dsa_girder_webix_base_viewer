@@ -91,3 +91,8 @@ Save the file and restart NGINX
 
 Point your browser to http://yourdomain.com/dsa to access the DSA.
 
+Plugins:
+----------------------------
+The following plugins are currenty included in the base DSA:
+
+
