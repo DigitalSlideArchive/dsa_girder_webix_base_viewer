@@ -46,7 +46,7 @@ Deployment:
 Deployment is easy once the installation and configurations are completed. If you are working locally, simply
 open index.html in the browser. If you are deploying on a server there are two options:
 
-#### Option 1: Python SimpleHTTPServer
+#### Option 1: SimpleHTTPServer
 Make sure you are in the `web` directory and run the following command
 
 `python -m SimpleHTTPServer 8000`
@@ -54,4 +54,21 @@ Make sure you are in the `web` directory and run the following command
 You can use whatever port, 8000 is just for illustration.
 
 #### Option 2: NGINX
+For this option make you have NGINX installed
+
+`sudo apt-get install nginx`
+
+`cd /etc/nginx/sites-enabled`
+
+Open the file default in whatever text editor you like and in the server block we need to add an alias to the DSA `web` directory
+
+`server {
+    listen 80 default_server;
+    listen [::]:80 default_server ipv6only=on;
+
+
+	location /dsa_base {
+        alias /home/mkhali8/dev/dsa_girder_webix_base_viewer/web;
+    }
+`
 
