@@ -93,6 +93,9 @@ Point your browser to http://yourdomain.com/dsa to access the DSA.
 
 Plugins:
 ----------------------------
+
+#### Available plugins:
+
 The following plugins are currenty included in the base DSA:
 
 * **Annotations**: This plugin uses GeoJS to draw annotations on the slide, allows to change opacity, color and stroke for each annotation and delete annotations.
@@ -106,3 +109,5 @@ The following plugins are currenty included in the base DSA:
 * **Metadata**: metadata widget to render the TCGA metadata (TCGA ONLY)
 
 * **Pathology Reports**: pathology report widget for TCGA data (TCGA ONLY)
+
+#### Enable plugins:
