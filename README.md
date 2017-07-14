@@ -97,12 +97,12 @@ The following plugins are currenty included in the base DSA:
 
 * **Annotations**: This plugin uses GeoJS to draw annotations on the slide, allows to change opacity, color and stroke for each annotation and delete annotations.
 
-* Aperio
+* **Aperio**: loads aperio annotations into a window.
 
-* Derm
+* **Derm**: derm path plugin that enables uses to review slides using predefined set of questions (designed for Micheal Sargen study)
 
-* Filters
+* **Filters**:
 
-* Metadata
+* **Metadata**:
 
-* Pathology Reports
+* **Pathology Reports**:
