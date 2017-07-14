@@ -122,4 +122,4 @@ The following plugins are currenty included in the base DSA:
 require(["routes", "aperio", "filters", "derm"]);
 ```
 
-Where routes, aperio, etc are plugin names defined in main.js
+where routes, aperio, etc are plugin names defined in main.js
