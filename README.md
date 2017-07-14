@@ -40,3 +40,18 @@ There are few parameters you need to change in config.js before making the DSA l
 `COLLECTION_NAME`: collection name (required only if you are using non TCGA data)
 
 `UI`: type of UI. Either **tcga** if you are using TCGA endpoints or **standard** for non-TCGA data/endpoints
+
+Deployment:
+-------------------------------
+Deployment is easy once the installation and configurations are completed. If you are working locally, simply
+open index.html in the browser. If you are deploying on a server there are two options:
+
+### Option 1: Python SimpleHTTPServer
+Make sure you are in the `web` directory and run the following command
+
+`python -m SimpleHTTPServer 8000`
+
+You can use whatever port, 8000 is just for illustration.
+
+### Option1: Nginx
+
