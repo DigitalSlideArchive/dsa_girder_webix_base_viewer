@@ -21,4 +21,13 @@ Clone the github repo:
 
 cd into dsa_girder_webix_base_viewer
 
-`cd dsa_girder_webix_base_viewer`
+`cd dsa_girder_webix_base_viewer/web`
+
+Run bower install
+
+`bower install`
+
+Rename app/config.js.example
+
+`mv app/config.js.example app/config.js`
+
