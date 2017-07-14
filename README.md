@@ -31,3 +31,12 @@ Rename app/config.js.example
 
 `mv app/config.js.example app/config.js`
 
+Configurations:
+------------------------------
+There are few parameters you need to change in config.js before making the DSA live.
+
+`BASE_URL`: this is the base URL for the Girder API
+
+`COLLECTION_NAME`: collection name (required only if you are using non TCGA data)
+
+`UI`: type of UI. Either **tcga** if you are using TCGA endpoints or **standard** for non-TCGA data/endpoints
