@@ -97,6 +97,8 @@ The following plugins are currenty included in the base DSA:
 
 * Annotations
 
+This plugin uses GeoJS to draw annotations on the slide, allows to change opacity, color and stroke for each annotation and delete annotations.
+
 * Aperio
 
 * Derm
