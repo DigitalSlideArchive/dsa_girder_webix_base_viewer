@@ -44,7 +44,8 @@ There are few parameters you need to change in config.js before making the DSA l
 Deployment:
 -------------------------------
 Deployment is easy once the installation and configurations are completed. If you are working locally, simply
-open index.html in the browser. If you are deploying on a server there are two options:
+open index.html in the browser. If you are deploying on a server there are two options. The second option is what you should 
+use for production deployment.
 
 #### Option 1: SimpleHTTPServer
 Make sure you are in the `web` directory and run the following command
@@ -60,15 +61,26 @@ For this option make you have NGINX installed
 
 `cd /etc/nginx/sites-enabled`
 
-Open the file default in whatever text editor you like and in the server block we need to add an alias to the DSA `web` directory
+Open the file default in whatever text editor you like and in the server block we need to add the following three lines
+
+```
+location /dsa {
+    alias /path/to/dsa_girder_webix_base_viewer/web;
+}
+```
+
+Your server block will look like that
 
 ```
 server {
     listen 80 default_server;
     listen [::]:80 default_server ipv6only=on;
-
-    location /dsa_base {
-        alias /home/mkhali8/dev/dsa_girder_webix_base_viewer/web;
+     
+    ...
+    ...
+    
+    location /dsa {
+        alias /path/to/dsa_girder_webix_base_viewer/web;
     }
 }
 ```
