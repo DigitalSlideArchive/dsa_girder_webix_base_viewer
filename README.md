@@ -111,3 +111,15 @@ The following plugins are currenty included in the base DSA:
 * **Pathology Reports**: pathology report widget for TCGA data (TCGA ONLY)
 
 #### Enable plugins:
+
+1. All plugins should be defined in main.js under `paths`
+
+2. Plugins are enabled in app/app.js
+
+3. Enabled plugins should be listed in the require([]) as follows:
+
+```
+require(["routes", "aperio", "filters", "derm"]);
+```
+
+Where routes, aperio, etc are plugin names defined in main.js
