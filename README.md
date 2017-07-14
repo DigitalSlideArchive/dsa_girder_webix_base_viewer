@@ -62,13 +62,13 @@ For this option make you have NGINX installed
 
 Open the file default in whatever text editor you like and in the server block we need to add an alias to the DSA `web` directory
 
-`server {
+```
+server {
     listen 80 default_server;
     listen [::]:80 default_server ipv6only=on;
-
 
 	location /dsa_base {
         alias /home/mkhali8/dev/dsa_girder_webix_base_viewer/web;
     }
-`
+```
 
