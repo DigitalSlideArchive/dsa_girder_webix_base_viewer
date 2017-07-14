@@ -46,12 +46,12 @@ Deployment:
 Deployment is easy once the installation and configurations are completed. If you are working locally, simply
 open index.html in the browser. If you are deploying on a server there are two options:
 
-### Option 1: Python SimpleHTTPServer
+#### Option 1: Python SimpleHTTPServer
 Make sure you are in the `web` directory and run the following command
 
 `python -m SimpleHTTPServer 8000`
 
 You can use whatever port, 8000 is just for illustration.
 
-### Option1: Nginx
+#### Option 2: NGINX
 
