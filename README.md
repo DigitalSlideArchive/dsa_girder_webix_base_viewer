@@ -67,8 +67,9 @@ server {
     listen 80 default_server;
     listen [::]:80 default_server ipv6only=on;
 
-	location /dsa_base {
+    location /dsa_base {
         alias /home/mkhali8/dev/dsa_girder_webix_base_viewer/web;
     }
+}
 ```
 
