@@ -10,7 +10,7 @@ Dependencies:
 -----------------------------
 Before installing the DSA make sure you install the following:
 
-*bower
+* bower
 
 
 Installation:
