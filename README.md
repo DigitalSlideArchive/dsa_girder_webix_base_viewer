@@ -99,10 +99,10 @@ The following plugins are currenty included in the base DSA:
 
 * **Aperio**: loads aperio annotations into a window.
 
-* **Derm**: derm path plugin that enables uses to review slides using predefined set of questions (designed for Micheal Sargen study)
+* **Derm**: derm path plugin enables users to review slides using predefined set of questions (designed for Micheal Sargen study)
 
-* **Filters**:
+* **Filters**: filter widget for the slides where you can adjust contrast, brightness, etc.
 
-* **Metadata**:
+* **Metadata**: metadata widget to render the TCGA metadata (TCGA ONLY)
 
-* **Pathology Reports**:
+* **Pathology Reports**: pathology report widget for TCGA data (TCGA ONLY)
