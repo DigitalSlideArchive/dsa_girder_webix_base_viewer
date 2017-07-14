@@ -95,4 +95,14 @@ Plugins:
 ----------------------------
 The following plugins are currenty included in the base DSA:
 
+* Annotations
 
+* Aperio
+
+* Derm
+
+* Filters
+
+* Metadata
+
+* Pathology Reports
