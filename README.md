@@ -78,10 +78,16 @@ server {
      
     ...
     ...
-    
+
     location /dsa {
         alias /path/to/dsa_girder_webix_base_viewer/web;
     }
 }
 ```
+
+Save the file and restart NGINX
+
+`sudo service nginx restart`
+
+Point your browser to http://yourdomain.com/dsa to access the DSA.
 
