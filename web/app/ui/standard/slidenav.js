@@ -54,11 +54,14 @@ define("standard/slidenav", ["config", "viewer", "slide", "jquery", "webix"], fu
         on: {
             onChange: function(id) {
                 var item = this.getPopup().getBody().getItem(id);
-                $.get(config.BASE_URL + "/folder?parentType=folder&parentId=" + item._id, function(data){
+                $.get(config.BASE_URL + "/folder?parentType=folder&parentId=" + item._id, function(folders){
                     var sFoldersMenu = $$("samples").getPopup().getList();
                     sFoldersMenu.clearAll();
-                    sFoldersMenu.parse(data);
-                    $$("samples").setValue(data[0].id);
+                    folders = folders.filter(function(folder){
+                        return !folder.name.startsWith(".");
+                    });
+                    sFoldersMenu.parse(folders);
+                    $$("samples").setValue(folders[0].id);
                 });
             },
             onAfterRender: webix.once(function() {
