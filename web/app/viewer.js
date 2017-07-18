@@ -19,6 +19,6 @@ define("viewer", ["osd", "pubsub"], function(osd, pubsub) {
         navigatorPosition: "BOTTOM_RIGHT",
         showNavigator: true
     });
-
+    
     return viewer;
 });
