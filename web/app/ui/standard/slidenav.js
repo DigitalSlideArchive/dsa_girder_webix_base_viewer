@@ -42,6 +42,11 @@ define("standard/slidenav", ["config", "viewer", "slide", "jquery", "webix"], fu
         placeholder: "Select Slide Set",
         id: "slideset",
         options: {
+            filter:function(item, value){
+                if(item.name.toString().toLowerCase().indexOf(value.toLowerCase()) > -1)
+                  return true;
+                return false;
+            },
             body: {
                 template: "#name#"  
             }
@@ -49,7 +54,6 @@ define("standard/slidenav", ["config", "viewer", "slide", "jquery", "webix"], fu
         on: {
             onChange: function(id) {
                 var item = this.getPopup().getBody().getItem(id);
-
                 $.get(config.BASE_URL + "/folder?parentType=folder&parentId=" + item._id, function(data){
                     var sFoldersMenu = $$("samples").getPopup().getList();
                     sFoldersMenu.clearAll();
@@ -64,16 +68,30 @@ define("standard/slidenav", ["config", "viewer", "slide", "jquery", "webix"], fu
                 }).then(function(folders){
                     var foldersMenu = $$("slideset").getPopup().getList();
                     foldersMenu.clearAll();
-                    folders = shuffle(folders);
+                    folders = folders.filter(function(folder){
+                        return !folder.name.startsWith(".");
+                    });
                     foldersMenu.parse(folders);
                     $$("slideset").setValue(folders[0].id);
                     return $.get(config.BASE_URL + "/folder?parentType=folder&parentId=" + folders[0]._id);
-                }).then(function(data){
+                }).then(function(folders){
                     var sFoldersMenu = $$("samples").getPopup().getList();
                     sFoldersMenu.clearAll();
-                    sFoldersMenu.parse(data);
-                    $$("samples").setValue(data[0].id);
-                    return $.get(config.BASE_URL + "/item?limit=500&folderId=" + data[0]._id);
+                    folders = folders.filter(function(folder){
+                        return !folder.name.startsWith(".");
+                    });
+                    sFoldersMenu.parse(folders);
+                    $$("samples").setValue(folders[0].id);
+                    return $.get(config.BASE_URL + "/item?limit=500&folderId=" + folders[0]._id);
+                }).then(function(folders){
+                    var ssFoldersMenu = $$("subsamples").getPopup().getList();
+                    ssFoldersMenu.clearAll();
+                    folders = folders.filter(function(folder){
+                       return !folder.name.startsWith(".");
+                    });
+                    ssFoldersMenu.parse(folders);
+                    $$("subsamples").setValue(folders[0].id);
+                    return $.get(config.BASE_URL + "/item?limit=500&folderId=" + folders[0]._id);
                 }).done(function(data){
                     $$("thumbnails").clearAll();
                     $$("thumbnails").parse(data);
@@ -87,6 +105,38 @@ define("standard/slidenav", ["config", "viewer", "slide", "jquery", "webix"], fu
         placeholder: "Select Sample",
         id: "samples",
         options: {
+            filter:function(item, value){
+                if(item.name.toString().toLowerCase().indexOf(value.toLowerCase()) > -1)
+                  return true;
+                return false;
+            },
+            body: {
+                template: "#name#"
+            }
+        },
+        on: {
+            onChange: function(id) {
+                var item = this.getPopup().getBody().getItem(id);
+
+                $.get(config.BASE_URL + "/folder?parentType=folder&parentId=" + item._id, function(data){
+                    var sFoldersMenu = $$("subsamples").getPopup().getList();
+                    sFoldersMenu.clearAll();
+                    sFoldersMenu.parse(data);
+                });
+            }
+        }
+    };
+
+    subsamples_dropdown = {
+        view: "combo",
+        placeholder: "Select Folders",
+        id: "subsamples",
+        options: {
+            filter:function(item, value){
+                if(item.name.toString().toLowerCase().indexOf(value.toLowerCase()) > -1)
+                  return true;
+                return false;
+            },
             body: {
                 template: "#name#"
             }
@@ -101,7 +151,6 @@ define("standard/slidenav", ["config", "viewer", "slide", "jquery", "webix"], fu
                 $.get(config.BASE_URL + "/item?folderId=" + item._id, function(data){
                     thumbs.parse(data);
                 })
-                //thumbs.load(url);
             }
         }
     };
@@ -136,7 +185,7 @@ define("standard/slidenav", ["config", "viewer", "slide", "jquery", "webix"], fu
         },
         body: {
             rows: [
-                dropdown, samples_dropdown, itemPager,  thumbnailsPanel
+                dropdown, samples_dropdown, subsamples_dropdown, itemPager,  thumbnailsPanel
             ]
         },
         width: 220
