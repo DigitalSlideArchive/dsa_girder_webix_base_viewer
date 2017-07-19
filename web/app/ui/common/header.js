@@ -1,4 +1,4 @@
-define("common/header", ["login", "session"], function(login, session) {
+define("common/header", ["login", "session", "config"], function(login, session, config) {
     
     if(session.valid())
         loginBtn = { id:"login_btn", value:"Logout (" + session.username() + ")"}
@@ -40,7 +40,7 @@ define("common/header", ["login", "session"], function(login, session) {
             cols: [{
                     view: "template",
                     borderless: true,
-                    template: "<img src='img/CDSA_Slide_50.png' height='40'/>",
+                    template: "<img src='" + config.LEFT_HEADER_IMG + "' height='40'/>",
                     width: 200
                 }, 
                 {},
@@ -51,7 +51,7 @@ define("common/header", ["login", "session"], function(login, session) {
                             view: "template",
                             align: "right",
                             borderless: true,
-                            template: "<img src='http://cancer.digitalslidearchive.net/imgs/Winship_06-2011/Winship_NCI_shortTag/horizontal/jpg_png/Winship_NCI_shortTag_hz_280.png' height='50'/>",
+                            template: "<img src='" + config.RIGHT_HEADER_IMG + "' height='50'/>",
                             width: 250
                         }
                     ]

@@ -65,6 +65,10 @@ define("standard/slidenav", ["config", "viewer", "slide", "jquery", "webix"], fu
                 });
             },
             onAfterRender: webix.once(function() {
+                /* This is a chain of AJAX calls
+                
+
+                 */
                 $.get(config.BASE_URL + "/resource/lookup?path=/collection/" + config.COLLECTION_NAME)
                  .then(function(collection){
                     return $.get(config.BASE_URL + "/folder?limit=1000&parentType=collection&parentId=" + collection._id);

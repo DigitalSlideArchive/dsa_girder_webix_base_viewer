@@ -1,5 +1,11 @@
 define("config", function() {
 
+    //Header image (left side)
+    var LEFT_HEADER_IMG = "img/CDSA_Slide_50.png";
+
+    //Header image (right side)
+    var RIGHT_HEADER_IMG = "http://cancer.digitalslidearchive.net/imgs/Winship_06-2011/Winship_NCI_shortTag/horizontal/jpg_png/Winship_NCI_shortTag_hz_280.png";
+    
     //Specify the BASE API URL
     var BASE_URL = "http://digitalslidearchive.emory.edu:8080/api/v1";
 
@@ -22,6 +28,8 @@ define("config", function() {
         BASE_URL: BASE_URL,
         COLLECTION_NAME: COLLECTION_NAME,
         ENDPOINTS: ENDPOINTS[UI],
-        UI: UI
+        UI: UI,
+        LEFT_HEADER_IMG: LEFT_HEADER_IMG,
+        RIGHT_HEADER_IMG: RIGHT_HEADER_IMG
     }
 });

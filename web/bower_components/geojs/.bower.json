@@ -1,0 +1,38 @@
+{
+  "name": "geojs",
+  "version": "0.11.1",
+  "description": "JavaScript Geo visualization and Analysis Library",
+  "homepage": "https://github.com/OpenGeoscience/geojs",
+  "main": "geo.js",
+  "bugs": {
+    "url": "https://github.com/OpenGeoscience/geojs/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OpenGeoscience/geojs"
+  },
+  "dependencies": {
+    "d3": "^3.5.16"
+  },
+  "ignore": [
+    ".git",
+    ".gitignore",
+    ".travis.yml",
+    ".eslintcache",
+    "dist",
+    "test",
+    "cmake",
+    "testing",
+    "scripts",
+    "dashboard"
+  ],
+  "_release": "0.11.1",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.11.1",
+    "commit": "68c3bfd9a74591bb77927d96052d3349ca40d746"
+  },
+  "_source": "https://github.com/OpenGeoscience/geojs.git",
+  "_target": "^0.11.1",
+  "_originalSource": "geojs"
+}

@@ -1,0 +1,12 @@
+examples/
+cmake/
+testing/
+doc/
+dashboard/
+scripts/
+built/
+*build*/
+.git/
+bower_components/
+dist/
+.eslintcache
