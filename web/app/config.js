@@ -12,8 +12,12 @@ define("config", function() {
     //What is the collection name we are pulling data from?
     var COLLECTION_NAME = "ADRC";
 
+    //Do you want to include 3rd dropdown menu for the folders?
+    //ONLY APPLIES FOR THE STANDARD UI
+    var THIRD_MENU = true;
+
     //which endpoints do we wanna use? TCGA or Girder default endpoints
-    UI = "tcga";
+    UI = "standard";
 
     ENDPOINTS = {
         standard: {
@@ -30,6 +34,7 @@ define("config", function() {
         ENDPOINTS: ENDPOINTS[UI],
         UI: UI,
         LEFT_HEADER_IMG: LEFT_HEADER_IMG,
-        RIGHT_HEADER_IMG: RIGHT_HEADER_IMG
+        RIGHT_HEADER_IMG: RIGHT_HEADER_IMG,
+        THIRD_MENU: THIRD_MENU
     }
 });
