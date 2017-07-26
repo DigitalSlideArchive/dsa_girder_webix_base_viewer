@@ -17,7 +17,7 @@ define("config", function() {
     var THIRD_MENU = true;
 
     //which endpoints do we wanna use? TCGA or Girder default endpoints
-    UI = "standard";
+    UI = "tcga";
 
     ENDPOINTS = {
         standard: {

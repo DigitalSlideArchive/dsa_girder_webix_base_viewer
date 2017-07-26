@@ -103,7 +103,8 @@ require(["viewer", "slide", "geo", "pubsub"], function(viewer, slide, geo, pubsu
         $('#geojs .geojs-layer').css('pointer-events', 'none');
         var fill = evt.annotation.options('style').fillColor;
         var stroke = evt.annotation.options('style').strokeColor;
-        
+	console.log(evt.annotation);     
+	console.log(evt.annotation.options());   
         annotations.push({
             id: evt.annotation.id(),
             name: evt.annotation.name(),
@@ -240,6 +241,13 @@ require(["viewer", "slide", "geo", "pubsub"], function(viewer, slide, geo, pubsu
                     var item = this.getItem(id.row);
                     var annotation = layer.annotationById(item.id);
                     var opt = annotation.options('style');
+		    var originalColor = opt["fillColor"];
+		    opt["fillColor"] = "#ffc0cb";
+		    annotation.options({style: opt}).draw();
+		    setTimeout(function(){
+			opt["fillColor"] = originalColor;
+		    	annotation.options({style: opt}).draw();
+			}, 2000)
                     
 
                 }
