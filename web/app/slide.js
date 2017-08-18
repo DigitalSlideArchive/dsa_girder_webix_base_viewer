@@ -2,6 +2,14 @@ define("slide", ["viewer", "config", "pubsub"], function(viewer, config, pubsub)
 
 	function init(item){
 		$.extend(this, item);
+		this.item = item;
+
+		if($$("footer") != undefined){
+			$$("footer").define("data",{
+				name: this.item.name,
+				url: "http://digitalslidearchive.emory.edu/dsa_base/#slide/" + this.item._id
+			});
+		}
 		
        	$.ajax({
        		context: this,
@@ -10,7 +18,7 @@ define("slide", ["viewer", "config", "pubsub"], function(viewer, config, pubsub)
 				this.tiles = tiles;
 				itemId = this._id;
 	            pubsub.publish("SLIDE", this);
-	         
+	
 	   			tileSource = {
 	            	width: tiles.sizeX,
 	                height: tiles.sizeY,

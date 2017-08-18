@@ -145,7 +145,7 @@ require(["webix"], function() {
         }
     };
 
-    var filterWindow = {
+    var view = {
         view: "window",
         move: true,
         head: {
@@ -178,5 +178,5 @@ require(["webix"], function() {
         }
     };
 
-    webix.ui(filterWindow);
+    webix.ui(view);
 });

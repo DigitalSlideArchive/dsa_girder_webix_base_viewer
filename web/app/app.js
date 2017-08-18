@@ -27,10 +27,33 @@ are looking for, then go to the module and add the variable
 you want to return to the return object 
 */
 
-define(["ui", "webix"], function(ui) {
+define(["ui", "config", "jquery", "session", "webix"], function(ui, config, $, session) {
+
+    if(session.valid()){
+        $.ajaxSetup({
+            headers: {'Girder-Token': session.token()}
+        });
+
+        webix.ajax().headers({
+            'Girder-Token': session.token()
+        });
+
+        webix.attachEvent("onBeforeAjax", 
+            function(mode, url, data, request, headers, files, promise){
+                headers["Girder-Token"] = session.token();
+            }
+        );
+    }
+    
     webix.ready(function() {
         ui.init();
 
-        require(["aperio", "filters"]);
+        webix.extend($$("viewer_panel"), webix.ProgressBar);
+        webix.extend($$("viewer_panel"), webix.OverlayBox);
+
+        if(config.UI == "standard")
+        	require(["routes", "aperio", "filters"]);
+       	else
+        	require(["routes", "aperio", "filters", "pathology", "metadata", "login", "annotations"]);
     });
 });

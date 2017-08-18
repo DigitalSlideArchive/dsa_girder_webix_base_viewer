@@ -1,3 +1,13 @@
+def recurseGetItems(client, folderId):
+    items = list(recurseGetResource(client, folderId, 'item'))
+    folders = recurseGetResource(client, folderId, 'folder')
+    
+    for folder in folders:
+        tmp = recurseGetItems(client, folder["_id"])
+        items += list(tmp)
+
+    return items
+
 def recurseGetResource(client, parentId, resourceType, parentType='folder'):
 
 

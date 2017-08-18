@@ -11,7 +11,7 @@ Return:
 	- viewer - Openseadragon viewer object
  */
 
-define("viewer", ["osd"], function(osd) {
+define("viewer", ["osd", "pubsub"], function(osd, pubsub) {
 
     var viewer = osd({
         id: 'image_viewer',
@@ -19,6 +19,6 @@ define("viewer", ["osd"], function(osd) {
         navigatorPosition: "BOTTOM_RIGHT",
         showNavigator: true
     });
-
+    
     return viewer;
 });

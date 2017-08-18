@@ -14,7 +14,7 @@ define("config", function() {
 
     //Do you want to include 3rd dropdown menu for the folders?
     //ONLY APPLIES FOR THE STANDARD UI
-    var THIRD_MENU = true;
+    var THIRD_MENU = false;
 
     //which endpoints do we wanna use? TCGA or Girder default endpoints
     UI = "tcga";

@@ -19,11 +19,16 @@ define("standard/main", ["standard/slidenav", "common/toolbar", "common/header",
     function init() {
         //This is the Openseadragon layer
         viewerPanel = {
-            rows: [toolbar, {
-                view: "template",
-                id: "viewer_panel",
-                content: "image_viewer"
-            }]
+            id: "viewer_root",
+            borderless: true,
+            rows: [
+                toolbar,
+                {
+                    id: "viewer_panel",
+                    view: "template",
+                    content: "geo_osd"
+                }
+            ]
         };
         
         //Render the main layout
@@ -32,7 +37,8 @@ define("standard/main", ["standard/slidenav", "common/toolbar", "common/header",
             container: "main_layout",
             id: "root",
             rows: [
-                header, {
+                header, 
+                {   id: "layout_body",
                     cols: [
                         slidenav, {
                             view: "resizer"

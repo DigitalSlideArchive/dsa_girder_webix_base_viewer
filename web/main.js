@@ -1,22 +1,36 @@
 require = {
     urlArgs: "bust=" + (+new Date),
     paths: {
+        "fabric": "bower_components/fabric.js/dist/fabric.min",
+        "osdfabric": "bower_components/OpenseadragonFabricjsOverlay/openseadragon-fabricjs-overlay",
+        "hasher": "bower_components/hasher/dist/js/hasher.min",
+        "signals": "bower_components/js-signals/dist/signals.min",
+        "crossroads": "bower_components/crossroads/dist/crossroads.min",
         "d3": "bower_components/d3/d3.min",
         "svg": "bower_components/svg-overlay/openseadragon-svg-overlay",
         "osd": "bower_components/openseadragon/built-openseadragon/openseadragon/openseadragon.min",
+        "geo": "bower_components/geojs/geo",
         "webix": "bower_components/webix/codebase/webix",
         "jquery": "bower_components/jquery/dist/jquery.min",
         "pubsub": "bower_components/PubSubJS/src/pubsub",
         "config": "app/config",
         "slide": "app/slide",
         "viewer": "app/viewer",
+        "routes": "app/routes",
         "app": "app/app",
-        "aperio": "app/ui/plugins/aperio",
-        "filters": "app/ui/plugins/filters",
+        "aperio": "app/plugins/aperio",
+        "filters": "app/plugins/filters",
+        "pathology": "app/plugins/pathology",
+        "metadata": "app/plugins/metadata",
+        "annotations": "app/plugins/annotations",
+        "derm": "app/plugins/derm",
+        "login": "app/login",
+        "session": "app/session"
     },
 
-    shim:{
-        "svg": ["osd"]    
+    shims:{
+        "svg": ["osd"],
+        "common": ["login"]
     },
 
     packages: [
