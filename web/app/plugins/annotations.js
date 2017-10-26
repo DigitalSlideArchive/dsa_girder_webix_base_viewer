@@ -97,7 +97,7 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
         // initialize the geojs viewer
         const params = geo.util.pixelCoordinateParams('#geojs', slide.tiles.sizeX, slide.tiles.sizeY, slide.tiles.tileWidth, slide.tiles.tileHeight);
         //annotations = [];
-        console.log("SLIDE: " + JSON.stringify(slide));
+        //console.log("SLIDE: " + JSON.stringify(slide));
 
 
         currentSlide = slide;
@@ -118,7 +118,7 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
         map.geoOn(geo.event.annotation.state, created);
 
         if (!isEmpty(slide.meta)) {
-            console.log("META: " + JSON.stringify(slide.meta));
+            //console.log("META: " + JSON.stringify(slide.meta));
 
             if (!isEmpty(slide.meta.dsalayers) || slide.meta.dsalayers.length === 0) {
                 treeannotations = slide.meta.dsalayers;
@@ -128,13 +128,19 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
             //Reload existing annotations.
 
             if (!isEmpty(slide.meta.geojslayer)) {
-                var geojsLayers = slide.meta.geojslayer;
+                var geojsJSON = slide.meta.geojslayer;
 
-                for (var j = 0; j < geojsLayers.length; j++) {
-                    console.log(geojsLayers[j]);
-                    //var geojsAnnotation = geojsLayers[j];
-                    //layer.addAnnotation(geojsLayers[j], null);
-                }
+                console.log(JSON.stringify(geojsJSON));
+
+                var reader = geo.createFileReader('jsonReader', { 'layer': layer });
+                map.fileReader(reader);
+
+                reader.read(
+                    geojsJSON,
+                    function() {
+                        map.draw();
+                    }
+                );
             }
         } else {
             treeannotations = [{
@@ -230,9 +236,11 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
             geojsannotations[i] = anno;
         }
 
+        var geojsonObj = layer.geojson();
+
         var metaInfo = {
             dsalayers: treeannotations,
-            geojslayer: geojsannotations
+            geojslayer: geojsonObj
         };
 
         var url = config.BASE_URL + "/item/" + slide._id;
