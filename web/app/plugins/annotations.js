@@ -84,19 +84,21 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
         //webix.message("Value changed from: " + oldv + " to: " + newv);
     });
 
+    function isEmpty(obj) {
+        for (var prop in obj) {
+            if (obj.hasOwnProperty(prop))
+                return false;
+        }
+
+        return JSON.stringify(obj) === JSON.stringify({});
+    }
+
     pubsub.subscribe("SLIDE", function(msg, slide) {
         // initialize the geojs viewer
         const params = geo.util.pixelCoordinateParams('#geojs', slide.tiles.sizeX, slide.tiles.sizeY, slide.tiles.tileWidth, slide.tiles.tileHeight);
         //annotations = [];
         console.log("SLIDE: " + JSON.stringify(slide));
-        //HERE WE NEED TO LOAD IT FROM THE SLIDE IF ONE EXISTS
-        treeannotations = [{
-            "id": "1",
-            "value": "Default Layer",
-            "type": "layer",
-            "open": true,
-            "data": []
-        }];
+
 
         currentSlide = slide;
         $$("annotations_table").clearAll();
@@ -115,20 +117,33 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
 
         map.geoOn(geo.event.annotation.state, created);
 
-        if (slide.meta) {
+        if (!isEmpty(slide.meta)) {
             console.log("META: " + JSON.stringify(slide.meta));
-            treeannotations = slide.meta.dsalayers;
+
+            if (!isEmpty(slide.meta.dsalayers) || slide.meta.dsalayers.length === 0) {
+                treeannotations = slide.meta.dsalayers;
+            }
+
             //var slideMetaInfo = JSON.parse(slide.meta);
             //Reload existing annotations.
 
-            var geojsLayers = slide.meta.geojslayer;
+            if (!isEmpty(slide.meta.geojslayer)) {
+                var geojsLayers = slide.meta.geojslayer;
 
-            for (var j = 0; j < geojsLayers.length; j++) {
-                console.log(geojsLayers[j]);
-                //var geojsAnnotation = geojsLayers[j];
-                //layer.addAnnotation(geojsLayers[j], null);
+                for (var j = 0; j < geojsLayers.length; j++) {
+                    console.log(geojsLayers[j]);
+                    //var geojsAnnotation = geojsLayers[j];
+                    //layer.addAnnotation(geojsLayers[j], null);
+                }
             }
-
+        } else {
+            treeannotations = [{
+                "id": "1",
+                "value": "Default Layer",
+                "type": "layer",
+                "open": true,
+                "data": []
+            }];
         }
         //console.log(treeannotations);
         //RELOAD LAYERS UI
@@ -181,6 +196,7 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
             strokeOpacity: evt.annotation.options('style').strokeOpacity,
             strokeWidth: evt.annotation.options('style').strokeWidth
         };
+
         for (var i = 0; i < treeannotations.length; i++) {
             if (treeannotations[i].id === currentLayerId) {
                 var tempArray = treeannotations[i].data;
