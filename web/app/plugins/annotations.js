@@ -98,16 +98,26 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
         const params = geo.util.pixelCoordinateParams('#geojs', slide.tiles.sizeX, slide.tiles.sizeY, slide.tiles.tileWidth, slide.tiles.tileHeight);
         //annotations = [];
         //console.log("SLIDE: " + JSON.stringify(slide));
+        //Forcefully clear the arry to stop appending till ECMAScript 5
+        treeannotations.length = 0;
 
+        treeannotations = [{
+            "id": "1",
+            "value": "Default Layer",
+            "type": "layer",
+            "open": true,
+            "data": []
+        }];
 
         currentSlide = slide;
-        $$("annotations_table").clearAll();
+        //map.clear();
+        //map.draw();
+
         params.map.clampZoom = false;
         params.map.clampBoundsX = false;
         params.map.clampBoundsY = false;
         map = geo.map(params.map);
         layer = map.createLayer('annotation');
-
         // turn off geojs map navigation
         map.interactor().options({ actions: [] });
 
@@ -117,23 +127,26 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
 
         map.geoOn(geo.event.annotation.state, created);
 
+        var reader = geo.createFileReader('jsonReader', { 'layer': layer });
+        map.fileReader(reader);
+        layer.clear();
+        map.draw();
         if (!isEmpty(slide.meta)) {
             //console.log("META: " + JSON.stringify(slide.meta));
 
             if (!isEmpty(slide.meta.dsalayers) || slide.meta.dsalayers.length === 0) {
+                console.log(JSON.stringify(slide.meta.dsalayers));
+                treeannotations.length = 0;
                 treeannotations = slide.meta.dsalayers;
             }
 
-            //var slideMetaInfo = JSON.parse(slide.meta);
             //Reload existing annotations.
-
             if (!isEmpty(slide.meta.geojslayer)) {
                 var geojsJSON = slide.meta.geojslayer;
 
-                console.log(JSON.stringify(geojsJSON));
+                layer.geojson(geojsJSON, true);
 
-                var reader = geo.createFileReader('jsonReader', { 'layer': layer });
-                map.fileReader(reader);
+                console.log("GEOJSON: " + JSON.stringify(geojsJSON));
 
                 reader.read(
                     geojsJSON,
@@ -143,6 +156,8 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
                 );
             }
         } else {
+            console.log("DEFAULTS");
+            treeannotations.length = 0;
             treeannotations = [{
                 "id": "1",
                 "value": "Default Layer",
@@ -150,8 +165,11 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
                 "open": true,
                 "data": []
             }];
+
         }
+
         //console.log(treeannotations);
+        $$("annotations_table").clearAll();
         //RELOAD LAYERS UI
         var updateStringArray = JSON.stringify(treeannotations);
         var tempJSONArray = JSON.parse(updateStringArray);
@@ -203,6 +221,8 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
             strokeWidth: evt.annotation.options('style').strokeWidth
         };
 
+        console.log("CREATED:" + newAnnotationTree.geoid);
+
         for (var i = 0; i < treeannotations.length; i++) {
             if (treeannotations[i].id === currentLayerId) {
                 var tempArray = treeannotations[i].data;
@@ -247,7 +267,7 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
         console.log(url);
         webix.ajax().put(url, { "metadata": metaInfo }, function(text, xml, xhr) {
             // response
-            console.log(text);
+            //console.log(text);
         });
     }
 
@@ -286,7 +306,6 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
                     icon: "plus-square",
                     on: {
                         onItemClick: function() {
-                            console.log();
                             var newLayer = {
                                 id: treeannotations.length + 1,
                                 value: $$('layername').getValue(),
@@ -456,6 +475,7 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
                 onAfterEditStop: function(state, editor) {
                     var item = this.getItem(editor.row);
                     var annotation = layer.annotationById(item.geoid);
+                    console.log("COLOR CHANGE:" + item.geoid);
                     var opt = annotation.options('style');
                     opt[editor.column] = state.value;
 
