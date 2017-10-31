@@ -93,14 +93,9 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
         return JSON.stringify(obj) === JSON.stringify({});
     }
 
-    pubsub.subscribe("SLIDE", function(msg, slide) {
-        // initialize the geojs viewer
-        const params = geo.util.pixelCoordinateParams('#geojs', slide.tiles.sizeX, slide.tiles.sizeY, slide.tiles.tileWidth, slide.tiles.tileHeight);
-        //annotations = [];
-        //console.log("SLIDE: " + JSON.stringify(slide));
+    function reinitializeTreeLayers() {
         //Forcefully clear the arry to stop appending till ECMAScript 5
         treeannotations.length = 0;
-
         treeannotations = [{
             "id": "1",
             "value": "Default Layer",
@@ -108,10 +103,29 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
             "open": true,
             "data": []
         }];
+        reloadAnnotationsTable();
+    }
+
+    function reloadAnnotationsTable() {
+        console.log("Updating UI with annotation layers: " + JSON.stringify(treeannotations));
+        $$("annotations_table").clearAll();
+        //RELOAD LAYERS UI
+        var updateStringArray = JSON.stringify(treeannotations);
+        var tempJSONArray = JSON.parse(updateStringArray);
+        $$("annotations_table").parse(tempJSONArray);
+
+        //RELOAD THE DROP DOWN COMBO
+        var list = $$("currentLayerCombo").getPopup().getList();
+        list.clearAll();
+        list.parse(treeannotations);
+    }
+
+    pubsub.subscribe("SLIDE", function(msg, slide) {
+        // initialize the geojs viewer
+        const params = geo.util.pixelCoordinateParams('#geojs', slide.tiles.sizeX, slide.tiles.sizeY, slide.tiles.tileWidth, slide.tiles.tileHeight);
+        //console.log("SLIDE: " + JSON.stringify(slide));
 
         currentSlide = slide;
-        //map.clear();
-        //map.draw();
 
         params.map.clampZoom = false;
         params.map.clampBoundsX = false;
@@ -134,18 +148,25 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
         if (!isEmpty(slide.meta)) {
             //console.log("META: " + JSON.stringify(slide.meta));
 
-            if (!isEmpty(slide.meta.dsalayers) || slide.meta.dsalayers.length === 0) {
-                console.log(JSON.stringify(slide.meta.dsalayers));
+            if (typeof slide.meta.dsalayers === "undefined") {
+                console.log("No exisitng layers found");
+
+            } else if (!isEmpty(slide.meta.dsalayers) && slide.meta.dsalayers.length > 0) {
+                console.log("LAYERS Found: " + JSON.stringify(slide.meta.dsalayers));
                 treeannotations.length = 0;
                 treeannotations = slide.meta.dsalayers;
+                reloadAnnotationsTable();
+            } else {
+                console.log("No layers associated with this slide. Setting Defaults");
+                reinitializeTreeLayers();
             }
 
             //Reload existing annotations.
-            if (!isEmpty(slide.meta.geojslayer)) {
+            if (typeof slide.meta.geojslayer === "undefined") {
+                console.log("No exisitng annotations found");
+
+            } else if (!isEmpty(slide.meta.geojslayer)) {
                 var geojsJSON = slide.meta.geojslayer;
-
-                layer.geojson(geojsJSON, true);
-
                 console.log("GEOJSON: " + JSON.stringify(geojsJSON));
 
                 reader.read(
@@ -154,35 +175,14 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
                         map.draw();
                     }
                 );
+                //layer.geojson(geojsJSON, true);
             }
         } else {
-            console.log("DEFAULTS");
-            treeannotations.length = 0;
-            treeannotations = [{
-                "id": "1",
-                "value": "Default Layer",
-                "type": "layer",
-                "open": true,
-                "data": []
-            }];
-
+            console.log("No metadata associated with this slide. Setting Defaults");
+            reinitializeTreeLayers();
         }
-
-        //console.log(treeannotations);
-        $$("annotations_table").clearAll();
-        //RELOAD LAYERS UI
-        var updateStringArray = JSON.stringify(treeannotations);
-        var tempJSONArray = JSON.parse(updateStringArray);
-        $$("annotations_table").parse(tempJSONArray);
-
-        //RELOAD THE DROP DOWN COMBO
-        var list = $$("currentLayerCombo").getPopup().getList();
-        list.clearAll();
-        list.parse(treeannotations);
-
         // Update the layers data structure
         //Refresh the tree
-        //refreshJSONData();
     });
 
     // get the current bounds from the osd viewer
@@ -222,6 +222,8 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
         };
 
         console.log("CREATED:" + newAnnotationTree.geoid);
+
+        console.log("TREE ANNOTATIONS: " + JSON.stringify(treeannotations));
 
         for (var i = 0; i < treeannotations.length; i++) {
             if (treeannotations[i].id === currentLayerId) {
@@ -267,6 +269,7 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
         console.log(url);
         webix.ajax().put(url, { "metadata": metaInfo }, function(text, xml, xhr) {
             // response
+            console.log("Successfully updated girder with annotations");
             //console.log(text);
         });
     }
