@@ -25,16 +25,16 @@ require = {
         "annotations": "app/plugins/annotations",
         "derm": "app/plugins/derm",
         "login": "app/login",
-        "session": "app/session"
+        "session": "app/session",
+        "Hammer": "bower_components/hammerjs/hammer"
     },
 
-    shims:{
+    shims: {
         "svg": ["osd"],
         "common": ["login"]
     },
 
-    packages: [
-        {
+    packages: [{
             name: "ui",
             location: "app/ui"
         },
