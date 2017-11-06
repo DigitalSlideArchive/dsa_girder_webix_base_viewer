@@ -13,6 +13,7 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
     var currentSlide;
     var currentLayerId = "1";
     var currentShape = "rectangle";
+    var animationInProgress = false;
 
     var tools = {
         height: 25,
@@ -70,13 +71,29 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
                 type: "iconButton",
                 name: "Draw",
                 inputWidth: 180,
-                offIcon: "lock",
-                onIcon: "edit",
+                offIcon: "toggle-off",
+                onIcon: "toggle-on",
                 offLabel: "Drawing Disabled",
                 onLabel: "Drawing Enabled",
                 on: {
                     onItemClick: function() {
                         draw(currentShape);
+                    }
+                }
+            },
+            {
+                view: "toggle",
+                id: "show_labels_toggle",
+                type: "iconButton",
+                name: "Labels",
+                inputWidth: 180,
+                offIcon: "toggle-off",
+                onIcon: "toggle-on",
+                offLabel: "No Labels",
+                onLabel: "Labels",
+                on: {
+                    onItemClick: function() {
+                        toggleLabel();
                     }
                 }
             },
@@ -134,22 +151,48 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
         }
     }
 
+    //Toggle Labels
+    function toggleLabel() {
+        if ($$("show_labels_toggle").getValue() === 1) {
+            //ON
+            layer.options('showLabels', true);
+            layer.draw();
+        } else {
+            //OFF
+            layer.options('showLabels', false);
+            layer.draw();
+        }
+    }
+
+    //WE NEED TO USE THESE TO CONVERT GEOJS RGB INITIAL VALUE TO HEX - CURRENTLY NOT USED
+    function componentToHex(c) {
+        var hex = c.toString(16);
+        return hex.length == 1 ? "0" + hex : hex;
+    }
+    //WE NEED TO USE THESE TO CONVERT GEOJS RGB INITIAL VALUE TO HEX - CURRENTLY NOT USED
+    function rgbToHex(r, g, b) {
+        return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+    }
+
     // add a handler for when an annotation is created
     function created(evt) {
         $('#geojs .geojs-layer').css('pointer-events', 'none');
+        //WE NEED TO USE THESE TO CONVERT GEOJS RGB INITIAL VALUE TO HEX - CURRENTLY NOT USED
         var fill = evt.annotation.options('style').fillColor;
         var stroke = evt.annotation.options('style').strokeColor;
         //console.log(evt.annotation);
         //console.log(evt.annotation.options());
+
+        console.log(JSON.stringify(fill));
 
         var newAnnotationTree = {
             id: currentLayerId + ".",
             geoid: evt.annotation.id(),
             value: evt.annotation.name(),
             type: evt.annotation.type(),
-            fillColor: "rgb(" + fill.r + "," + fill.g + "," + fill.b + ")",
+            fillColor: "#00FF00",
             fillOpacity: evt.annotation.options('style').fillOpacity,
-            strokeColor: "rgb(" + stroke.r + ", " + stroke.g + ", " + stroke.b + ")",
+            strokeColor: "#000000",
             strokeOpacity: evt.annotation.options('style').strokeOpacity,
             strokeWidth: evt.annotation.options('style').strokeWidth
         };
@@ -166,7 +209,6 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
             }
         }
         updateGirderWithAnnotationData();
-
         //console.log(JSON.stringify($$("annotations_table").getChecked()));
     }
 
@@ -214,7 +256,6 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
         });
     }
 
-
     function reinitializeTreeLayers() {
         //Forcefully clear the arry to stop appending till ECMAScript 5
         treeannotations.length = 0;
@@ -226,6 +267,7 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
             "data": []
         }];
         reloadAnnotationsTable();
+        treeCheckBoxesClicked();
     }
 
     function reloadAnnotationsTable() {
@@ -240,9 +282,12 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
         var list = $$("currentLayerCombo").getPopup().getList();
         list.clearAll();
         list.parse(treeannotations);
+
+        toggleLabel();
     }
 
     pubsub.subscribe("SLIDE", function(msg, slide) {
+        animationInProgress = false;
         // initialize the geojs viewer
         const params = geo.util.pixelCoordinateParams('#geojs', slide.tiles.sizeX, slide.tiles.sizeY, slide.tiles.tileWidth, slide.tiles.tileHeight);
         //console.log("SLIDE: " + JSON.stringify(slide));
@@ -252,7 +297,7 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
         params.map.clampBoundsX = false;
         params.map.clampBoundsY = false;
         map = geo.map(params.map);
-        layer = map.createLayer('annotation');
+        layer = map.createLayer('annotation', );
         // turn off geojs map navigation
         map.interactor().options({ actions: [] });
 
@@ -303,6 +348,17 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
         }
     });
 
+    function treeCheckBoxesClicked() {
+        console.log(JSON.stringify($$("annotations_table").getChecked()));
+    }
+
+    function setAnimate() {
+        animationInProgress = false;
+    }
+
+    function animateTimeOut() {
+        setTimeout(setAnimate(), 3000);
+    }
 
     var color1 = "#fillColor# <span style='background-color:#fillColor#; border-radius:4px; padding-right:10px;'>&nbsp</span>";
     var color2 = "#strokeColor# <span style='background-color:#strokeColor#; border-radius:4px; padding-right:10px;'>&nbsp</span>";
@@ -498,6 +554,24 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
                     var annotation = layer.annotationById(item.geoid);
                     layer.removeAnnotation(annotation);
                     this.remove(id.row);
+
+                    //UPDATE JSON ALONG WITH LAYER
+                    var found = false;
+                    for (var i = 0; i < treeannotations.length; i++) {
+                        for (var j = 0; j < treeannotations[i].data.length; j++) {
+                            if (treeannotations[i].data[j].geoid == item.geoid) {
+                                //delete treeannotations[i].data[j];
+                                treeannotations[i].data.splice(j, 1);
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (found) {
+                            break;
+                        }
+                    }
+                    updateGirderWithAnnotationData();
+                    treeCheckBoxesClicked();
                 }
             },
             on: {
@@ -534,8 +608,31 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
                     annotation.options({ style: opt }).draw();
                     updateGirderWithAnnotationData();
                 },
-                onItemClick: function(id) {}
+                onItemClick: function(id) {
+                    animationInProgress = true;
 
+                    /*
+                    var item = $$("annotations_table").getItem(id);
+                    var annotation = layer.annotationById(item.geoid);
+                    //console.log(JSON.stringify(annotation));
+                    var opt = annotation.options('style');
+
+
+                    var opacity = 0.1;
+                    var increment = 0.1;
+                    while (animationInProgress) {
+                        opacity += 0.1;
+                        if (opacity === 1.0 || opacity === 0.1) {
+                            increment = increment * -1;
+                        }
+                        opt[strokeOpacity] = opacity;
+                        annotation.options({ style: opt }).draw();
+                    }
+                    */
+                },
+                onItemCheck: function(id, value, event) {
+                    treeCheckBoxesClicked();
+                }
             }
         }
     });
