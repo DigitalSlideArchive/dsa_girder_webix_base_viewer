@@ -325,6 +325,53 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
         }
     }
 
+    function propertiesEdited(property, geoid, value, editorcolumn) {
+
+        //UPDATE JSON ALONG WITH LAYER
+        var found = false;
+        var visibleAnnotationsChanged = false;
+        for (var i = 0; i < treeannotations.length; i++) {
+            for (var j = 0; j < treeannotations[i].data.length; j++) {
+                if (treeannotations[i].data[j].geoid == geoid) {
+
+                    switch (property) {
+                        case "strokeWidth":
+                            treeannotations[i].data[j].strokeWidth = val;
+                            break;
+                        case "fillOpacity":
+                            treeannotations[i].data[j].fillOpacity = val;
+                            break;
+                        case "strokeOpacity":
+                            treeannotations[i].data[j].strokeOpacity = val;
+                            break;
+                        case "deleteAnnotation":
+                            treeannotations[i].data.splice(j, 1);
+                            visibleAnnotationsChanged = true;
+                            break;
+                        case "annotationStyleChange":
+                            switch (editorcolumn) {
+                                case "fillColor":
+                                    treeannotations[i].data[j].fillColor = value;
+                                    break;
+                                case "strokeColor":
+                                    treeannotations[i].data[j].strokeColor = value;
+                                    break;
+                            }
+                            break;
+                    }
+                    found = true;
+                    break;
+                }
+            }
+            if (found) {
+                break;
+            }
+        }
+        updateGirderWithAnnotationData();
+        if (visibleAnnotationsChanged) {
+            treeCheckBoxesClicked();
+        }
+    }
     /***********************************************************************************************/
     /********************************* GIRDER UPDATES **********************************************/
     /***********************************************************************************************/
@@ -531,22 +578,7 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
                             var opt = annotation.options('style');
                             opt[this.config.$masterId.column] = val;
                             annotation.options({ style: opt }).draw();
-
-                            //UPDATE JSON ALONG WITH LAYER
-                            var found = false;
-                            for (var i = 0; i < treeannotations.length; i++) {
-                                for (var j = 0; j < treeannotations[i].data.length; j++) {
-                                    if (treeannotations[i].data[j].geoid == item.geoid) {
-                                        treeannotations[i].data[j].strokeWidth = val;
-                                        found = true;
-                                        break;
-                                    }
-                                }
-                                if (found) {
-                                    break;
-                                }
-                            }
-                            updateGirderWithAnnotationData();
+                            propertiesEdited("strokeWidth", item.geoid, val, "");
                         }
                     }
                 },
@@ -565,22 +597,7 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
                             var opt = annotation.options('style');
                             opt[this.config.$masterId.column] = val;
                             annotation.options({ style: opt }).draw();
-
-                            //UPDATE JSON ALONG WITH LAYER
-                            var found = false;
-                            for (var i = 0; i < treeannotations.length; i++) {
-                                for (var j = 0; j < treeannotations[i].data.length; j++) {
-                                    if (treeannotations[i].data[j].geoid == item.geoid) {
-                                        treeannotations[i].data[j].fillOpacity = val;
-                                        found = true;
-                                        break;
-                                    }
-                                }
-                                if (found) {
-                                    break;
-                                }
-                            }
-                            updateGirderWithAnnotationData();
+                            propertiesEdited("fillOpacity", item.geoid, val, "");
                         }
                     }
                 },
@@ -600,22 +617,7 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
                             var opt = annotation.options('style');
                             opt[this.config.$masterId.column] = val;
                             annotation.options({ style: opt }).draw();
-
-                            //UPDATE JSON ALONG WITH LAYER
-                            var found = false;
-                            for (var i = 0; i < treeannotations.length; i++) {
-                                for (var j = 0; j < treeannotations[i].data.length; j++) {
-                                    if (treeannotations[i].data[j].geoid == item.geoid) {
-                                        treeannotations[i].data[j].strokeOpacity = val;
-                                        found = true;
-                                        break;
-                                    }
-                                }
-                                if (found) {
-                                    break;
-                                }
-                            }
-                            updateGirderWithAnnotationData();
+                            propertiesEdited("strokeOpacity", item.geoid, val, "");
                         }
                     }
                 }
@@ -626,24 +628,7 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
                     var annotation = layer.annotationById(item.geoid);
                     layer.removeAnnotation(annotation);
                     this.remove(id.row);
-
-                    //UPDATE JSON ALONG WITH LAYER
-                    var found = false;
-                    for (var i = 0; i < treeannotations.length; i++) {
-                        for (var j = 0; j < treeannotations[i].data.length; j++) {
-                            if (treeannotations[i].data[j].geoid == item.geoid) {
-                                //delete treeannotations[i].data[j];
-                                treeannotations[i].data.splice(j, 1);
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (found) {
-                            break;
-                        }
-                    }
-                    updateGirderWithAnnotationData();
-                    treeCheckBoxesClicked();
+                    propertiesEdited("deleteAnnotation", item.geoid, "", "");
                 }
             },
             on: {
@@ -654,35 +639,11 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
                         console.log("COLOR CHANGE:" + item.geoid);
                     var opt = annotation.options('style');
                     opt[editor.column] = state.value;
-
-                    //UPDATE JSON ALONG WITH LAYER
-                    var found = false;
-                    for (var i = 0; i < treeannotations.length; i++) {
-                        for (var j = 0; j < treeannotations[i].data.length; j++) {
-                            if (treeannotations[i].data[j].geoid == item.geoid) {
-                                switch (editor.column) {
-                                    case "fillColor":
-                                        treeannotations[i].data[j].fillColor = state.value;
-                                        break;
-                                    case "strokeColor":
-                                        treeannotations[i].data[j].strokeColor = state.value;
-                                        break;
-                                }
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (found) {
-                            break;
-                        }
-                    }
-
                     annotation.options({ style: opt }).draw();
-                    updateGirderWithAnnotationData();
+                    propertiesEdited("annotationStyleChange", item.geoid, state.value, editor.column);
                 },
                 onItemClick: function(id) {
                     animationInProgress = true;
-
                     /*
                     var item = $$("annotations_table").getItem(id);
                     var annotation = layer.annotationById(item.geoid);
