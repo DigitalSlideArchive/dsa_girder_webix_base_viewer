@@ -1,5 +1,10 @@
 require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(viewer, slide, geo, pubsub, config, session) {
 
+    /***********************************************************************************************/
+    /************************************** GLOBAL VARIABLES  **************************************/
+    /***********************************************************************************************/
+
+    var DEBUG = false;
     var layer;
     var map;
     var annotations = [];
@@ -14,6 +19,10 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
     var currentLayerId = "1";
     var currentShape = "rectangle";
     var animationInProgress = false;
+
+    /***********************************************************************************************/
+    /********************************* USER INTERFACE ELEMENTS *************************************/
+    /***********************************************************************************************/
 
     var tools = {
         height: 25,
@@ -111,10 +120,9 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
 
     $$("viewer_root").addView(tools, 1);
 
-    $$("currentLayerCombo").attachEvent("onChange", function(newv, oldv) {
-        currentLayerId = newv;
-        //webix.message("Value changed from: " + oldv + " to: " + newv);
-    });
+    /***********************************************************************************************/
+    /********************************* VIEWER BOUNDS ***********************************************/
+    /***********************************************************************************************/
 
     // get the current bounds from the osd viewer
     function getBounds() {
@@ -132,7 +140,10 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
         });
     }
 
-    //UTILITY FUNCTION MIGHT NEED TO REMOVE THIS
+    /***********************************************************************************************/
+    /********************************* UTILITIES ***************************************************/
+    /***********************************************************************************************/
+
     function isEmpty(obj) {
         for (var prop in obj) {
             if (obj.hasOwnProperty(prop))
@@ -141,15 +152,107 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
         return JSON.stringify(obj) === JSON.stringify({});
     }
 
+    //WE NEED TO USE THESE TO CONVERT GEOJS RGB INITIAL VALUE TO HEX - CURRENTLY NOT USED
+    function componentToHex(c) {
+        var hex = c.toString(16);
+        return hex.length == 1 ? "0" + hex : hex;
+    }
+    //WE NEED TO USE THESE TO CONVERT GEOJS RGB INITIAL VALUE TO HEX - CURRENTLY NOT USED
+    function rgbToHex(r, g, b) {
+        return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+    }
+
+    /***********************************************************************************************/
+    /********************************* GEO JS ******************************************************/
+    /***********************************************************************************************/
+
+    pubsub.subscribe("SLIDE", function(msg, slide) {
+        //debugger;
+        console.log("PUB SUB SLIDE");
+        resetDataStructures();
+
+        animationInProgress = false;
+        // initialize the geojs viewer
+        const params = geo.util.pixelCoordinateParams('#geojs', slide.tiles.sizeX, slide.tiles.sizeY, slide.tiles.tileWidth, slide.tiles.tileHeight);
+        if (DEBUG) {
+            //console.log("SLIDE: " + JSON.stringify(slide));
+        }
+
+        params.map.clampZoom = false;
+        params.map.clampBoundsX = false;
+        params.map.clampBoundsY = false;
+        map = geo.map(params.map);
+        layer = map.createLayer('annotation', );
+
+        // turn off geojs map navigation
+        map.interactor().options({ actions: [] });
+
+        // add handlers to tie navigation events together
+        viewer.addHandler('open', setBounds);
+        viewer.addHandler('animation', setBounds);
+        map.geoOn(geo.event.annotation.state, created);
+
+        getMetadataAndLoadAnnotations();
+    });
+
     // add handlers for drawing annotations
     function draw(type) {
-        console.log("Entering drawing function...");
+        if (DEBUG)
+            console.log("Entering drawing function...");
         if ($$("draw_toggle").getValue() === 1) {
             currentShape = type;
             $('#geojs .geojs-layer').css('pointer-events', 'auto');
             layer.mode(currentShape);
         }
     }
+
+    // add a handler for when an annotation is created
+    function created(evt) {
+        $('#geojs .geojs-layer').css('pointer-events', 'none');
+        //WE NEED TO USE THESE TO CONVERT GEOJS RGB INITIAL VALUE TO HEX - CURRENTLY NOT USED
+        var fill = evt.annotation.options('style').fillColor;
+        var stroke = evt.annotation.options('style').strokeColor;
+
+        if (DEBUG) {
+            //console.log(evt.annotation);
+            //console.log(evt.annotation.options());
+            console.log(JSON.stringify(fill));
+        }
+        var newAnnotationTree = {
+            id: currentLayerId + ".",
+            geoid: evt.annotation.id(),
+            value: evt.annotation.name(),
+            type: evt.annotation.type(),
+            fillColor: "#00FF00",
+            fillOpacity: evt.annotation.options('style').fillOpacity,
+            strokeColor: "#000000",
+            strokeOpacity: evt.annotation.options('style').strokeOpacity,
+            strokeWidth: evt.annotation.options('style').strokeWidth
+        };
+
+        if (DEBUG) {
+            console.log("CREATED:" + newAnnotationTree.geoid);
+            console.log("TREE ANNOTATIONS: " + JSON.stringify(treeannotations));
+        }
+        for (var i = 0; i < treeannotations.length; i++) {
+            if (treeannotations[i].id === currentLayerId) {
+                var tempArray = treeannotations[i].data;
+                newAnnotationTree.id = newAnnotationTree.id + (tempArray.length + 1);
+                tempArray[tempArray.length] = newAnnotationTree;
+                break;
+            }
+        }
+        updateGirderWithAnnotationData();
+    }
+
+    /***********************************************************************************************/
+    /********************************* ANNOTATION CONTROL ******************************************/
+    /***********************************************************************************************/
+
+    $$("currentLayerCombo").attachEvent("onChange", function(newv, oldv) {
+        currentLayerId = newv;
+        //webix.message("Value changed from: " + oldv + " to: " + newv);
+    });
 
     //Toggle Labels
     function toggleLabel() {
@@ -164,52 +267,117 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
         }
     }
 
-    //WE NEED TO USE THESE TO CONVERT GEOJS RGB INITIAL VALUE TO HEX - CURRENTLY NOT USED
-    function componentToHex(c) {
-        var hex = c.toString(16);
-        return hex.length == 1 ? "0" + hex : hex;
-    }
-    //WE NEED TO USE THESE TO CONVERT GEOJS RGB INITIAL VALUE TO HEX - CURRENTLY NOT USED
-    function rgbToHex(r, g, b) {
-        return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+    // Toggle Annotations
+    function treeCheckBoxesClicked() {
+        if (DEBUG)
+            console.log(JSON.stringify($$("annotations_table").getChecked()));
     }
 
-    // add a handler for when an annotation is created
-    function created(evt) {
-        $('#geojs .geojs-layer').css('pointer-events', 'none');
-        //WE NEED TO USE THESE TO CONVERT GEOJS RGB INITIAL VALUE TO HEX - CURRENTLY NOT USED
-        var fill = evt.annotation.options('style').fillColor;
-        var stroke = evt.annotation.options('style').strokeColor;
-        //console.log(evt.annotation);
-        //console.log(evt.annotation.options());
+    function setAnimate() {
+        animationInProgress = false;
+    }
 
-        console.log(JSON.stringify(fill));
+    function animateTimeOut() {
+        setTimeout(setAnimate(), 3000);
+    }
 
-        var newAnnotationTree = {
-            id: currentLayerId + ".",
-            geoid: evt.annotation.id(),
-            value: evt.annotation.name(),
-            type: evt.annotation.type(),
-            fillColor: "#00FF00",
-            fillOpacity: evt.annotation.options('style').fillOpacity,
-            strokeColor: "#000000",
-            strokeOpacity: evt.annotation.options('style').strokeOpacity,
-            strokeWidth: evt.annotation.options('style').strokeWidth
-        };
+    /***********************************************************************************************/
+    /********************************* DATA STRUCTURE/UI CONTROL ***********************************/
+    /***********************************************************************************************/
 
-        console.log("CREATED:" + newAnnotationTree.geoid);
-        console.log("TREE ANNOTATIONS: " + JSON.stringify(treeannotations));
+    function reinitializeTreeLayers() {
+        //Forcefully clear the arry to stop appending till ECMAScript 5
+        treeannotations.length = 0;
+        treeannotations = [{
+            "id": "1",
+            "value": "Default Layer",
+            "type": "layer",
+            "open": true,
+            "data": []
+        }];
+        reloadAnnotationsTable();
+        treeCheckBoxesClicked();
+    }
 
-        for (var i = 0; i < treeannotations.length; i++) {
-            if (treeannotations[i].id === currentLayerId) {
-                var tempArray = treeannotations[i].data;
-                newAnnotationTree.id = newAnnotationTree.id + (tempArray.length + 1);
-                tempArray[tempArray.length] = newAnnotationTree;
-                break;
+    function reloadAnnotationsTable() {
+        if (DEBUG)
+            console.log("Updating UI with annotation layers: " + JSON.stringify(treeannotations));
+        $$("annotations_table").clearAll();
+        //RELOAD LAYERS UI
+        var updateStringArray = JSON.stringify(treeannotations);
+        var tempJSONArray = JSON.parse(updateStringArray);
+        $$("annotations_table").parse(tempJSONArray);
+
+        //RELOAD THE DROP DOWN COMBO
+        var list = $$("currentLayerCombo").getPopup().getList();
+        list.clearAll();
+        list.parse(treeannotations);
+
+        toggleLabel();
+    }
+
+    function resetDataStructures() {
+        console.log("RESETTING DATA STRUCTURES");
+        if (layer != null) {
+            layer.geojson(null, true, null, true);
+            map.draw();
+            reinitializeTreeLayers();
+        }
+    }
+
+    /***********************************************************************************************/
+    /********************************* GIRDER UPDATES **********************************************/
+    /***********************************************************************************************/
+
+    function getMetadataAndLoadAnnotations() {
+        var url = config.BASE_URL + "/item/" + slide._id;
+        webix.ajax().get(url, function(text) {
+            currentSlide = JSON.parse(text);
+        });
+
+        if (typeof currentSlide === "undefined") {
+            //DO NOTHING
+        } else {
+            if (!isEmpty(currentSlide.meta)) {
+                if (typeof currentSlide.meta.dsalayers === "undefined") {
+                    if (DEBUG)
+                        console.log("No exisitng layers found");
+                } else if (!isEmpty(currentSlide.meta.dsalayers) && currentSlide.meta.dsalayers.length > 0) {
+                    if (DEBUG)
+                        console.log("LAYERS Found: " + JSON.stringify(currentSlide.meta.dsalayers));
+                    treeannotations.length = 0;
+                    treeannotations = currentSlide.meta.dsalayers;
+                    reloadAnnotationsTable();
+                } else {
+                    if (DEBUG)
+                        console.log("No layers associated with this slide. Setting Defaults");
+                    reinitializeTreeLayers();
+                }
+
+                //Reload existing annotations.
+                if (typeof currentSlide.meta.geojslayer === "undefined") {
+                    if (DEBUG)
+                        console.log("No exisitng annotations found");
+                } else if (!isEmpty(currentSlide.meta.geojslayer)) {
+                    var geojsJSON = currentSlide.meta.geojslayer;
+                    if (DEBUG)
+                        console.log("GEOJSON: " + JSON.stringify(geojsJSON));
+
+                    //One way of reloading annotations. But we loose GeoIDs if we do it this way
+                    /*
+                    var reader = geo.createFileReader('jsonReader', { 'layer': layer });
+                    map.fileReader(reader);
+                    reader.read(
+                        geojsJSON,
+                        function() {
+                            map.draw();
+                        }
+                    );
+                    */
+                    layer.geojson(geojsJSON, true, null, true);
+                }
             }
         }
-        updateGirderWithAnnotationData();
-        //console.log(JSON.stringify($$("annotations_table").getChecked()));
     }
 
     function updateGirderWithAnnotationData() {
@@ -243,122 +411,26 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
         };
 
         var url = config.BASE_URL + "/item/" + slide._id;
-        console.log(url);
+        if (DEBUG)
+            console.log(url);
         webix.ajax().put(url, { "metadata": metaInfo }, function(text, xml, xhr) {
             // response
-            console.log("Successfully updated girder with annotations");
+            if (DEBUG)
+                console.log("Successfully updated girder with annotations");
             //console.log(text);
             if ($$("draw_toggle").getValue() === 1) {
-                console.log("completed adding annotation to UI, draw is sticky calling draw function again");
+                if (DEBUG)
+                    console.log("completed adding annotation to UI, draw is sticky calling draw function again");
                 //currentshape is retained it only changes when you click the button
                 draw(currentShape);
             }
         });
     }
 
-    function reinitializeTreeLayers() {
-        //Forcefully clear the arry to stop appending till ECMAScript 5
-        treeannotations.length = 0;
-        treeannotations = [{
-            "id": "1",
-            "value": "Default Layer",
-            "type": "layer",
-            "open": true,
-            "data": []
-        }];
-        reloadAnnotationsTable();
-        treeCheckBoxesClicked();
-    }
 
-    function reloadAnnotationsTable() {
-        console.log("Updating UI with annotation layers: " + JSON.stringify(treeannotations));
-        $$("annotations_table").clearAll();
-        //RELOAD LAYERS UI
-        var updateStringArray = JSON.stringify(treeannotations);
-        var tempJSONArray = JSON.parse(updateStringArray);
-        $$("annotations_table").parse(tempJSONArray);
-
-        //RELOAD THE DROP DOWN COMBO
-        var list = $$("currentLayerCombo").getPopup().getList();
-        list.clearAll();
-        list.parse(treeannotations);
-
-        toggleLabel();
-    }
-
-    pubsub.subscribe("SLIDE", function(msg, slide) {
-        animationInProgress = false;
-        // initialize the geojs viewer
-        const params = geo.util.pixelCoordinateParams('#geojs', slide.tiles.sizeX, slide.tiles.sizeY, slide.tiles.tileWidth, slide.tiles.tileHeight);
-        //console.log("SLIDE: " + JSON.stringify(slide));
-        currentSlide = slide;
-
-        params.map.clampZoom = false;
-        params.map.clampBoundsX = false;
-        params.map.clampBoundsY = false;
-        map = geo.map(params.map);
-        layer = map.createLayer('annotation', );
-        // turn off geojs map navigation
-        map.interactor().options({ actions: [] });
-
-        // add handlers to tie navigation events together
-        viewer.addHandler('open', setBounds);
-        viewer.addHandler('animation', setBounds);
-        map.geoOn(geo.event.annotation.state, created);
-
-        layer.clear();
-        map.draw();
-        if (!isEmpty(slide.meta)) {
-            //console.log("META: " + JSON.stringify(slide.meta));
-            if (typeof slide.meta.dsalayers === "undefined") {
-                console.log("No exisitng layers found");
-            } else if (!isEmpty(slide.meta.dsalayers) && slide.meta.dsalayers.length > 0) {
-                console.log("LAYERS Found: " + JSON.stringify(slide.meta.dsalayers));
-                treeannotations.length = 0;
-                treeannotations = slide.meta.dsalayers;
-                reloadAnnotationsTable();
-            } else {
-                console.log("No layers associated with this slide. Setting Defaults");
-                reinitializeTreeLayers();
-            }
-
-            //Reload existing annotations.
-            if (typeof slide.meta.geojslayer === "undefined") {
-                console.log("No exisitng annotations found");
-            } else if (!isEmpty(slide.meta.geojslayer)) {
-                var geojsJSON = slide.meta.geojslayer;
-                console.log("GEOJSON: " + JSON.stringify(geojsJSON));
-
-                //One way of reloading annotations. But we loose GeoIDs if we do it this way
-                /*
-                var reader = geo.createFileReader('jsonReader', { 'layer': layer });
-                map.fileReader(reader);
-                reader.read(
-                    geojsJSON,
-                    function() {
-                        map.draw();
-                    }
-                );
-                */
-                layer.geojson(geojsJSON, true, null, true);
-            }
-        } else {
-            console.log("No metadata associated with this slide. Setting Defaults");
-            reinitializeTreeLayers();
-        }
-    });
-
-    function treeCheckBoxesClicked() {
-        console.log(JSON.stringify($$("annotations_table").getChecked()));
-    }
-
-    function setAnimate() {
-        animationInProgress = false;
-    }
-
-    function animateTimeOut() {
-        setTimeout(setAnimate(), 3000);
-    }
+    /***********************************************************************************************/
+    /********************************* WEBIX ANNOTATION LAYERS *************************************/
+    /***********************************************************************************************/
 
     var color1 = "#fillColor# <span style='background-color:#fillColor#; border-radius:4px; padding-right:10px;'>&nbsp</span>";
     var color2 = "#strokeColor# <span style='background-color:#strokeColor#; border-radius:4px; padding-right:10px;'>&nbsp</span>";
@@ -578,10 +650,10 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
                 onAfterEditStop: function(state, editor) {
                     var item = this.getItem(editor.row);
                     var annotation = layer.annotationById(item.geoid);
-                    console.log("COLOR CHANGE:" + item.geoid);
+                    if (DEBUG)
+                        console.log("COLOR CHANGE:" + item.geoid);
                     var opt = annotation.options('style');
                     opt[editor.column] = state.value;
-
 
                     //UPDATE JSON ALONG WITH LAYER
                     var found = false;
