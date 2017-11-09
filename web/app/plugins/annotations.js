@@ -1,4 +1,4 @@
-require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(viewer, slide, geo, pubsub, config, session) {
+require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, geo, pubsub, config) {
 
     /***********************************************************************************************/
     /************************************** GLOBAL VARIABLES  **************************************/
@@ -192,6 +192,8 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
     /***********************************************************************************************/
 
     pubsub.subscribe("SLIDE", function(msg, slide) {
+        //var url = config.BASE_URL;
+        //console.log(url);
         //debugger;
         console.log("PUB SUB SLIDE");
         resetDataStructures();
@@ -215,8 +217,10 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
         // add handlers to tie navigation events together
         viewer.addHandler('open', setBounds);
         viewer.addHandler('animation', setBounds);
+        //viewer.addHandler('tile-unloaded', resetDataStructures);
         map.geoOn(geo.event.annotation.state, created);
 
+        //get metadata to load existing annotations
         getMetadataAndLoadAnnotations();
     });
 
@@ -342,16 +346,18 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
     }
 
     function resetDataStructures() {
-        console.log("RESETTING DATA STRUCTURES");
+
         if (layer != null) {
-            layer.geojson(null, true, null, true);
-            map.draw();
+            console.log("RESETTING DATA STRUCTURES");
             reinitializeTreeLayers();
+            layer.removeAllAnnotations();
+            //layer.geojson({}, true);
+            map.draw();
+
         }
     }
 
     function propertiesEdited(property, geoid, value, editorcolumn) {
-
         //UPDATE JSON ALONG WITH LAYER
         var found = false;
         var visibleAnnotationsChanged = false;
@@ -404,52 +410,53 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
     function getMetadataAndLoadAnnotations() {
         var url = config.BASE_URL + "/item/" + slide._id;
         webix.ajax().get(url, function(text) {
+            resetDataStructures();
             currentSlide = JSON.parse(text);
-        });
+            if (typeof currentSlide === "undefined") {
+                //DO NOTHING
+            } else {
 
-        if (typeof currentSlide === "undefined") {
-            //DO NOTHING
-        } else {
-            if (!isEmpty(currentSlide.meta)) {
-                if (typeof currentSlide.meta.dsalayers === "undefined") {
-                    if (DEBUG)
-                        console.log("No exisitng layers found");
-                } else if (!isEmpty(currentSlide.meta.dsalayers) && currentSlide.meta.dsalayers.length > 0) {
-                    if (DEBUG)
-                        console.log("LAYERS Found: " + JSON.stringify(currentSlide.meta.dsalayers));
-                    treeannotations.length = 0;
-                    treeannotations = currentSlide.meta.dsalayers;
-                    reloadAnnotationsTable();
-                } else {
-                    if (DEBUG)
-                        console.log("No layers associated with this slide. Setting Defaults");
-                    reinitializeTreeLayers();
-                }
+                if (!(typeof currentSlide.meta === "undefined")) {
+                    if (typeof currentSlide.meta.dsalayers === "undefined") {
+                        if (DEBUG)
+                            console.log("No exisitng layers found");
+                    } else if (!isEmpty(currentSlide.meta.dsalayers) && currentSlide.meta.dsalayers.length > 0) {
+                        if (DEBUG)
+                            console.log("LAYERS Found: " + JSON.stringify(currentSlide.meta.dsalayers));
+                        treeannotations.length = 0;
+                        treeannotations = currentSlide.meta.dsalayers;
+                        reloadAnnotationsTable();
+                    } else {
+                        if (DEBUG)
+                            console.log("No layers associated with this slide. Setting Defaults");
+                        reinitializeTreeLayers();
+                    }
 
-                //Reload existing annotations.
-                if (typeof currentSlide.meta.geojslayer === "undefined") {
-                    if (DEBUG)
-                        console.log("No exisitng annotations found");
-                } else if (!isEmpty(currentSlide.meta.geojslayer)) {
-                    var geojsJSON = currentSlide.meta.geojslayer;
-                    if (DEBUG)
-                        console.log("GEOJSON: " + JSON.stringify(geojsJSON));
+                    //Reload existing annotations.
+                    if (typeof currentSlide.meta.geojslayer === "undefined") {
+                        if (DEBUG)
+                            console.log("No exisitng annotations found");
+                    } else if (!isEmpty(currentSlide.meta.geojslayer)) {
+                        var geojsJSON = currentSlide.meta.geojslayer;
+                        if (DEBUG)
+                            console.log("GEOJSON: " + JSON.stringify(geojsJSON));
 
-                    //One way of reloading annotations. But we loose GeoIDs if we do it this way
-                    /*
-                    var reader = geo.createFileReader('jsonReader', { 'layer': layer });
-                    map.fileReader(reader);
-                    reader.read(
-                        geojsJSON,
-                        function() {
-                            map.draw();
-                        }
-                    );
-                    */
-                    layer.geojson(geojsJSON, true, null, true);
+                        //One way of reloading annotations. But we loose GeoIDs if we do it this way
+                        /*
+                        var reader = geo.createFileReader('jsonReader', { 'layer': layer });
+                        map.fileReader(reader);
+                        reader.read(
+                            geojsJSON,
+                            function() {
+                                map.draw();
+                            }
+                        );
+                        */
+                        layer.geojson(geojsJSON, true, null, true);
+                    }
                 }
             }
-        }
+        });
     }
 
     function updateGirderWithAnnotationData() {
@@ -498,7 +505,6 @@ require(["viewer", "slide", "geo", "pubsub", "config", "session"], function(view
             }
         });
     }
-
 
     /***********************************************************************************************/
     /********************************* WEBIX ANNOTATION LAYERS *************************************/
