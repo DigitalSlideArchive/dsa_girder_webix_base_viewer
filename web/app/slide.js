@@ -27,7 +27,7 @@ define("slide", ["viewer", "config", "pubsub"], function(viewer, config, pubsub)
 	                minLevel: 0,
 	                maxLevel: tiles.levels - 1,
 	                getTileUrl: function(level, x, y) {
-	                	return config.BASE_URL + "/item/" + itemId + "/tiles/zxy/" + level + "/" + x + "/" + y;
+	                	return config.BASE_URL + "/item/" + itemId + "/tiles/zxy/" + level + "/" + x + "/" + y +"?edge=crop";
 	            	}
 	    		};
 

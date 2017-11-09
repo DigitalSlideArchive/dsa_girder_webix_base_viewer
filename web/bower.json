@@ -28,7 +28,8 @@
     "hasher": "^1.2.0",
     "js-signals": "^1.0.0",
     "fabric.js": "fabric#^1.7.8",
-    "geojs": "^0.11.1"
+    "geojs": "^0.12.4",
+    "hammerjs": "hammer#^2.0.8"
   },
   "resolutions": {
     "d3": "^4.4.4"
