@@ -24,34 +24,9 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
     /********************************* USER INTERFACE ELEMENTS *************************************/
     /***********************************************************************************************/
 
-    /* Add keybinding to toggle drawing on/off */
-    webix.UIManager.addHotKey("Alt+T", function() {
-		webix.message("Toggle drawing");
-		$$("draw_toggle").toggle();
-		});
-
-    webix.UIManager.addHotKey("Alt+L", function() {
-		webix.message("Toggle Labels");
-
-		});
-
-
-
     var tools = {
         height: 25,
         cols: [{
-                view: "button",
-                width: 28,
-                type: "htmlbutton",
-                css: "icon_btn",
-                label: "<span class='webix_icon fa fa-pencil-square-o'>",
-                on: {
-                    onItemClick: function() {
-                        draw('line');
-                    }
-                }
-            },
-        {
                 view: "button",
                 width: 28,
                 type: "htmlbutton",
@@ -192,10 +167,7 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
     /***********************************************************************************************/
 
     pubsub.subscribe("SLIDE", function(msg, slide) {
-        //var url = config.BASE_URL;
-        //console.log(url);
         //debugger;
-        console.log("PUB SUB SLIDE");
         resetDataStructures();
 
         animationInProgress = false;
@@ -300,6 +272,28 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
     function treeCheckBoxesClicked() {
         if (DEBUG)
             console.log(JSON.stringify($$("annotations_table").getChecked()));
+
+        //layer.removeAllAnnotations();
+        //layer.addAnnotation(layer.annotationById(1.1));
+        //layer.removeAnnotation(layer.annotationById("1.1"));
+        //map.draw();
+
+        var checkedIds = $$("annotations_table").getChecked();
+        for (var i = 0; i < treeannotations.length; i++) {
+            for (var j = 0; j < treeannotations[i].data.length; j++) {
+                var annotation = layer.annotationById(treeannotations[i].data[j].geoid);
+                var opt = annotation.options('style');
+                if (checkedIds.includes(treeannotations[i].data[j].geoid)) {
+                    opt["fillOpacity"] = treeannotations[i].data[j].fillOpacity * 1.0;
+                    opt["strokeOpacity"] = treeannotations[i].data[j].strokeOpacity * 1.0;
+                } else {
+                    opt["fillOpacity"] = treeannotations[i].data[j].fillOpacity * 0.0;
+                    opt["strokeOpacity"] = treeannotations[i].data[j].strokeOpacity * 0.0;
+                }
+                annotation.options({ style: opt }).draw();
+
+            }
+        }
     }
 
     function setAnimate() {
@@ -348,7 +342,8 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
     function resetDataStructures() {
 
         if (layer != null) {
-            console.log("RESETTING DATA STRUCTURES");
+            if (DEBUG)
+                console.log("RESETTING DATA STRUCTURES");
             reinitializeTreeLayers();
             layer.removeAllAnnotations();
             //layer.geojson({}, true);
@@ -386,6 +381,9 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
                                     break;
                                 case "strokeColor":
                                     treeannotations[i].data[j].strokeColor = value;
+                                    break;
+                                case "name":
+                                    treeannotations[i].data[j].value = value;
                                     break;
                             }
                             break;
@@ -452,7 +450,10 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
                             }
                         );
                         */
-                        layer.geojson(geojsJSON, true, null, true);
+                        //layer.geojson(geojsJSON, true, null, true);
+                        //console.log("GEOJSON LOADING: " + JSON.stringify(geojsJSON));
+                        layer.geojson(geojsJSON, 'update');
+
                     }
                 }
             }
@@ -483,6 +484,7 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
         //var geojsonObj = layer.geojson();
         //Johnathan Fix for  storing projection information in the geojson it will always be interpreted correctly even if we change the default behavio
         var geojsonObj = layer.geojson(undefined, undefined, undefined, true);
+        //console.log("GEOJSON SAVING: " + JSON.stringify(geojsonObj));
 
         var metaInfo = {
             dsalayers: treeannotations,
@@ -575,6 +577,7 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
                     id: "name",
                     header: "Name",
                     width: 250,
+                    editor: "text",
                     template: "{common.space()}{common.icon()}{common.treecheckbox()}{common.folder()}#value#"
                 },
                 { id: "type", header: "Type" },
@@ -671,28 +674,13 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
                     var opt = annotation.options('style');
                     opt[editor.column] = state.value;
                     annotation.options({ style: opt }).draw();
+
                     propertiesEdited("annotationStyleChange", item.geoid, state.value, editor.column);
+
                 },
                 onItemClick: function(id) {
                     animationInProgress = true;
-                    /*
-                    var item = $$("annotations_table").getItem(id);
-                    var annotation = layer.annotationById(item.geoid);
-                    //console.log(JSON.stringify(annotation));
-                    var opt = annotation.options('style');
-
-
-                    var opacity = 0.1;
-                    var increment = 0.1;
-                    while (animationInProgress) {
-                        opacity += 0.1;
-                        if (opacity === 1.0 || opacity === 0.1) {
-                            increment = increment * -1;
-                        }
-                        opt[strokeOpacity] = opacity;
-                        annotation.options({ style: opt }).draw();
-                    }
-                    */
+                    //TODO ANIMATE WHEN CLICKED ON TREE
                 },
                 onItemCheck: function(id, value, event) {
                     treeCheckBoxesClicked();
