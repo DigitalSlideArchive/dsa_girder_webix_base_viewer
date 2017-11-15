@@ -272,26 +272,25 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
     function treeCheckBoxesClicked() {
         if (DEBUG)
             console.log(JSON.stringify($$("annotations_table").getChecked()));
-
-        //layer.removeAllAnnotations();
-        //layer.addAnnotation(layer.annotationById(1.1));
-        //layer.removeAnnotation(layer.annotationById("1.1"));
-        //map.draw();
+        /*
+        annotation.style({fill: false, stroke: false})
+        annotation.style('fill', function (d, i) { return !d.checked; })
+        */
 
         var checkedIds = $$("annotations_table").getChecked();
         for (var i = 0; i < treeannotations.length; i++) {
             for (var j = 0; j < treeannotations[i].data.length; j++) {
                 var annotation = layer.annotationById(treeannotations[i].data[j].geoid);
-                var opt = annotation.options('style');
                 if (checkedIds.includes(treeannotations[i].data[j].geoid)) {
-                    opt["fillOpacity"] = treeannotations[i].data[j].fillOpacity * 1.0;
-                    opt["strokeOpacity"] = treeannotations[i].data[j].strokeOpacity * 1.0;
+                    annotation.style({ fill: true, stroke: true });
+                    //opt["fillOpacity"] = treeannotations[i].data[j].fillOpacity * 1.0;
+                    //opt["strokeOpacity"] = treeannotations[i].data[j].strokeOpacity * 1.0;
                 } else {
-                    opt["fillOpacity"] = treeannotations[i].data[j].fillOpacity * 0.0;
-                    opt["strokeOpacity"] = treeannotations[i].data[j].strokeOpacity * 0.0;
+                    annotation.style({ fill: false, stroke: false });
+                    //opt["fillOpacity"] = treeannotations[i].data[j].fillOpacity * 0.0;
+                    //opt["strokeOpacity"] = treeannotations[i].data[j].strokeOpacity * 0.0;
                 }
-                annotation.options({ style: opt }).draw();
-
+                map.draw();
             }
         }
     }
@@ -335,12 +334,10 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
         var list = $$("currentLayerCombo").getPopup().getList();
         list.clearAll();
         list.parse(treeannotations);
-
         toggleLabel();
     }
 
     function resetDataStructures() {
-
         if (layer != null) {
             if (DEBUG)
                 console.log("RESETTING DATA STRUCTURES");
@@ -352,6 +349,7 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
         }
     }
 
+    //Function to copy parameter values from GeoJson to DSA layer data structure
     function propertiesEdited(property, geoid, value, editorcolumn) {
         //UPDATE JSON ALONG WITH LAYER
         var found = false;
@@ -359,7 +357,6 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
         for (var i = 0; i < treeannotations.length; i++) {
             for (var j = 0; j < treeannotations[i].data.length; j++) {
                 if (treeannotations[i].data[j].geoid == geoid) {
-
                     switch (property) {
                         case "strokeWidth":
                             treeannotations[i].data[j].strokeWidth = val;
@@ -668,15 +665,22 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
             on: {
                 onAfterEditStop: function(state, editor) {
                     var item = this.getItem(editor.row);
+                    console.log(layer);
                     var annotation = layer.annotationById(item.geoid);
                     if (DEBUG)
                         console.log("COLOR CHANGE:" + item.geoid);
                     var opt = annotation.options('style');
-                    opt[editor.column] = state.value;
-                    annotation.options({ style: opt }).draw();
 
+                    if (editor.column === "name") {
+                        //Name edit to  Geo JSON
+                        annotation.name(state.value);
+                        map.draw();
+                    } else {
+                        //Color (Stroke & Fill) edits to  Geo JSON
+                        opt[editor.column] = state.value;
+                        annotation.options({ style: opt }).draw();
+                    }
                     propertiesEdited("annotationStyleChange", item.geoid, state.value, editor.column);
-
                 },
                 onItemClick: function(id) {
                     animationInProgress = true;
