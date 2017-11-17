@@ -89,16 +89,30 @@ define("standard/slidenav", ["config", "viewer", "slide", "jquery", "webix"], fu
                     });
                     sFoldersMenu.parse(folders);
                     $$("samples").setValue(folders[0].id);
-                    return $.get(config.BASE_URL + "/folder?parentType=folder&parentId=" + folders[0]._id);
+
+                    if(config.THIRD_MENU)
+                        return $.get(config.BASE_URL + "/folder?parentType=folder&parentId=" + folders[0]._id);
+                    else
+                        return $.get(config.BASE_URL + "/item?limit=500&folderId=" + folders[0]._id);
                 }).then(function(folders){
-                    var ssFoldersMenu = $$("subsamples").getPopup().getList();
-                    ssFoldersMenu.clearAll();
-                    folders = folders.filter(function(folder){
-                       return !folder.name.startsWith(".");
-                    });
-                    ssFoldersMenu.parse(folders);
-                    $$("subsamples").setValue(folders[0].id);
-                    return $.get(config.BASE_URL + "/item?limit=500&folderId=" + folders[0]._id);
+                    if(config.THIRD_MENU){
+                        var ssFoldersMenu = $$("subsamples").getPopup().getList();
+                        ssFoldersMenu.clearAll();
+                        folders = folders.filter(function(folder){
+                           return !folder.name.startsWith(".");
+                        });
+                        ssFoldersMenu.parse(folders);
+                        $$("subsamples").setValue(folders[0].id);
+                        return $.get(config.BASE_URL + "/item?limit=500&folderId=" + folders[0]._id);
+                    }
+                    else{
+                        items = folders.filter(function(item){
+                            return item.largeImage != undefined;
+                        });
+
+                        $$("thumbnails").clearAll();
+                        $$("thumbnails").parse(items);
+                    }
                 }).done(function(items){
                     items = items.filter(function(item){
                         return item.largeImage != undefined;
@@ -128,15 +142,29 @@ define("standard/slidenav", ["config", "viewer", "slide", "jquery", "webix"], fu
             onChange: function(id) {
                 var item = this.getPopup().getBody().getItem(id);
 
-                $.get(config.BASE_URL + "/folder?parentType=folder&parentId=" + item._id, function(folders){
-                    folders = folders.filter(function(folder){
-                        return !folder.name.startsWith(".");
+                if(config.THIRD_MENU){
+                    $.get(config.BASE_URL + "/folder?parentType=folder&parentId=" + item._id, function(folders){
+                        folders = folders.filter(function(folder){
+                            return !folder.name.startsWith(".");
+                        });
+                        var sFoldersMenu = $$("subsamples").getPopup().getList();
+                        sFoldersMenu.clearAll();
+                        sFoldersMenu.parse(folders);
+                        $$("subsamples").setValue(folders[0].id);  
                     });
-                    var sFoldersMenu = $$("subsamples").getPopup().getList();
-                    sFoldersMenu.clearAll();
-                    sFoldersMenu.parse(folders);
-                    $$("subsamples").setValue(folders[0].id);  
-                });
+                } 
+                else{
+                    var thumbs = $$("thumbnails");
+                    var url = config.BASE_URL + "/item?folderId=" + item._id;
+                    thumbs.clearAll();
+
+                    $.get(config.BASE_URL + "/item?folderId=" + item._id, function(items){
+                        items = items.filter(function(item){
+                            return item.largeImage != undefined;
+                        });
+                        thumbs.parse(items);
+                    })
+                }  
             }
         }
     };
@@ -172,6 +200,10 @@ define("standard/slidenav", ["config", "viewer", "slide", "jquery", "webix"], fu
         }
     };
 
+    var rows = [dropdown, samples_dropdown, itemPager,  thumbnailsPanel];
+    if(config.THIRD_MENU)
+        rows.splice(2, 0, subsamples_dropdown);
+
     //slides panel is the left panel, contains two rows 
     //containing the slide group dropdown and the thumbnails panel 
     var wideIcon = "<span class='aligned wide webix_icon fa-plus-circle'></span>";
@@ -200,11 +232,7 @@ define("standard/slidenav", ["config", "viewer", "slide", "jquery", "webix"], fu
               return false;
             }
         },
-        body: {
-            rows: [
-                dropdown, samples_dropdown, subsamples_dropdown, itemPager,  thumbnailsPanel
-            ]
-        },
+        body: {rows: rows},
         width: 220
     };
 
