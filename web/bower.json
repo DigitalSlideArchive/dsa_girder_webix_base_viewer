@@ -1,37 +1,37 @@
 {
-  "name": "viewer-template",
-  "authors": [
-    "Mohammed Khalilia <mohammed.khalilia@gmail.com>"
-  ],
-  "description": "",
-  "main": "",
-  "license": "MIT",
-  "homepage": "",
-  "ignore": [
-    "**/.*",
-    "node_modules",
-    "bower_components",
-    "test",
-    "tests"
-  ],
-  "dependencies": {
-    "openseadragon": "^2.2.1",
-    "webix": "^4.1.0",
-    "jquery": "^3.1.1",
-    "requirejs": "^2.3.2",
-    "bower": "*",
-    "install": "^1.0.4",
-    "PubSubJS": "pubsub-js#^1.5.4",
-    "svg-overlay": "*",
-    "d3": "^4.4.4",
-    "crossroads": "^0.12.2",
-    "hasher": "^1.2.0",
-    "js-signals": "^1.0.0",
-    "fabric.js": "fabric#^1.7.8",
-    "geojs": "^0.12.4",
-    "hammerjs": "hammer#^2.0.8"
-  },
-  "resolutions": {
-    "d3": "^4.4.4"
-  }
+    "name": "viewer-template",
+    "authors": [
+        "Mohammed Khalilia <mohammed.khalilia@gmail.com>"
+    ],
+    "description": "",
+    "main": "",
+    "license": "MIT",
+    "homepage": "",
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "bower_components",
+        "test",
+        "tests"
+    ],
+    "dependencies": {
+        "openseadragon": "^2.2.1",
+        "webix": "^4.1.0",
+        "jquery": "^3.1.1",
+        "requirejs": "^2.3.2",
+        "bower": "*",
+        "install": "^1.0.4",
+        "PubSubJS": "pubsub-js#^1.5.4",
+        "svg-overlay": "*",
+        "d3": "^4.4.4",
+        "crossroads": "^0.12.2",
+        "hasher": "^1.2.0",
+        "js-signals": "^1.0.0",
+        "fabric.js": "fabric#^1.7.8",
+        "geojs": "^0.13.0",
+        "hammerjs": "hammer#^2.0.8"
+    },
+    "resolutions": {
+        "d3": "^4.4.4"
+    }
 }
