@@ -26,7 +26,8 @@ require = {
         "derm": "app/plugins/derm",
         "login": "app/login",
         "session": "app/session",
-        "Hammer": "bower_components/hammerjs/hammer"
+        "Hammer": "bower_components/hammerjs/hammer",
+        "slideDetails": "app/plugins/slideDetails"
     },
 
     shims: {

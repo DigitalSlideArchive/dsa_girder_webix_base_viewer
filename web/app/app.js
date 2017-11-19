@@ -52,7 +52,7 @@ define(["ui", "config", "jquery", "session", "webix"], function(ui, config, $, s
         webix.extend($$("viewer_panel"), webix.OverlayBox);
 
         if(config.UI == "standard")
-        	require(["routes", "aperio", "filters"]);
+        	require(["routes", "aperio", "filters","slideDetails"]);
        	else
         	require(["routes", "aperio", "filters", "pathology", "metadata", "login", "annotations"]);
     });
