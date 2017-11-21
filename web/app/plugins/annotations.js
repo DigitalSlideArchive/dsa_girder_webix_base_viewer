@@ -281,14 +281,13 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
         for (var i = 0; i < treeannotations.length; i++) {
             for (var j = 0; j < treeannotations[i].data.length; j++) {
                 var annotation = layer.annotationById(treeannotations[i].data[j].geoid);
-                if (checkedIds.includes(treeannotations[i].data[j].geoid)) {
+                console.log(checkedIds);
+                if (checkedIds.includes(treeannotations[i].data[j].id)) {
+                    annotation.options('showLabel', true)
                     annotation.style({ fill: true, stroke: true });
-                    //opt["fillOpacity"] = treeannotations[i].data[j].fillOpacity * 1.0;
-                    //opt["strokeOpacity"] = treeannotations[i].data[j].strokeOpacity * 1.0;
                 } else {
+                    annotation.options('showLabel', false)
                     annotation.style({ fill: false, stroke: false });
-                    //opt["fillOpacity"] = treeannotations[i].data[j].fillOpacity * 0.0;
-                    //opt["strokeOpacity"] = treeannotations[i].data[j].strokeOpacity * 0.0;
                 }
                 map.draw();
             }
