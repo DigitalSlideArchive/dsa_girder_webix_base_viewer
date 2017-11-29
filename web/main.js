@@ -26,12 +26,19 @@ require = {
         "derm": "app/plugins/derm",
         "login": "app/login",
         "session": "app/session",
-        "Hammer": "bower_components/hammerjs/hammer"
+        "Hammer": "bower_components/hammerjs/hammer",
+        "simpleAnnotationPanel": "app/plugins/simpleAnnotationPanel",
+        "thumbLabeler": "app/plugins/thumbLabeler",
+        "simpleMultiViewerHelper": "app/simpleMultiViewerHelper",
+        "osdFilters": "app/externalJS/openseadragon-filtering"
+
     },
 
     shims: {
+        "osdFilters": ["osd"],
         "svg": ["osd"],
         "common": ["login"]
+
     },
 
     packages: [{

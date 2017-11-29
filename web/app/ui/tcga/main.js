@@ -16,18 +16,41 @@ Return:
 
 define("tcga/main", ["tcga/slidenav", "common/toolbar", "common/header", "common/footer", "webix"], function(slidenav, toolbar, header, footer) {
 
+
+    rightPanelStub = {
+                multi:true,
+                view:"accordion",
+                gravity: 0.3,
+                id: "rightPanelStub",
+                // collapsed: true,
+                collapsed: false,
+                cols:[
+                    { header:"SimpleAnnotator",  id: "tcgaRightAccordion",
+                    body: { view:"layout", id: "tcgaRightAccordionBody", rows: [ { template: "content 1",  id: "tcgaRightplaceHolder", gravity: 0.01} ]},
+                            // , width:150
+                        }
+                ]
+            };
+
+
     function init() {
         //This is the Openseadragon layer
         viewerPanel = {
             id: "viewer_root",
             borderless: true,
-            rows: [toolbar, {
-                view: "template",
-                id: "viewer_panel",
-                content: "geo_osd"
-            }]
+            rows: [
+                toolbar,
+                {
+                    id: "viewer_body",
+                    cols: [
+                        { view: "template", id: "viewer_panel", content: "geo_osd" }
+                        // { gravity: 0.2, collapsed: true, view: "accordion", multi: true, id: , 
+                        // body: { rows: [{ template: "HI" }] } }
+                    ]
+                }
+            ]
         };
-        
+        //properties for dynamic edits are $$("tcgaRightPanel).define("width", 300) and then $$("tcgaRightPanel").resize();
         //Render the main layout
         //It contains the header, slidenav, Openseadragon layer
         webix.ui({
@@ -35,12 +58,14 @@ define("tcga/main", ["tcga/slidenav", "common/toolbar", "common/header", "common
             id: "root",
             rows: [
                 header, {
-                    cols: [
+                    id: "mainSlidePanel", cols: [
                         slidenav, {
                             view: "resizer"
                         },
                         {
-                            rows:[
+
+                            rows: [
+
                                 viewerPanel,
                                 footer
                             ]

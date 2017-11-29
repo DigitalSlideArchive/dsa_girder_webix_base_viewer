@@ -20,6 +20,19 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
     var currentShape = "rectangle";
     var animationInProgress = false;
 
+
+    /* Add keybinding to toggle drawing on/off */
+    webix.UIManager.addHotKey("Alt+T", function() {
+        webix.message("Toggle drawing");
+        $$("draw_toggle").toggle();
+        });
+
+    webix.UIManager.addHotKey("Alt+L", function() {
+        webix.message("Toggle Labels");
+        //This is a TO DO
+        });
+
+
     /***********************************************************************************************/
     /********************************* USER INTERFACE ELEMENTS *************************************/
     /***********************************************************************************************/
@@ -27,6 +40,17 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
     var tools = {
         height: 25,
         cols: [{
+                view: "button",
+                width: 28,
+                type: "htmlbutton",
+                css: "icon_btn",
+                label: "<span class='webix_icon fa fa-pencil-square-o'>",
+                on: {
+                    onItemClick: function() {
+                        draw('line');
+                    }
+                }
+            },{
                 view: "button",
                 width: 28,
                 type: "htmlbutton",
