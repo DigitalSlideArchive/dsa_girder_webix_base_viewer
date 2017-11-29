@@ -10,7 +10,7 @@ define("config", function() {
     var BASE_URL = "http://winshipdev.digitalslidearchive.emory.edu:8080/api/v1";
 
     //What is the collection name we are pulling data from?
-    var COLLECTION_NAME = "WinshipDSADev";
+    var COLLECTION_NAME = "ADRC";
 
     //which endpoints do we wanna use? TCGA or Girder default endpoints
     UI = "standard";
