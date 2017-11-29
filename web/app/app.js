@@ -51,8 +51,9 @@ define(["ui", "config", "jquery", "session", "webix"], function(ui, config, $, s
         webix.extend($$("viewer_panel"), webix.ProgressBar);
         webix.extend($$("viewer_panel"), webix.OverlayBox);
 
+
         if(config.UI == "standard")
-        	require(["routes", "aperio", "filters","slideDetails"]);
+        	require(["routes", "aperio", "filters", "aperio", "login", "annotations","slideDetails"]);
        	else
         	require(["routes", "aperio", "filters", "pathology", "metadata", "login", "annotations"]);
     });

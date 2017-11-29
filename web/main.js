@@ -27,12 +27,18 @@ require = {
         "login": "app/login",
         "session": "app/session",
         "Hammer": "bower_components/hammerjs/hammer",
-        "slideDetails": "app/plugins/slideDetails"
+        "slideDetails": "app/plugins/slideDetails",
+        "simpleAnnotationPanel": "app/plugins/simpleAnnotationPanel",
+        "thumbLabeler": "app/plugins/thumbLabeler",
+        "simpleMultiViewerHelper": "app/simpleMultiViewerHelper",
+        "osdFilters": "app/externalJS/openseadragon-filtering"
     },
 
     shims: {
+        "osdFilters": ["osd"],
         "svg": ["osd"],
         "common": ["login"]
+
     },
 
     packages: [{

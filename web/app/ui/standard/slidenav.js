@@ -1,5 +1,24 @@
-define("standard/slidenav", ["config", "viewer", "slide", "jquery", "webix"], function(config, viewer, slide, $) {
+define("standard/slidenav", ["config", "viewer", "slide", "session", "jquery", "webix"], function(config, viewer, slide, session, $) {
 
+
+
+/*    if(session.valid()){
+        $.ajaxSetup({
+            headers: {'Girder-Token': session.token()}
+        });
+
+        webix.ajax().headers({
+            'Girder-Token': session.token()
+        });
+
+        webix.attachEvent("onBeforeAjax", 
+            function(mode, url, data, request, headers, files, promise){
+                headers["Girder-Token"] = session.token();
+            }
+        );
+    }
+    
+*/
     var thumbnailsPanel = {
         view: "dataview",
         id: "thumbnails",
