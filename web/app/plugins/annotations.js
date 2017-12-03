@@ -11,6 +11,8 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
     var treeannotations = [{
         "id": "1",
         "type": "layer",
+        "fillColor": "#00FF00",
+        "strokeColor": "#000000",
         "value": "Default Layer",
         "open": true,
         "data": []
@@ -337,6 +339,8 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
             "id": "1",
             "value": "Default Layer",
             "type": "layer",
+            "fillColor": "#00FF00",
+            "strokeColor": "#000000",
             "open": true,
             "data": []
         }];
@@ -560,22 +564,27 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
                     icon: "plus-square",
                     on: {
                         onItemClick: function() {
-                            var newLayer = {
-                                id: treeannotations.length + 1,
-                                value: $$('layername').getValue(),
-                                type: "layer",
-                                open: true,
-                                data: []
-                            };
+                            if ($$('layername').getValue().length === 0) {
+                                webix.message("<font size=\"3\" color=\"red\">Layer name cannot be empty!</font>");
+                            } else {
+                                var newLayer = {
+                                    id: treeannotations.length + 1,
+                                    value: $$('layername').getValue(),
+                                    type: "layer",
+                                    open: true,
+                                    data: []
+                                };
 
-                            treeannotations[treeannotations.length] = newLayer;
-                            currentLayerId = newLayer.id;
-                            updateGirderWithAnnotationData();
-                            //CLEAR UI
-                            $$("layername").setValue("");
-                            $$("layername").refresh();
-                            $$("currentLayerCombo").setValue(currentLayerId);
-                            //$$("currentLayerCombo").refresh();
+                                treeannotations[treeannotations.length] = newLayer;
+                                currentLayerId = newLayer.id;
+                                updateGirderWithAnnotationData();
+                                //CLEAR UI
+                                $$("layername").setValue("");
+                                $$("layername").refresh();
+                                $$("currentLayerCombo").setValue(currentLayerId);
+                                //$$("currentLayerCombo").refresh();
+                            }
+
                         }
                     }
                 },
@@ -601,11 +610,48 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
                     template: "{common.space()}{common.icon()}{common.treecheckbox()}{common.folder()}#value#"
                 },
                 { id: "type", header: "Type" },
-                { id: "fillColor", header: "Fill Color", editor: "color", template: color1 },
-                { id: "strokeColor", header: "Stroke Color", editor: "color", template: color2 },
-                { id: "fillOpacity", header: "Fill Opacity", template: "{common.fillOpacity()}", width: 120 },
-                { id: "strokeOpacity", header: "Stroke Opacity", template: "{common.strokeOpacity()}", width: 120 },
-                { id: "strokeWidth", header: "Stroke Width", template: "{common.strokeWidth()}", width: 120 }
+                {
+                    id: "fillColor",
+                    header: "Fill Color",
+                    editor: "color",
+                    template: function(obj, common)
+
+                    { return obj.type === "layer" ? "" : color1 }
+                },
+                {
+                    id: "strokeColor",
+                    header: "Stroke Color",
+                    editor: "color",
+                    template: function(obj, common)
+
+                    { return obj.type === "layer" ? "" : color2 }
+                },
+                {
+                    id: "fillOpacity",
+                    header: "Fill Opacity",
+                    width: 120,
+                    template: function(obj, common)
+
+                    { return obj.type === "layer" ? "" : common.strokeWidth(obj, common) }
+                },
+
+                {
+                    id: "strokeOpacity",
+                    header: "Stroke Opacity",
+                    width: 120,
+                    template: function(obj, common) { return obj.type === "layer" ? "" : common.strokeOpacity(obj, common) }
+
+                },
+
+
+                {
+                    id: "strokeWidth",
+                    header: "Stroke Width",
+                    template: function(obj, common) { return obj.type === "layer" ? "" : common.strokeWidth(obj, common) }
+
+                    ,
+                    width: 120
+                }
             ],
             scheme: {
                 $init: function(obj) {
@@ -688,22 +734,25 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
             on: {
                 onAfterEditStop: function(state, editor) {
                     var item = this.getItem(editor.row);
-                    console.log(layer);
-                    var annotation = layer.annotationById(item.geoid);
-                    if (DEBUG)
-                        console.log("COLOR CHANGE:" + item.geoid);
-                    var opt = annotation.options('style');
-
-                    if (editor.column === "name") {
-                        //Name edit to  Geo JSON
-                        annotation.name(state.value);
-                        map.draw();
+                    if (item.type === "layer") {
+                        //ADD LAYER COLOR CHANGES CONTROL HERE IN THE FUTURE
                     } else {
-                        //Color (Stroke & Fill) edits to  Geo JSON
-                        opt[editor.column] = state.value;
-                        annotation.options({ style: opt }).draw();
+                        var annotation = layer.annotationById(item.geoid);
+                        if (DEBUG)
+                            console.log("COLOR CHANGE:" + item.geoid);
+                        var opt = annotation.options('style');
+
+                        if (editor.column === "name") {
+                            //Name edit to  Geo JSON
+                            annotation.name(state.value);
+                            map.draw();
+                        } else {
+                            //Color (Stroke & Fill) edits to  Geo JSON
+                            opt[editor.column] = state.value;
+                            annotation.options({ style: opt }).draw();
+                        }
+                        propertiesEdited("annotationStyleChange", item.geoid, state.value, editor.column);
                     }
-                    propertiesEdited("annotationStyleChange", item.geoid, state.value, editor.column);
                 },
                 onItemClick: function(id) {
                     animationInProgress = true;
