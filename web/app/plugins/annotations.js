@@ -22,19 +22,6 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
     var currentShape = "rectangle";
     var animationInProgress = false;
 
-
-    /* Add keybinding to toggle drawing on/off */
-    webix.UIManager.addHotKey("Alt+T", function() {
-        webix.message("Toggle drawing");
-        $$("draw_toggle").toggle();
-        });
-
-    webix.UIManager.addHotKey("Alt+L", function() {
-        webix.message("Toggle Labels");
-        //This is a TO DO
-        });
-
-
     /***********************************************************************************************/
     /********************************* USER INTERFACE ELEMENTS *************************************/
     /***********************************************************************************************/
@@ -42,17 +29,6 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
     var tools = {
         height: 25,
         cols: [{
-                view: "button",
-                width: 28,
-                type: "htmlbutton",
-                css: "icon_btn",
-                label: "<span class='webix_icon fa fa-pencil-square-o'>",
-                on: {
-                    onItemClick: function() {
-                        draw('line');
-                    }
-                }
-            },{
                 view: "button",
                 width: 28,
                 type: "htmlbutton",
@@ -361,6 +337,8 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
         var list = $$("currentLayerCombo").getPopup().getList();
         list.clearAll();
         list.parse(treeannotations);
+        console.log(updateStringArray);
+        $$("currentLayerCombo").refresh();
         toggleLabel();
     }
 
@@ -382,42 +360,56 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
         var found = false;
         var visibleAnnotationsChanged = false;
         for (var i = 0; i < treeannotations.length; i++) {
-            for (var j = 0; j < treeannotations[i].data.length; j++) {
-                if (treeannotations[i].data[j].geoid == geoid) {
-                    switch (property) {
-                        case "strokeWidth":
-                            treeannotations[i].data[j].strokeWidth = val;
-                            break;
-                        case "fillOpacity":
-                            treeannotations[i].data[j].fillOpacity = val;
-                            break;
-                        case "strokeOpacity":
-                            treeannotations[i].data[j].strokeOpacity = val;
-                            break;
-                        case "deleteAnnotation":
-                            treeannotations[i].data.splice(j, 1);
-                            visibleAnnotationsChanged = true;
-                            break;
-                        case "annotationStyleChange":
-                            switch (editorcolumn) {
-                                case "fillColor":
-                                    treeannotations[i].data[j].fillColor = value;
-                                    break;
-                                case "strokeColor":
-                                    treeannotations[i].data[j].strokeColor = value;
-                                    break;
-                                case "name":
-                                    treeannotations[i].data[j].value = value;
-                                    break;
-                            }
-                            break;
-                    }
-                    found = true;
+            //webix.message("Deleting Layer, ID" + geoid);
+            if (property === "deleteLayer") {
+                //webix.message("ID" + geoid + "MATCHING ID" + treeannotations[i].id);
+                //LAYER DELETE HERE GEOID IS THE TREE ID OF THE LAYER
+                if (treeannotations[i].id === geoid) {
+                    webix.message("ID" + geoid + "MATCHING ID" + treeannotations[i].id);
+                    console.log(treeannotations[i]);
+                    treeannotations.splice(i, 1);
+                    visibleAnnotationsChanged = true;
+                    reloadAnnotationsTable();
                     break;
                 }
-            }
-            if (found) {
-                break;
+            } else {
+                for (var j = 0; j < treeannotations[i].data.length; j++) {
+                    if (treeannotations[i].data[j].geoid == geoid) {
+                        switch (property) {
+                            case "strokeWidth":
+                                treeannotations[i].data[j].strokeWidth = val;
+                                break;
+                            case "fillOpacity":
+                                treeannotations[i].data[j].fillOpacity = val;
+                                break;
+                            case "strokeOpacity":
+                                treeannotations[i].data[j].strokeOpacity = val;
+                                break;
+                            case "deleteAnnotation":
+                                treeannotations[i].data.splice(j, 1);
+                                visibleAnnotationsChanged = true;
+                                break;
+                            case "annotationStyleChange":
+                                switch (editorcolumn) {
+                                    case "fillColor":
+                                        treeannotations[i].data[j].fillColor = value;
+                                        break;
+                                    case "strokeColor":
+                                        treeannotations[i].data[j].strokeColor = value;
+                                        break;
+                                    case "name":
+                                        treeannotations[i].data[j].value = value;
+                                        break;
+                                }
+                                break;
+                        }
+                        found = true;
+                        break;
+                    }
+                }
+                if (found) {
+                    break;
+                }
             }
         }
         updateGirderWithAnnotationData();
@@ -725,10 +717,27 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
             onClick: {
                 "fa-trash": function(e, id) {
                     var item = this.getItem(id.row);
-                    var annotation = layer.annotationById(item.geoid);
-                    layer.removeAnnotation(annotation);
-                    this.remove(id.row);
-                    propertiesEdited("deleteAnnotation", item.geoid, "", "");
+                    if (item.type === "layer") {
+                        console.log(item.data);
+
+                        curAnnotationToDeleteID = $$("annotations_table").getFirstChildId(item.id);
+                        while (curAnnotationToDeleteID) {
+                            curAnnotationToDelete = $$("annotations_table").getItem(curAnnotationToDeleteID);
+                            var annotation = layer.annotationById(curAnnotationToDelete.geoid);
+                            layer.removeAnnotation(annotation);
+                            this.remove(curAnnotationToDelete.id);
+                            propertiesEdited("deleteAnnotation", curAnnotationToDelete.geoid, "", "");
+                            curAnnotationToDeleteID = $$("annotations_table").getFirstChildId(item.id);
+                        }
+                        //Now deleting the layer after we just removed all of its child annotations
+                        propertiesEdited("deleteLayer", item.id, "", "");
+                        //ADD LAYER COLOR CHANGES CONTROL HERE IN THE FUTURE
+                    } else {
+                        var annotation = layer.annotationById(item.geoid);
+                        layer.removeAnnotation(annotation);
+                        this.remove(id.row);
+                        propertiesEdited("deleteAnnotation", item.geoid, "", "");
+                    }
                 }
             },
             on: {
