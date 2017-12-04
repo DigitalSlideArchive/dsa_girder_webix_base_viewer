@@ -365,11 +365,16 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
                 //webix.message("ID" + geoid + "MATCHING ID" + treeannotations[i].id);
                 //LAYER DELETE HERE GEOID IS THE TREE ID OF THE LAYER
                 if (treeannotations[i].id === geoid) {
-                    webix.message("ID" + geoid + "MATCHING ID" + treeannotations[i].id);
+
                     console.log(treeannotations[i]);
                     treeannotations.splice(i, 1);
                     visibleAnnotationsChanged = true;
                     reloadAnnotationsTable();
+
+                    if (treeannotations.length === 0) {
+                        webix.message("All the layers were delete. Initializing it to default layer...");
+                        reinitializeTreeLayers();
+                    }
                     break;
                 }
             } else {
