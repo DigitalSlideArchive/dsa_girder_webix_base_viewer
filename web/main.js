@@ -31,13 +31,17 @@ require = {
         "simpleAnnotationPanel": "app/plugins/simpleAnnotationPanel",
         "thumbLabeler": "app/plugins/thumbLabeler",
         "simpleMultiViewerHelper": "app/simpleMultiViewerHelper",
-        "osdFilters": "app/externalJS/openseadragon-filtering"
+        "osdFilters": "app/externalJS/openseadragon-filtering",
+    	"osdImgHelper": "bower_components/openseadragon-imaginghelper/index",
+	"folderMetadata": "app/plugins/folderMetadata"
+
     },
 
-    shims: {
+    shim: {
         "osdFilters": ["osd"],
         "svg": ["osd"],
-        "common": ["login"]
+        "common": ["login"],
+        "osdImgHelper": ["osd","svg"]
 
     },
 

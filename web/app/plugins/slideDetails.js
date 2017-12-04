@@ -4,9 +4,7 @@ require(["pubsub","slide","config","webix"], function(pubsub,slide,config) {
 	This will add a panel on the right to view slide macro and label image 
     and also metadata eleents pop up on the bottom panel
      */
-
 slideParams = "?height=300" /* can set width/height of the macro image */
-
     
 labelImg = config.BASE_URL + "/item/#_id#/tiles/images/label" + slideParams
 macroImg = config.BASE_URL + "/item/#_id#/tiles/images/macro" + slideParams
@@ -16,7 +14,7 @@ macroImg = config.BASE_URL + "/item/#_id#/tiles/images/macro" + slideParams
 
 //http://candygram.neurology.emory.edu:8080/api/v1/item/596e284492ca9a000d23e8b5/tiles/images/label?height=300
 
-	imgId = "596e284592ca9a000d23e8b7"
+	imgId = ""
   var labelMacroPanel = {
         view: "template",
         id: "macro",
@@ -25,25 +23,20 @@ macroImg = config.BASE_URL + "/item/#_id#/tiles/images/macro" + slideParams
             height: 170,
             width: 200
         },
-	data: {"_id": "596e284592ca9a000d23e8b7","name": "Macro"}
-
+	data: {"_id": imgId,"name": "Macro"}
         }
 
-/*
-        on: {
-            onItemClick: function(id, e, node) {
-                var item = this.getItem(id);
-                slide.init(item);
-            },
-            onAfterRender: function(){
-                if(this.getFirstId()){
-                    var item = this.getItem(this.getFirstId());
-                    slide.init(item);
-                }
-            }
-*/
+
+
+    var slideMetaDataPanel =
+        {
+            view: "template",
+            id: "slideMetaDataPanel",
+            template: "SlideMag: #tiles.magnification# <br>ImageX: #tiles.sizeX# ImageY: #tiles.sizeY#, Has METAData?:#metadata#"
+        }
+
    pubsub.subscribe("SLIDE", function(msg, slide) {
-        // initialize the geojs viewer
+
 
 //http://candygram.neurology.emory.edu:8080/api/v1/item/596e284592ca9a000d23e8b7/tiles/images/label?height=300
 	console.log(slide);
@@ -57,43 +50,16 @@ macroImg = config.BASE_URL + "/item/#_id#/tiles/images/macro" + slideParams
 		//want to get tiles.magnification
 		//
  			
-///AND POSSIBLY EVERYTHING IN meta??
-/*iles
-:
-levels
-:
-10
-magnification
-:
-20
-mm_x
-:
-0.0005024
-mm_y
-:
-0.0005024
-sizeX
-:
-73704
-sizeY
-:
-32266
-tileHeight
-:
-240
-tileWidth
-:
-240*
 
-//ADD IN AN edit item name //
-/
-*/
 	$$("macro").parse(macroData);
+
+    $$("slideMetaDataPanel").parse(slide); //pass current slide metadata to the detail panel
+
     });
 
 
 sampleImg = "";
-imgMacroView = 							{ view: "template", template:"<img id='stinkasaurus' src='"+sampleImg+"'>"  }  ;
+imgMacroView = { view: "template", template:"<img id='stinkasaurus' src='"+sampleImg+"'>"  }  ;
 
 var DEBUG = false;
 
@@ -114,8 +80,6 @@ function updateGroups(id)
         });
     }
 
-
-
 $$("layout_body").addView({view:"accordion", multi: true, id: "slideDetailPanel", gravity: 0.3, cols:[
 	{ header:"slideDetails", body:
 	{
@@ -125,7 +89,7 @@ $$("layout_body").addView({view:"accordion", multi: true, id: "slideDetailPanel"
 	         {view:"text", id:"slideName", label:'Name', labelPosition:"top", value:""}
 		 	]},
 		        { header:"Label/MacroImages", body:  labelMacroPanel	},
-		        { header:"MetaData Widget", body:imgMacroView }
+		        { header:"MetaData Widget", body:slideMetaDataPanel }
 			]
 	}
 	}
@@ -189,33 +153,7 @@ $$("layout_body").addView({view:"accordion", multi: true, id: "slideDetailPanel"
         }
     };
 
-    var brightnessSlider = {
-        view: "slider",
-        type: "alt",
-        label: "Brightness",
-        value: 100,
-        max: 100,
-        id: "brightness_slider",
-        title: webix.template("Selected: #value#"),
-        on: {
-            "onSliderDrag": apply,
-            "onChange": apply
-        }
-    };
-
-    var saturationSlider = {
-        view: "slider",
-        type: "alt",
-        label: "Saturation",
-        value: 100,
-        max: 100,
-        id: "saturation_slider",
-        title: webix.template("Selected: #value#"),
-        on: {
-            "onSliderDrag": apply,
-            "onChange": apply
-        }
-    };
+   
 
     var hueSlider = {
         view: "slider",
@@ -245,66 +183,22 @@ $$("layout_body").addView({view:"accordion", multi: true, id: "slideDetailPanel"
         }
     };
 
-    var blurSlider = {
-        view: "slider",
-        type: "alt",
-        label: "Blur",
-        value: 0,
-        max: 10,
-        id: "blur_slider",
-        title: webix.template("Selected: #value#"),
-        on: {
-            "onSliderDrag": apply,
-            "onChange": apply
-        }
-    };
+   
 
-    var grayscaleSlider = {
-        view: "slider",
-        type: "alt",
-        label: "Grayscale",
-        value: 0,
-        max: 100,
-        id: "grayscale_slider",
-        title: webix.template("Selected: #value#"),
-        on: {
-            "onSliderDrag": apply,
-            "onChange": apply
-        }
-    };
 
-    var view = {
-        view: "window",
-        move: true,
-        head: {
-            view: "toolbar",
-            margin: -4,
-            cols: [{
-                view: "label",
-                label: "Slide Filters"
-            }, {
-                view: "icon",
-                icon: "times-circle",
-                click: "$$('filters_window').hide();"
-            }]
-        },
-        position: "center",
-        id: "filters_window",
-        body: {
-            view: "form",
-            width: 400,
-            elements: [
-                contrastSlider, brightnessSlider, saturationSlider, hueSlider, invertSlider, blurSlider, grayscaleSlider, {
-                    margin: 5,
-                    cols: [{
-                        view: "button",
-                        value: "Reset All",
-                        click: reset
-                    }]
+/*
+        on: {
+            onItemClick: function(id, e, node) {
+                var item = this.getItem(id);
+                slide.init(item);
+            },
+            onAfterRender: function(){
+                if(this.getFirstId()){
+                    var item = this.getItem(this.getFirstId());
+                    slide.init(item);
                 }
-            ]
-        }
-    };
+            }
+
 
 $$("viewer_root").addView({view:"template",template:"slideDetails"})
 "$template4"

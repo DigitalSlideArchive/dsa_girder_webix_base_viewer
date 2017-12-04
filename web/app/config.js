@@ -7,10 +7,11 @@ define("config", function() {
     var RIGHT_HEADER_IMG = "http://cancer.digitalslidearchive.net/imgs/Winship_06-2011/Winship_NCI_shortTag/horizontal/jpg_png/Winship_NCI_shortTag_hz_280.png";
     
     //Specify the BASE API URL
-    var BASE_URL = "http://winshipdev.digitalslidearchive.emory.edu:8080/api/v1";
+    var BASE_URL = "http://winshipdev.digitalslidearchive.emory.edu:8080/api/v1"; // WORKS!
+//    var BASE_URL = "http://candygram.neurology.emory.edu:8080/api/v1";
 
     //What is the collection name we are pulling data from?
-    var COLLECTION_NAME = "ADRC";
+    var COLLECTION_NAME = "WinshipDSADev";
 
     //which endpoints do we wanna use? TCGA or Girder default endpoints
     UI = "standard";
@@ -19,7 +20,10 @@ define("config", function() {
     //Do you want to include 3rd dropdown menu for the folders?
     //ONLY APPLIES FOR THE STANDARD UI
     var THIRD_MENU = true;
+    var THIRD_MENU = false;
 
+
+    /*TO DO: MOVE PLUGIN DESCRIPTION TO HERE */
 
 
     ENDPOINTS = {

@@ -53,7 +53,7 @@ define(["ui", "config", "jquery", "session", "webix"], function(ui, config, $, s
 
 
         if(config.UI == "standard")
-        	require(["routes", "aperio", "filters", "aperio", "login", "annotations","slideDetails"]);
+        	require(["routes", "aperio", "filters", "aperio", "login", "annotations","slideDetails","folderMetadata"]);
        	else
         	require(["routes", "aperio", "filters", "pathology", "metadata", "login", "annotations"]);
     });

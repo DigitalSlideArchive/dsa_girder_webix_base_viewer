@@ -11,7 +11,7 @@ Return:
 	- viewer - Openseadragon viewer object
  */
 
-define("viewer", ["osd", "pubsub"], function(osd, pubsub) {
+define("viewer", ["osdImgHelper","osd", "pubsub"], function(meh, osd, pubsub) {
 
     var viewer = osd({
         id: 'image_viewer',
@@ -20,5 +20,9 @@ define("viewer", ["osd", "pubsub"], function(osd, pubsub) {
         showNavigator: true
     });
     
+//    var imagingHelper = new osdImgHelper.ImagingHelper({ viewer: viewer });
+
+
+
     return viewer;
 });
