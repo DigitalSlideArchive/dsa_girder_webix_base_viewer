@@ -36,8 +36,8 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
 
     webix.UIManager.addHotKey("Esc", function() {
         webix.message("Bind to escape annotations in GeoJS");
-
-        //layer.mode(null);
+        $$("draw_toggle").setValue(0);
+        layer.mode(null);
         //Also going to toggle off drawing mode
         // $$("draw_toggle").setValue(false);
 
@@ -221,11 +221,6 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
 
     // add handlers for drawing annotations
     function draw(type) {
-        //by default, if you click a button, we switch to draw mode
-
-        //           $$("draw_toggle").setValue(true);
-
-
         if (DEBUG)
             console.log("Entering drawing function...");
         if ($$("draw_toggle").getValue() === 1) {
