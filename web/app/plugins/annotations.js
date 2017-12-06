@@ -49,12 +49,11 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
     /***********************************************************************************************/
 
     var tools = {
-        height: 48,
+        height: 36,
         cols: [{
                 view: "segmented",
                 id: "tools",
-                width: 250,
-                height: 48,
+                width: 200,
                 value: "rectangle", // any invalid value if you don't need the initial selection
                 on: {
                     onChange: function(id) {
