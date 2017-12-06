@@ -27,97 +27,58 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
     webix.UIManager.addHotKey("Alt+T", function() {
         webix.message("Toggle drawing");
         $$("draw_toggle").toggle();
-        });
+    });
 
     webix.UIManager.addHotKey("Alt+L", function() {
         webix.message("Toggle Labels");
         //This is a TO DO
-        });
+    });
 
     webix.UIManager.addHotKey("Esc", function() {
         webix.message("Bind to escape annotations in GeoJS");
 
-              //layer.mode(null);
-                //Also going to toggle off drawing mode
-                // $$("draw_toggle").setValue(false);
+        //layer.mode(null);
+        //Also going to toggle off drawing mode
+        // $$("draw_toggle").setValue(false);
 
         //This is a TO DO
-        });
-
-
-
+    });
 
     /***********************************************************************************************/
     /********************************* USER INTERFACE ELEMENTS *************************************/
     /***********************************************************************************************/
-    function shapeClicked( shapeType)
-        {
-            webix.message("HI")
-            webix.message(shapeType);
-        }
-
-
 
     var tools = {
-        height: 25,
+        height: 48,
         cols: [{
-                view: "button",
-                width: 28,
-                type: "htmlbutton",
-                css: "icon_btn",
-                label: "<span class='webix_icon fa fa-pencil-square-o'>",
+                view: "segmented",
+                id: "tools",
+                width: 250,
+                height: 48,
+                value: "rectangle", // any invalid value if you don't need the initial selection
                 on: {
-                    onItemClick: function() {
-                        shapeClicked('line');
+                    onChange: function(id) {
+                        $$("draw_toggle").setValue(1);
+                        draw(id);
                     }
-                }
-            },{
-                view: "button",
-                width: 28,
-                type: "htmlbutton",
-                css: "icon_btn",
-                label: "<span class='webix_icon fa fa-connectdevelop'>",
-                on: {
-                    onItemClick: function() {
-                        draw('polygon');
+                },
+                options: [{
+                        id: "line",
+                        value: "<span class='webix_icon fa fa-pencil-square-o'>"
+                    },
+                    {
+                        id: "polygon",
+                        value: "<span class='webix_icon fa fa-connectdevelop'>"
+                    },
+                    {
+                        id: "rectangle",
+                        value: "<span class='webix_icon fa-icon fa-square-o'>"
+                    },
+                    {
+                        id: "point",
+                        value: "<span class='webix_icon fa-icon fa-map-marker'>"
                     }
-                }
-            },
-            {
-                view: "button",
-                width: 28,
-                type: "htmlbutton",
-                css: "icon_btn",
-                label: "<span class='webix_icon fa-icon fa-square-o'>",
-                on: {
-                    onItemClick: function() {
-                        draw('rectangle');
-                    }
-                }
-            },
-            {
-                view: "button",
-                width: 28,
-                type: "htmlbutton",
-                css: "icon_btn",
-                label: "<span class='webix_icon fa-icon fa-map-marker'>",
-                on: {
-                    onItemClick: function() {
-                        draw('point');
-                    }
-                }
-            },
-            {
-                view: "button",
-                width: 28,
-                type: "htmlbutton",
-                css: "icon_btn",
-                label: "<span class='webix_icon fa-icon fa-bars'>",
-                on: {
-                    onItemClick: function() {
-                        $$("annotations_window").show();
-                    }
-                }
+                ]
             },
             {
                 view: "toggle",
@@ -159,11 +120,28 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
                 inputWidth: 300,
                 labelAlign: "right",
                 options: treeannotations
+            },
+            {
+                view: "button",
+                width: 48,
+                type: "htmlbutton",
+                css: "icon_btn",
+                label: "<span class='webix_icon fa-icon fa-bars'>",
+                on: {
+                    onItemClick: function() {
+                        $$("annotations_window").show();
+                    }
+                }
             }
         ]
     };
 
     $$("viewer_root").addView(tools, 1);
+
+    // additional click handler to unset selection
+    $$("tools").on_click.webix_selected = function() {
+        webix.delay(function() { this.setValue() }.bind(this))
+    };
 
     /***********************************************************************************************/
     /********************************* VIEWER BOUNDS ***********************************************/
@@ -245,7 +223,7 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
     function draw(type) {
         //by default, if you click a button, we switch to draw mode
 
-//           $$("draw_toggle").setValue(true);
+        //           $$("draw_toggle").setValue(true);
 
 
         if (DEBUG)
