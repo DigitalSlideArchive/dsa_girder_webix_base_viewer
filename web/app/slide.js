@@ -7,7 +7,7 @@ define("slide", ["viewer", "config", "pubsub"], function(viewer, config, pubsub)
 		if($$("footer") != undefined){
 			$$("footer").define("data",{
 				name: this.item.name,
-				url: "http://digitalslidearchive.emory.edu/dsa_base/#slide/" + this.item._id
+				url: "http://adrc.digitalslidearchive.emory.edu/dsa_base/#slide/" + this.item._id
 			});
 		}
 		
@@ -28,6 +28,7 @@ define("slide", ["viewer", "config", "pubsub"], function(viewer, config, pubsub)
 	                maxLevel: tiles.levels - 1,
 	                getTileUrl: function(level, x, y) {
 	                	return config.BASE_URL + "/item/" + itemId + "/tiles/zxy/" + level + "/" + x + "/" + y +"?edge=crop";
+//"?edge=crop";
 	            	}
 	    		};
 

@@ -160,10 +160,6 @@ define("standard/slidenav", ["config", "viewer", "slide", "session", "jquery", "
         on: {
             onChange: function(id) {
                 var item = this.getPopup().getBody().getItem(id);
-                webix.message("Folder was selected:" + item['name']);
-
-                //This should trigger an update to the folderAnnotation panel... but I want to track
-                //this event within the other code... so I don't need to change this
 
                 if(config.THIRD_MENU){
                     $.get(config.BASE_URL + "/folder?parentType=folder&parentId=" + item._id, function(folders){
@@ -211,10 +207,6 @@ define("standard/slidenav", ["config", "viewer", "slide", "session", "jquery", "
                 var item = this.getPopup().getBody().getItem(id);
                 var thumbs = $$("thumbnails");
                 var url = config.BASE_URL + "/item?folderId=" + item._id;
-
-                console.log(id);
-                webix.message("Folder selected?")
-
                 thumbs.clearAll();
 
                 $.get(config.BASE_URL + "/item?folderId=" + item._id, function(items){
