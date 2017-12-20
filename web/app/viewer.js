@@ -20,7 +20,6 @@ define("viewer", ["osdImgHelper","osd", "pubsub"], function(oshIH, osd, pubsub) 
         showNavigator: true
     });
     
-    console.log("Hello world");
 
     require(["zoomButtons"]);  //this loads after the viewer is created..
 

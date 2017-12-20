@@ -33,7 +33,7 @@ require = {
         "simpleMultiViewerHelper": "app/simpleMultiViewerHelper",
         "osdFilters": "app/externalJS/openseadragon-filtering",
     	"osdImgHelper": "bower_components/openseadragon-imaginghelper/index",
-	"folderMetadata": "app/plugins/folderMetadata",
+	    "folderMetadata": "app/plugins/folderMetadata",
         "zoomButtons": "app/plugins/zoomButtons"
 
     },
