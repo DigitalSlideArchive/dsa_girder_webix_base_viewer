@@ -357,7 +357,7 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
         var list = $$("currentLayerCombo").getPopup().getList();
         list.clearAll();
         list.parse(treeannotations);
-        console.log(updateStringArray);
+       // console.log(updateStringArray);
         $$("currentLayerCombo").refresh();
         toggleLabel();
     }

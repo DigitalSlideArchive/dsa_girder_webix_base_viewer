@@ -11,7 +11,7 @@ Return:
 	- viewer - Openseadragon viewer object
  */
 
-define("viewer", ["osdImgHelper","osd", "pubsub"], function(meh, osd, pubsub) {
+define("viewer", ["osdImgHelper","osd", "pubsub"], function(oshIH, osd, pubsub) {
 
     var viewer = osd({
         id: 'image_viewer',
@@ -20,6 +20,10 @@ define("viewer", ["osdImgHelper","osd", "pubsub"], function(meh, osd, pubsub) {
         showNavigator: true
     });
     
+    console.log("Hello world");
+
+    require(["zoomButtons"]);  //this loads after the viewer is created..
+
 //    var imagingHelper = new osdImgHelper.ImagingHelper({ viewer: viewer });
 
 
