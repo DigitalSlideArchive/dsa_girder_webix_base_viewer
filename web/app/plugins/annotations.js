@@ -38,10 +38,7 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
         webix.message("Bind to escape annotations in GeoJS");
         $$("draw_toggle").setValue(0);
         layer.mode(null);
-        //Also going to toggle off drawing mode
-        // $$("draw_toggle").setValue(false);
-
-        //This is a TO DO
+        layer.geoOff();
     });
 
     /***********************************************************************************************/
@@ -357,7 +354,7 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
         var list = $$("currentLayerCombo").getPopup().getList();
         list.clearAll();
         list.parse(treeannotations);
-       // console.log(updateStringArray);
+        // console.log(updateStringArray);
         $$("currentLayerCombo").refresh();
         toggleLabel();
     }
@@ -627,48 +624,11 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
                     template: "{common.space()}{common.icon()}{common.treecheckbox()}{common.folder()}#value#"
                 },
                 { id: "type", header: "Type" },
-                {
-                    id: "fillColor",
-                    header: "Fill Color",
-                    editor: "color",
-                    template: function(obj, common)
-
-                    { return obj.type === "layer" ? "" : color1 }
-                },
-                {
-                    id: "strokeColor",
-                    header: "Stroke Color",
-                    editor: "color",
-                    template: function(obj, common)
-
-                    { return obj.type === "layer" ? "" : color2 }
-                },
-                {
-                    id: "fillOpacity",
-                    header: "Fill Opacity",
-                    width: 120,
-                    template: function(obj, common)
-
-                    { return obj.type === "layer" ? "" : common.strokeWidth(obj, common) }
-                },
-
-                {
-                    id: "strokeOpacity",
-                    header: "Stroke Opacity",
-                    width: 120,
-                    template: function(obj, common) { return obj.type === "layer" ? "" : common.strokeOpacity(obj, common) }
-
-                },
-
-
-                {
-                    id: "strokeWidth",
-                    header: "Stroke Width",
-                    template: function(obj, common) { return obj.type === "layer" ? "" : common.strokeWidth(obj, common) }
-
-                    ,
-                    width: 120
-                }
+                { id: "fillColor", header: "Fill Color", editor: "color", template: color1 },
+                { id: "strokeColor", header: "Stroke Color", editor: "color", template: color2 },
+                { id: "fillOpacity", header: "Fill Opacity", template: "{common.fillOpacity()}", width: 120 },
+                { id: "strokeOpacity", header: "Stroke Opacity", template: "{common.strokeOpacity()}", width: 120 },
+                { id: "strokeWidth", header: "Stroke Width", template: "{common.strokeWidth()}", width: 120 }
             ],
             scheme: {
                 $init: function(obj) {
