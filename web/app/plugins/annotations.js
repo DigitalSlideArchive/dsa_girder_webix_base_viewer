@@ -36,9 +36,9 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
 
     webix.UIManager.addHotKey("Esc", function() {
         webix.message("Bind to escape annotations in GeoJS");
-        $$("draw_toggle").setValue(0);
-        layer.mode(null);
-        layer.geoOff();
+        // $$("draw_toggle").setValue(0);
+        //layer.mode(null);
+        //layer.geoOff();
     });
 
     /***********************************************************************************************/
