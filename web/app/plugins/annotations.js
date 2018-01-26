@@ -37,6 +37,8 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
     webix.UIManager.addHotKey("Esc", function() {
         webix.message("Bind to escape annotations in GeoJS");
         $$("draw_toggle").setValue(0);
+        $('#geojs .geojs-layer').css('pointer-events', 'none');
+
         //layer.mode(null);
         //layer.geoOff();
     });
@@ -88,6 +90,10 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
                 onLabel: "Drawing Enabled",
                 on: {
                     onItemClick: function() {
+                        var drawValue = $$("draw_toggle").getValue(0);
+                        if (drawValue === 0) {
+                            $('#geojs .geojs-layer').css('pointer-events', 'none');
+                        }
                         draw(currentShape);
                     }
                 }
