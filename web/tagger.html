@@ -11,15 +11,46 @@
 
 <body>
     <script>
-    var header = { template: "DSA TAGGER", height: 50, view: "template" }
+    /* Define constants and variables here */
+    config = {}
+    config.BASE_URL = "http://candygram.neurology.emory.edu:8080/api/v1";
 
     sampleJSONArrayURL = "http://candygram.neurology.emory.edu:8080/api/v1/item?folderId=59ef608e92ca9a0017a22b0b"
 
-    config = {}
+    /* This defines the templates I am using to render thumbnails */
+    
+    defaultFill = "white"
+    tinyThumbSize = 64;
 
-    config.BASE_URL = "http://candygram.neurology.emory.edu:8080/api/v1";
 
-    templateBigThumbs = "<div class='webix_strong'>#name#</div><img src='" + config.BASE_URL + "/item/#_id#/tiles/thumbnail'/>"
+    webix.type(webix.ui.dataview, {
+        name: "thumbsTiny",
+        template: "<div class='webix_strong'>#name#</div><img src='" + config.BASE_URL + 
+        "/item/#_id#/tiles/thumbnail?width="  + tinyThumbSize + "&height=" + tinyThumbSize + "&fill=" +
+        defaultFill + "'/>",
+        width: 90,
+        height: 90
+    });
+
+    webix.type(webix.ui.dataview, {
+        name: "thumbsSmall",
+        template: "<div class='webix_strong'>#name#</div><img src='" + config.BASE_URL + "/item/#_id#/tiles/thumbnail'/>",
+        width: 200,
+        height: 200
+    });
+
+    webix.type(webix.ui.dataview, {
+        name: "thumbsBig",
+        template: "<div class='webix_strong'>#name#</div><img src='" + config.BASE_URL + "/item/#_id#/tiles/thumbnail'/>",
+        width: 500,
+        height: 500
+    });
+
+
+    var header = { template: "DSA TAGGER", height: 50, view: "template" }
+
+
+    // var templateBigThumbs = "<div class='webix_strong'>#name#</div><img src='" + config.BASE_URL + "/item/#_id#/tiles/thumbnail'/>"
 
     leftPanel = {
         gravity: 1,
@@ -27,17 +58,19 @@
     }
 
 
+
+
     thumbDataView = {
         gravity: 5,
         view: "dataview",
         url: sampleJSONArrayURL,
         id: "thumbnails",
-        template: templateBigThumbs,
-        select: "multi",
-        type: {
-            height: 170,
-            width: 200
-        },
+        type: "thumbsBig",
+        select: "item",
+        // type: {
+        //     height: 170,
+        //     width: 200
+        // },
         on: {
             "onAfterSelect": function() {
                 selectedId = this.getSelectedId();
@@ -48,15 +81,37 @@
         }
     }
 
+
+
+    // <input type="button" name="" value="Template B" onclick="$$('movie').define('type','typeB');$$('movie').render();">
+
+
+
+    function changeTemplate() {
+        templateName = this.getValue(); 
+        console.log(templateName);
+        $$("thumbnails").define("type",templateName);
+        $$("thumbnails").render();
+    }
+
+    var selectTemplates = {
+        type: "line",
+        cols: [
+            { template: "Select your size", view: "template" },
+            { value: "thumbsTiny", view: "button", click: changeTemplate },
+            { value: "thumbsSmall", view: "button", click: changeTemplate },
+            { value: "thumbsBig", view: "button", click: changeTemplate },
+        ]
+    }
+
     rightPanel = {
         gravity: 5,
         rows: [
-            { view: "template", template: "PutaPagerHere", height: 50  },
+            { view: "template", template: "PutaPagerHere", height: 50 },
+            selectTemplates,
             { view: "template", template: "PutaFilterHere", gravity: 1 },
             thumbDataView
         ]
-
-
     }
     TaggerLayout = {
         rows: [header,
@@ -73,120 +128,7 @@
     }
 
 
-
-
-
-    // TaggerLayout = {
-    //     rows: [
-    //         {
-    //             cols: [{
-    //                     type: "line",
-    //                     rows: [{
-    //                             options: [
-    //                                 "One",
-    //                                 "Two",
-    //                                 "Three"
-    //                             ],
-    //                             view: "segmented"
-    //                         },
-    //                         {
-    //                             type: "line",
-    //                             rows: [{
-    //                                     type: "line",
-    //                                     cols: [
-    //                                         { template: "Menu", width: 300, view: "template" },
-    //                                         { view: "resizer" }
-    //                                     ]
-    //                                 },
-    //                                 { label: "Slider", view: "slider" }
-    //                             ]
-    //                         }
-    //                     ]
-    //                 },
-    //                 {
-    //                     type: "line",
-    //                     rows: [{
-    //                             type: "line",
-    //                             rows: [
-    //                                 { view: "pager" },
-    //                                 { template: "#rank#. #title#", view: "dataview" }
-    //                             ]
-    //                         },
-    //                         { template: "Content", view: "template" }
-    //                     ]
-    //                 }
-    //             ]
-    //         },
-    //         { template: "Footer ", height: 50, view: "template" }
-    //     ]
-    // }
-
-
     webix.ui(TaggerLayout);
-
-
-    // webix.ui({
-    //     rows: [{
-    //             view: "template",
-    //             type: "header",
-    //             template: "My App!"
-    //         },
-    //         {
-    //             view: "datatable",
-    //             autoConfig: true,
-    //             data: {
-    //                 title: "My Fair Lady",
-    //                 year: 1964,
-    //                 votes: 533848,
-    //                 rating: 8.9,
-    //                 rank: 5
-    //             }
-    //         }
-    //     ]
-    // });
-
-
-
-// <!doctype html>
-// <html>
-// <head>
-//     <title>Named Templates</title>
-//     <script src="//cdn.webix.com/site/webix.js?v=5.2.1" type="text/javascript"></script>
-//     <link rel="STYLESHEET" type="text/css" href="//cdn.webix.com/site/webix.css?v=5.2.1">
-//     <script src="../../common/testdata.js"></script>
-//     <link rel="STYLESHEET" type="text/css" href="dataview_styles.css">
-// <body>
-//     <div id="dataA" style="width:543px;height:270px;margin:20px"></div>
-//     <div style="margin-left:20px">
-//         <input type="button" name="" value="Template A" onclick="$$('movie').define('type','typeA');$$('movie').render();">
-//         <input type="button" name="" value="Template B" onclick="$$('movie').define('type','typeB');$$('movie').render();">
-//     </div>
-
-//     <script>
-//         webix.type(webix.ui.dataview,{
-//             name:"typeA",
-//             template: "<div class='overall'><div class='rank'>#rank#.</div><div class='title'>#title#</div><div class='year'>#year# year</div> </div>",
-//             width: 260,
-//             height: 90
-//         });
-
-//         webix.type(webix.ui.dataview,{
-//             name:"typeB",
-//             template: "<div class='overall'><div class='rank'>#rank#.</div><div class='title_long'>#title#</div></div>",
-//             width: 522,
-//             height: 90
-//         });
-
-//         webix.ui({
-//             id:"movie",
-//             view:"dataview",
-//             container:"dataA",
-//             css: "movies",
-//             type:"typeA",
-//             data:big_film_set
-//         });
-
-
     </script>
 </body>
 
