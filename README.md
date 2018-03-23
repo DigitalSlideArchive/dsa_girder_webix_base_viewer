@@ -23,7 +23,7 @@ cd into dsa_girder_webix_base_viewer
 
 `cd dsa_girder_webix_base_viewer/web`
 
-# Please note, the default version of NodeJS on Ubuntu 16.04 is quite old, and you will likely have issues installing bower, use the following link to add a Package Repository/PPA that has a more recent version to make installing nodejs (and then bower) easier
+### Please note, the default version of NodeJS on Ubuntu 16.04 is quite old, and you will likely have issues installing bower, use the following link to add a Package Repository/PPA that has a more recent version to make installing nodejs (and then bower) easier
 
 https://www.digitalocean.com/community/tutorials/how-to-install-node-js-on-ubuntu-16-04
 
