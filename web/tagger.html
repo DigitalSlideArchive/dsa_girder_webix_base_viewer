@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset = UTF-8">
+    <title>Digital Slide Archive Tagger </title>
+    <link rel="stylesheet" href="http://cdn.webix.com/edge/webix.css" type="text/css">
+    <script src="bower_components/webix/codebase/webix.js" type="text/javascript"></script>
+    <link rel="stylesheet" type="text/css" href="css/dsa.css">
+</head>
+
+<body>
+    <script>
+    /* Define constants and variables here */
+    config = {}
+    config.BASE_URL = "http://candygram.neurology.emory.edu:8080/api/v1";
+
+    sampleJSONArrayURL = "http://candygram.neurology.emory.edu:8080/api/v1/item?folderId=59ef608e92ca9a0017a22b0b"
+
+    /* This defines the templates I am using to render thumbnails */
+    
+    defaultFill = "white"
+    tinyThumbSize = 64;
+
+
+    webix.type(webix.ui.dataview, {
+        name: "thumbsTiny",
+        template: "<div class='webix_strong'>#name#</div><img src='" + config.BASE_URL + 
+        "/item/#_id#/tiles/thumbnail?width="  + tinyThumbSize + "&height=" + tinyThumbSize + "&fill=" +
+        defaultFill + "'/>",
+        width: 90,
+        height: 90
+    });
+
+    webix.type(webix.ui.dataview, {
+        name: "thumbsSmall",
+        template: "<div class='webix_strong'>#name#</div><img src='" + config.BASE_URL + "/item/#_id#/tiles/thumbnail'/>",
+        width: 200,
+        height: 200
+    });
+
+    webix.type(webix.ui.dataview, {
+        name: "thumbsBig",
+        template: "<div class='webix_strong'>#name#</div><img src='" + config.BASE_URL + "/item/#_id#/tiles/thumbnail'/>",
+        width: 500,
+        height: 500
+    });
+
+
+    var header = { template: "DSA TAGGER", height: 50, view: "template" }
+
+
+    // var templateBigThumbs = "<div class='webix_strong'>#name#</div><img src='" + config.BASE_URL + "/item/#_id#/tiles/thumbnail'/>"
+
+    leftPanel = {
+        gravity: 1,
+        rows: [{ view: "template", template: "THE TOP" }, { view: "template", template: "THE BOTTOM" }, ]
+    }
+
+
+
+
+    thumbDataView = {
+        gravity: 5,
+        view: "dataview",
+        url: sampleJSONArrayURL,
+        id: "thumbnails",
+        type: "thumbsBig",
+        select: "item",
+        // type: {
+        //     height: 170,
+        //     width: 200
+        // },
+        on: {
+            "onAfterSelect": function() {
+                selectedId = this.getSelectedId();
+                itemData = this.getItem(selectedId);
+                console.log(itemData);
+                webix.message(itemData.name.replace(".svs", ""))
+            }
+        }
+    }
+
+
+
+    // <input type="button" name="" value="Template B" onclick="$$('movie').define('type','typeB');$$('movie').render();">
+
+
+
+    function changeTemplate() {
+        templateName = this.getValue(); 
+        console.log(templateName);
+        $$("thumbnails").define("type",templateName);
+        $$("thumbnails").render();
+    }
+
+    var selectTemplates = {
+        type: "line",
+        cols: [
+            { template: "Select your size", view: "template" },
+            { value: "thumbsTiny", view: "button", click: changeTemplate },
+            { value: "thumbsSmall", view: "button", click: changeTemplate },
+            { value: "thumbsBig", view: "button", click: changeTemplate },
+        ]
+    }
+
+    rightPanel = {
+        gravity: 5,
+        rows: [
+            { view: "template", template: "PutaPagerHere", height: 50 },
+            selectTemplates,
+            { view: "template", template: "PutaFilterHere", gravity: 1 },
+            thumbDataView
+        ]
+    }
+    TaggerLayout = {
+        rows: [header,
+            {
+                cols: [
+                    leftPanel,
+                    rightPanel
+
+
+                ]
+            },
+            { view: "template", height: 50, template: "footer goes here" }
+        ]
+    }
+
+
+    webix.ui(TaggerLayout);
+    </script>
+</body>
+
+</html>
