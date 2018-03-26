@@ -21,7 +21,7 @@ define("tcga/slidenav", ["config", "viewer", "pubsub", "slide", "jquery", "webix
         select: true,
         template: "<div class='webix_strong'>#name#</div><img src='" + config.BASE_URL + "/item/#_id#/tiles/thumbnail'/>",
         pager: "item_pager",
-        datafetch: 5,
+        datafetch: 25,
         type: {
             height: 170,
             width: 200

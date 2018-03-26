@@ -11,6 +11,8 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
     var treeannotations = [{
         "id": "1",
         "type": "layer",
+        "fillColor": "#00FF00",
+        "strokeColor": "#000000",
         "value": "Default Layer",
         "open": true,
         "data": []
@@ -25,78 +27,56 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
     webix.UIManager.addHotKey("Alt+T", function() {
         webix.message("Toggle drawing");
         $$("draw_toggle").toggle();
-        });
+    });
 
     webix.UIManager.addHotKey("Alt+L", function() {
         webix.message("Toggle Labels");
         //This is a TO DO
-        });
+    });
 
+    webix.UIManager.addHotKey("Esc", function() {
+        webix.message("Bind to escape annotations in GeoJS");
+        $$("draw_toggle").setValue(0);
+        $('#geojs .geojs-layer').css('pointer-events', 'none');
+
+        //layer.mode(null);
+        //layer.geoOff();
+    });
 
     /***********************************************************************************************/
     /********************************* USER INTERFACE ELEMENTS *************************************/
     /***********************************************************************************************/
 
     var tools = {
-        height: 25,
+        height: 36,
         cols: [{
-                view: "button",
-                width: 28,
-                type: "htmlbutton",
-                css: "icon_btn",
-                label: "<span class='webix_icon fa fa-pencil-square-o'>",
+                view: "segmented",
+                id: "tools",
+                width: 200,
+                value: "rectangle", // any invalid value if you don't need the initial selection
                 on: {
-                    onItemClick: function() {
-                        draw('line');
+                    onChange: function(id) {
+                        $$("draw_toggle").setValue(1);
+                        draw(id);
                     }
-                }
-            },{
-                view: "button",
-                width: 28,
-                type: "htmlbutton",
-                css: "icon_btn",
-                label: "<span class='webix_icon fa fa-connectdevelop'>",
-                on: {
-                    onItemClick: function() {
-                        draw('polygon');
+                },
+                options: [{
+                        id: "line",
+                        value: "<span class='webix_icon fa fa-pencil-square-o'>"
+                    },
+                    {
+                        id: "polygon",
+                        value: "<span class='webix_icon fa fa-connectdevelop'>"
+                    },
+                    {
+                        id: "rectangle",
+                        value: "<span class='webix_icon fa-icon fa-square-o'>"
+                    },
+                    {
+                        id: "point",
+                        value: "<span class='webix_icon fa-icon fa-map-marker'>"
                     }
-                }
-            },
-            {
-                view: "button",
-                width: 28,
-                type: "htmlbutton",
-                css: "icon_btn",
-                label: "<span class='webix_icon fa-icon fa-square-o'>",
-                on: {
-                    onItemClick: function() {
-                        draw('rectangle');
-                    }
-                }
-            },
-            {
-                view: "button",
-                width: 28,
-                type: "htmlbutton",
-                css: "icon_btn",
-                label: "<span class='webix_icon fa-icon fa-map-marker'>",
-                on: {
-                    onItemClick: function() {
-                        draw('point');
-                    }
-                }
-            },
-            {
-                view: "button",
-                width: 28,
-                type: "htmlbutton",
-                css: "icon_btn",
-                label: "<span class='webix_icon fa-icon fa-bars'>",
-                on: {
-                    onItemClick: function() {
-                        $$("annotations_window").show();
-                    }
-                }
+                ]
             },
             {
                 view: "toggle",
@@ -110,6 +90,10 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
                 onLabel: "Drawing Enabled",
                 on: {
                     onItemClick: function() {
+                        var drawValue = $$("draw_toggle").getValue(0);
+                        if (drawValue === 0) {
+                            $('#geojs .geojs-layer').css('pointer-events', 'none');
+                        }
                         draw(currentShape);
                     }
                 }
@@ -138,11 +122,28 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
                 inputWidth: 300,
                 labelAlign: "right",
                 options: treeannotations
+            },
+            {
+                view: "button",
+                width: 48,
+                type: "htmlbutton",
+                css: "icon_btn",
+                label: "<span class='webix_icon fa-icon fa-bars'>",
+                on: {
+                    onItemClick: function() {
+                        $$("annotations_window").show();
+                    }
+                }
             }
         ]
     };
 
     $$("viewer_root").addView(tools, 1);
+
+    // additional click handler to unset selection
+    $$("tools").on_click.webix_selected = function() {
+        webix.delay(function() { this.setValue() }.bind(this))
+    };
 
     /***********************************************************************************************/
     /********************************* VIEWER BOUNDS ***********************************************/
@@ -337,6 +338,8 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
             "id": "1",
             "value": "Default Layer",
             "type": "layer",
+            "fillColor": "#00FF00",
+            "strokeColor": "#000000",
             "open": true,
             "data": []
         }];
@@ -357,6 +360,8 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
         var list = $$("currentLayerCombo").getPopup().getList();
         list.clearAll();
         list.parse(treeannotations);
+        // console.log(updateStringArray);
+        $$("currentLayerCombo").refresh();
         toggleLabel();
     }
 
@@ -378,42 +383,61 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
         var found = false;
         var visibleAnnotationsChanged = false;
         for (var i = 0; i < treeannotations.length; i++) {
-            for (var j = 0; j < treeannotations[i].data.length; j++) {
-                if (treeannotations[i].data[j].geoid == geoid) {
-                    switch (property) {
-                        case "strokeWidth":
-                            treeannotations[i].data[j].strokeWidth = val;
-                            break;
-                        case "fillOpacity":
-                            treeannotations[i].data[j].fillOpacity = val;
-                            break;
-                        case "strokeOpacity":
-                            treeannotations[i].data[j].strokeOpacity = val;
-                            break;
-                        case "deleteAnnotation":
-                            treeannotations[i].data.splice(j, 1);
-                            visibleAnnotationsChanged = true;
-                            break;
-                        case "annotationStyleChange":
-                            switch (editorcolumn) {
-                                case "fillColor":
-                                    treeannotations[i].data[j].fillColor = value;
-                                    break;
-                                case "strokeColor":
-                                    treeannotations[i].data[j].strokeColor = value;
-                                    break;
-                                case "name":
-                                    treeannotations[i].data[j].value = value;
-                                    break;
-                            }
-                            break;
+            //webix.message("Deleting Layer, ID" + geoid);
+            if (property === "deleteLayer") {
+                //webix.message("ID" + geoid + "MATCHING ID" + treeannotations[i].id);
+                //LAYER DELETE HERE GEOID IS THE TREE ID OF THE LAYER
+                if (treeannotations[i].id === geoid) {
+
+                    console.log(treeannotations[i]);
+                    treeannotations.splice(i, 1);
+                    visibleAnnotationsChanged = true;
+                    reloadAnnotationsTable();
+
+                    if (treeannotations.length === 0) {
+                        webix.message("All the layers were delete. Initializing it to default layer...");
+                        reinitializeTreeLayers();
                     }
-                    found = true;
                     break;
                 }
-            }
-            if (found) {
-                break;
+            } else {
+                for (var j = 0; j < treeannotations[i].data.length; j++) {
+                    if (treeannotations[i].data[j].geoid == geoid) {
+                        switch (property) {
+                            case "strokeWidth":
+                                treeannotations[i].data[j].strokeWidth = val;
+                                break;
+                            case "fillOpacity":
+                                treeannotations[i].data[j].fillOpacity = val;
+                                break;
+                            case "strokeOpacity":
+                                treeannotations[i].data[j].strokeOpacity = val;
+                                break;
+                            case "deleteAnnotation":
+                                treeannotations[i].data.splice(j, 1);
+                                visibleAnnotationsChanged = true;
+                                break;
+                            case "annotationStyleChange":
+                                switch (editorcolumn) {
+                                    case "fillColor":
+                                        treeannotations[i].data[j].fillColor = value;
+                                        break;
+                                    case "strokeColor":
+                                        treeannotations[i].data[j].strokeColor = value;
+                                        break;
+                                    case "name":
+                                        treeannotations[i].data[j].value = value;
+                                        break;
+                                }
+                                break;
+                        }
+                        found = true;
+                        break;
+                    }
+                }
+                if (found) {
+                    break;
+                }
             }
         }
         updateGirderWithAnnotationData();
@@ -560,22 +584,27 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
                     icon: "plus-square",
                     on: {
                         onItemClick: function() {
-                            var newLayer = {
-                                id: treeannotations.length + 1,
-                                value: $$('layername').getValue(),
-                                type: "layer",
-                                open: true,
-                                data: []
-                            };
+                            if ($$('layername').getValue().length === 0) {
+                                webix.message("<font size=\"3\" color=\"red\">Layer name cannot be empty!</font>");
+                            } else {
+                                var newLayer = {
+                                    id: treeannotations.length + 1,
+                                    value: $$('layername').getValue(),
+                                    type: "layer",
+                                    open: true,
+                                    data: []
+                                };
 
-                            treeannotations[treeannotations.length] = newLayer;
-                            currentLayerId = newLayer.id;
-                            updateGirderWithAnnotationData();
-                            //CLEAR UI
-                            $$("layername").setValue("");
-                            $$("layername").refresh();
-                            $$("currentLayerCombo").setValue(currentLayerId);
-                            //$$("currentLayerCombo").refresh();
+                                treeannotations[treeannotations.length] = newLayer;
+                                currentLayerId = newLayer.id;
+                                updateGirderWithAnnotationData();
+                                //CLEAR UI
+                                $$("layername").setValue("");
+                                $$("layername").refresh();
+                                $$("currentLayerCombo").setValue(currentLayerId);
+                                //$$("currentLayerCombo").refresh();
+                            }
+
                         }
                     }
                 },
@@ -679,31 +708,51 @@ require(["viewer", "slide", "geo", "pubsub", "config"], function(viewer, slide, 
             onClick: {
                 "fa-trash": function(e, id) {
                     var item = this.getItem(id.row);
-                    var annotation = layer.annotationById(item.geoid);
-                    layer.removeAnnotation(annotation);
-                    this.remove(id.row);
-                    propertiesEdited("deleteAnnotation", item.geoid, "", "");
+                    if (item.type === "layer") {
+                        console.log(item.data);
+
+                        curAnnotationToDeleteID = $$("annotations_table").getFirstChildId(item.id);
+                        while (curAnnotationToDeleteID) {
+                            curAnnotationToDelete = $$("annotations_table").getItem(curAnnotationToDeleteID);
+                            var annotation = layer.annotationById(curAnnotationToDelete.geoid);
+                            layer.removeAnnotation(annotation);
+                            this.remove(curAnnotationToDelete.id);
+                            propertiesEdited("deleteAnnotation", curAnnotationToDelete.geoid, "", "");
+                            curAnnotationToDeleteID = $$("annotations_table").getFirstChildId(item.id);
+                        }
+                        //Now deleting the layer after we just removed all of its child annotations
+                        propertiesEdited("deleteLayer", item.id, "", "");
+                        //ADD LAYER COLOR CHANGES CONTROL HERE IN THE FUTURE
+                    } else {
+                        var annotation = layer.annotationById(item.geoid);
+                        layer.removeAnnotation(annotation);
+                        this.remove(id.row);
+                        propertiesEdited("deleteAnnotation", item.geoid, "", "");
+                    }
                 }
             },
             on: {
                 onAfterEditStop: function(state, editor) {
                     var item = this.getItem(editor.row);
-                    console.log(layer);
-                    var annotation = layer.annotationById(item.geoid);
-                    if (DEBUG)
-                        console.log("COLOR CHANGE:" + item.geoid);
-                    var opt = annotation.options('style');
-
-                    if (editor.column === "name") {
-                        //Name edit to  Geo JSON
-                        annotation.name(state.value);
-                        map.draw();
+                    if (item.type === "layer") {
+                        //ADD LAYER COLOR CHANGES CONTROL HERE IN THE FUTURE
                     } else {
-                        //Color (Stroke & Fill) edits to  Geo JSON
-                        opt[editor.column] = state.value;
-                        annotation.options({ style: opt }).draw();
+                        var annotation = layer.annotationById(item.geoid);
+                        if (DEBUG)
+                            console.log("COLOR CHANGE:" + item.geoid);
+                        var opt = annotation.options('style');
+
+                        if (editor.column === "name") {
+                            //Name edit to  Geo JSON
+                            annotation.name(state.value);
+                            map.draw();
+                        } else {
+                            //Color (Stroke & Fill) edits to  Geo JSON
+                            opt[editor.column] = state.value;
+                            annotation.options({ style: opt }).draw();
+                        }
+                        propertiesEdited("annotationStyleChange", item.geoid, state.value, editor.column);
                     }
-                    propertiesEdited("annotationStyleChange", item.geoid, state.value, editor.column);
                 },
                 onItemClick: function(id) {
                     animationInProgress = true;

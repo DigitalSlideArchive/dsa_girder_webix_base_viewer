@@ -1,7 +1,7 @@
 define("common/toolbar", function() {
 
     buttons = {
-        height: 30,
+        height: 36,
         width: "100%",
         id: "toolbar",
         cols: []

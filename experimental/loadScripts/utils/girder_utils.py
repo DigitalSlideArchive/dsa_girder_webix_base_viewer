@@ -31,6 +31,32 @@ def recurseGetItems(client, folderID, parentType='folder'):
     return items
 
 
+
+
+def recurseGetFolders(client, folderID, parentType='folder'):
+    '''
+    Returns a list of json objects representing the items inside the folderID given in the appropriate api
+    This algorithm implements recursion method
+    
+    INPUTS
+    client - a girder client object
+    folderId - a string id of the folder or collection
+    parentType - only needs to be modified if your folderId is for a collection (see above)
+        
+    OUTPUT
+    items - an array containing slide info
+    '''
+    folders = []
+    folders.extend(client.listFolder(folderID, parentFolderType=parentType))
+        
+    if len(folders) is not 0:
+        for fld in folders:
+           folders.extend(recurseGetFolders(client, fld['_id']))
+    return folders
+
+
+
+
 def lookupItemByName( girderClient, parentFolderID, itemName):
     """Sees if an item of FOO already exists in folder BAR"""
     gc = girderClient

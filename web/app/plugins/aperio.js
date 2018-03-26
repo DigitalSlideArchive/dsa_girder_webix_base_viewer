@@ -180,6 +180,7 @@ require(["d3", "viewer", "pubsub", "config", "svg", "jquery", "session", "fabric
         select: true,
         datatype:"AperioXML",
         id: "aperio_xml_tree",
+        url: "http://digitalslidearchive.emory.edu/v1/aperio/home/mkhali8/test.xml",
         template:function(obj, common){
             var icons = common.icon(obj, common) + common.checkbox(obj, common) + common.folder(obj, common);
             var text = "";

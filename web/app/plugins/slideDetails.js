@@ -7,18 +7,17 @@ require(["pubsub", "slide", "config", "webix"], function(pubsub, slide, config) 
 
 
 
+slideParams = "?height=300" /* can set width/height of the macro image */
+labelImg = config.BASE_URL + "/item/#_id#/tiles/images/label" + slideParams
+macroImg = config.BASE_URL + "/item/#_id#/tiles/images/macro" + slideParams
 
-    slideParams = "?height=300" /* can set width/height of the macro image */
-    labelImg = config.BASE_URL + "/item/#_id#/tiles/images/label" + slideParams
-    macroImg = config.BASE_URL + "/item/#_id#/tiles/images/macro" + slideParams
 
-    //HOW TO REMOVE UNDERLINES
-    //<textarea spellcheck="false"> or <input type="text" spellcheck="false">
+  //HOW TO REMOVE UNDERLINES
+  //<textarea spellcheck="false"> or <input type="text" spellcheck="false">
 
-    //How to not display the img ICON if img not available..
-     // onerror="this.style.display='none'"/>
+  //How to not display the img ICON if img not available..
+   // onerror="this.style.display='none'"/>
 
-    imgId = "596e284592ca9a000d23e8b7"
     var labelMacroPanel = {
         view: "template",
         id: "macro",
@@ -29,10 +28,14 @@ require(["pubsub", "slide", "config", "webix"], function(pubsub, slide, config) 
             },
     }
 
+    var slideMetaDataPanel =
+        {
+            view: "template",
+            id: "slideMetaDataPanel",
+            template: "SlideMag: #tiles.magnification# <br>ImageX: #tiles.sizeX# ImageY: #tiles.sizeY#, Has METAData?:#metadata#"
+        }
 
-    pubsub.subscribe("SLIDE", function(msg, slide) {
-        // initialize the geojs viewer
-
+   pubsub.subscribe("SLIDE", function(msg, slide) {
         console.log(slide);
         $$("slideName").setValue(slide["name"]);
         macroData = { "_id": slide['_id'], "name": slide["name"] }
@@ -52,9 +55,16 @@ require(["pubsub", "slide", "config", "webix"], function(pubsub, slide, config) 
         $$("macro").parse(macroData);
     });
 
+	$$("macro").parse(macroData);
 
-    sampleImg = "";
-    imgMacroView = { id: "metaDataList", view: "list", template: "#k# #v#" };
+    $$("slideMetaDataPanel").parse(slide); //pass current slide metadata to the detail panel
+
+    });
+
+
+sampleImg = "";
+imgMacroView = { view: "template", template:"<img id='stinkasaurus' src='"+sampleImg+"'>"  }  ;
+
 
     var DEBUG = false;
 
@@ -72,8 +82,6 @@ require(["pubsub", "slide", "config", "webix"], function(pubsub, slide, config) 
             //console.log(text);
         });
     }
-
-
 
     $$("layout_body").addView({
         view: "accordion",
@@ -95,5 +103,6 @@ require(["pubsub", "slide", "config", "webix"], function(pubsub, slide, config) 
             }
         }]
     })
+
 
 });
