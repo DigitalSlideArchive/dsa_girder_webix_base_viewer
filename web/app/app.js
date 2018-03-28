@@ -16,10 +16,10 @@ To access knockout observables
 
 Now obs is an object having the following properties
 {
-	statusObj: statusObj,
-	svgOverlayVM: svgOverlayVM,
-	slideInfoObj: slideInfoObj,
-	vm: vm
+    statusObj: statusObj,
+    svgOverlayVM: svgOverlayVM,
+    slideInfoObj: slideInfoObj,
+    vm: vm
 }
 
 If for some reason a module not returning the variable you 
@@ -29,22 +29,22 @@ you want to return to the return object
 
 define(["ui", "config", "jquery", "session", "webix"], function(ui, config, $, session) {
 
-    if(session.valid()){
+    if (session.valid()) {
         $.ajaxSetup({
-            headers: {'Girder-Token': session.token()}
+            headers: { 'Girder-Token': session.token() }
         });
 
         webix.ajax().headers({
             'Girder-Token': session.token()
         });
 
-        webix.attachEvent("onBeforeAjax", 
-            function(mode, url, data, request, headers, files, promise){
+        webix.attachEvent("onBeforeAjax",
+            function(mode, url, data, request, headers, files, promise) {
                 headers["Girder-Token"] = session.token();
             }
         );
     }
-    
+
     webix.ready(function() {
         ui.init();
 
@@ -52,9 +52,17 @@ define(["ui", "config", "jquery", "session", "webix"], function(ui, config, $, s
         webix.extend($$("viewer_panel"), webix.OverlayBox);
 
 
-        if(config.UI == "standard")
-        	require(["routes", "aperio", "filters", "aperio", "login", "annotations"]);
-       	else
-        	require(["routes", "aperio", "filters", "pathology", "metadata", "login", "annotations"]);
+        if (config.UI == "standard")
+            require(["routes", "login", ]);
+        else
+            require(["routes",  "login" ]);
     });
+
+    $.each(config.MODULE_CONFIG, function(moduleName, moduleEnabled) {
+            if (moduleEnabled) {
+                require([moduleName]);
+                webix.message("Enabling " + moduleName);
+                                }
+            });
+
 });
