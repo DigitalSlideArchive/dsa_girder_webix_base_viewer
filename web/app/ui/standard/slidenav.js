@@ -1,10 +1,55 @@
 define("standard/slidenav", ["config", "viewer", "slide", "session", "jquery", "webix"], function(config, viewer, slide, session, $) {
 
 
+    function recomputePagerItems() {
+        var itemWidth = $$("thumbnails").config.type.width;
+        var itemHeight = $$("thumbnails").config.type.height;
+        var dataWidth = $$("thumbnails").$width;
+        var dataHeight = $$("thumbnails").$height;
 
-  
+        var pagerSize = $$("thumbnails").getPager().config.size;
+
+        /* Compute items per row and items per column */
+        thumbsPerRow = Math.floor(dataWidth / itemWidth);
+        if (thumbsPerRow < 1) { thumbsPerRow = 1 }
+
+        thumbsPerCol = Math.floor(dataHeight / itemHeight);
+        if (thumbsPerCol < 1) { thumbsPerCol = 1 }
+        //    console.log(thumbsPerCol,thumbsPerRow);
+
+        pagerSize = thumbsPerCol * thumbsPerRow;
+
+        console.log(pagerSize);
+        $$("thumbnails").getPager().define({ size: pagerSize });
+        $$("thumbnails").refresh()
+    }
+
+    itemFilter =
+        {
+            view: "toolbar",
+            cols: [{
+                view: "search",
+                align: "center",
+                placeholder: "Search..",
+                id: "thumbSearch",
+                width: 200,
+                on: {
+                    "onTimedKeyPress": function() {
+                        value = this.getValue().toLowerCase();
+                        $$("thumbnails").filter(function(obj) { //here it filters data!
+                            // console.log(obj);
+                            // console.log(value);
+                            // console.log(obj.name);
+                            return obj.name.toLowerCase().indexOf(value) != -1
+                        })
+                    }
+                }
+            }]
+        }
+
+
     //Note we have a TWO or THREE DropDown version--- samples and subsamples are defined
-
+    //note  .id is a WEBIX defined property,  ._id the Mongo/Girder Collection UID
 
     function girderHelpers(requestType, girderObjectID) {
         switch (requestType) {
@@ -18,15 +63,15 @@ define("standard/slidenav", ["config", "viewer", "slide", "session", "jquery", "
                 break;
             case 'listFoldersinFolder':
                 url = config.BASE_URL + "/folder?parentType=folder&parentId=" + girderObjectID;
-                return $.get( url);
+                return $.get(url);
                 break;
             case 'listItemsInFolder':
-                url = config.BASE_URL + "/item?limit=500&folderId=" + girderObjectID
+                url = config.BASE_URL + "/item?limit=500&folderId=" + girderObjectID;
                 return $.get(url);
 
                 break;
         }
-                return 'RUH ROH';
+        return 'RUH ROH';
     }
 
 
@@ -47,8 +92,8 @@ define("standard/slidenav", ["config", "viewer", "slide", "session", "jquery", "
                 var item = this.getItem(id);
                 slide.init(item);
             },
-            onAfterRender: function(){
-                if(this.getFirstId()){
+            onAfterRender: function() {
+                if (this.getFirstId()) {
                     var item = this.getItem(this.getFirstId());
                     slide.init(item);
                 }
@@ -57,12 +102,12 @@ define("standard/slidenav", ["config", "viewer", "slide", "session", "jquery", "
     };
 
     itemPager = {
-        view:"pager",
+        view: "pager",
         id: "item_pager",
         template: "<center>{common.prev()}{common.page()}/#limit#{common.next()}(#count# slides)</center>",
-        animate:true,
-        size:5,
-        group:4
+        animate: true,
+        size: 5,
+        group: 4
     };
 
     //dropdown for slide groups
@@ -72,97 +117,9 @@ define("standard/slidenav", ["config", "viewer", "slide", "session", "jquery", "
         placeholder: "Select Slide Set",
         id: "slideset",
         options: {
-            filter:function(item, value){
-                if(item.name.toString().toLowerCase().indexOf(value.toLowerCase()) > -1)
-                  return true;
-                return false;
-            },
-            body: {
-                template: "#name#"  
-            }
-        },
-        on: {
-            onChange: function(id) {
-                var item = this.getPopup().getBody().getItem(id);
-                //item is an object with all the info about the currently selected slide
-
-                girderHelpers('listFoldersInCollection').then( function(folders){
-                    var sFoldersMenu = $$("samples").getPopup().getList();
-                    sFoldersMenu.clearAll();
-                    folders = folders.filter(function(folder){
-                        return !folder.name.startsWith(".");
-                    });
-                    sFoldersMenu.parse(folders);
-                    $$("samples").setValue(folders[0].id);
-                });
-            },
-            onAfterRender: webix.once(function() {
-                
-                girderHelpers('getCollURL')
-                 .then(function(collection){
-
-                    return girderHelpers('listFoldersInCollection',collection._id);
-                }).then(function(folders){
-                    var foldersMenu = $$("slideset").getPopup().getList();
-                    foldersMenu.clearAll();
-                    folders = folders.filter(function(folder){
-                        return !folder.name.startsWith(".");
-                    });
-                    foldersMenu.parse(folders);
-                    $$("slideset").setValue(folders[0].id);
-
-                    return girderHelpers('listFoldersinFolder',folders[0]._id);
-                }).then(function(folders){
-                    var sFoldersMenu = $$("samples").getPopup().getList();
-                    sFoldersMenu.clearAll();
-                    folders = folders.filter(function(folder){
-                        return !folder.name.startsWith(".");
-                    });
-                    sFoldersMenu.parse(folders);
-                    $$("samples").setValue(folders[0].id);
-
-                    if(config.THIRD_MENU)
-                        return  girderHelpers('listFoldersinFolder',folders[0]._id);
-                    else
-                        return  girderHelpers('listItemsInFolder', folders[0]._id);
-                }).then(function(folders){
-                    if(config.THIRD_MENU){
-                        var ssFoldersMenu = $$("subsamples").getPopup().getList();
-                        ssFoldersMenu.clearAll();
-                        folders = folders.filter(function(folder){
-                           return !folder.name.startsWith(".");
-                        });
-                        ssFoldersMenu.parse(folders);
-                        $$("subsamples").setValue(folders[0].id);
-                        return girderHelpers('listItemsInFolder',folders[0]._id);
-                    }
-                    else{
-                        items = folders.filter(function(item){
-                            return item.largeImage != undefined;
-                        });
-
-                        $$("thumbnails").clearAll();
-                        $$("thumbnails").parse(items);
-                    }
-                }).done(function(items){
-                    items = items.filter(function(item){
-                        return item.largeImage != undefined;
-                    });
-                    $$("thumbnails").clearAll();
-                    $$("thumbnails").parse(items);
-                })
-            })
-        }
-    };
-
-    samples_dropdown = {
-        view: "combo",
-        placeholder: "Select Sample",
-        id: "samples",
-        options: {
-            filter:function(item, value){
-                if(item.name.toString().toLowerCase().indexOf(value.toLowerCase()) > -1)
-                  return true;
+            filter: function(item, value) {
+                if (item.name.toString().toLowerCase().indexOf(value.toLowerCase()) > -1)
+                    return true;
                 return false;
             },
             body: {
@@ -172,29 +129,116 @@ define("standard/slidenav", ["config", "viewer", "slide", "session", "jquery", "
         on: {
             onChange: function(id) {
                 var item = this.getPopup().getBody().getItem(id);
+                //item is an object with all the info about the currently selected slide
 
-                if(config.THIRD_MENU){
-                    girderHelpers('listFoldersinFolder', item._id).then(function(folders){
-                        folders = folders.filter(function(folder){
+                girderHelpers('listFoldersInCollection').then(function(folders) {
+                    var sFoldersMenu = $$("samples").getPopup().getList();
+                    sFoldersMenu.clearAll();
+                    folders = folders.filter(function(folder) {
+                        return !folder.name.startsWith(".");
+                    });
+                    sFoldersMenu.parse(folders);
+                    $$("samples").setValue(folders[0].id);
+                });
+            },
+            onAfterRender: webix.once(function() {
+
+                girderHelpers('getCollURL')
+                    .then(function(collection) {
+
+                        return girderHelpers('listFoldersInCollection', collection._id);
+                    }).then(function(folders) {
+                        var foldersMenu = $$("slideset").getPopup().getList();
+                        foldersMenu.clearAll();
+                        folders = folders.filter(function(folder) {
+                            return !folder.name.startsWith(".");
+                        });
+                        foldersMenu.parse(folders);
+                        $$("slideset").setValue(folders[0].id);
+
+                        return girderHelpers('listFoldersinFolder', folders[0]._id);
+                    }).then(function(folders) {
+                        var sFoldersMenu = $$("samples").getPopup().getList();
+                        sFoldersMenu.clearAll();
+                        folders = folders.filter(function(folder) {
+                            return !folder.name.startsWith(".");
+                        });
+                        sFoldersMenu.parse(folders);
+                        $$("samples").setValue(folders[0].id);
+
+                        if (config.THIRD_MENU)
+                            return girderHelpers('listFoldersinFolder', folders[0]._id);
+                        else
+                            return girderHelpers('listItemsInFolder', folders[0]._id);
+                    }).then(function(folders) {
+                        if (config.THIRD_MENU) {
+                            var ssFoldersMenu = $$("subsamples").getPopup().getList();
+                            ssFoldersMenu.clearAll();
+                            folders = folders.filter(function(folder) {
+                                return !folder.name.startsWith(".");
+                            });
+                            ssFoldersMenu.parse(folders);
+                            $$("subsamples").setValue(folders[0].id);
+                            return girderHelpers('listItemsInFolder', folders[0]._id);
+                        } else {
+                            items = folders.filter(function(item) {
+                                return item.largeImage != undefined;
+                            });
+
+                            $$("thumbnails").clearAll();
+                            $$("thumbnails").parse(items);
+                        }
+                    }).done(function(items) {
+                        items = items.filter(function(item) {
+                            return item.largeImage != undefined;
+                        });
+                        $$("thumbnails").clearAll();
+                        $$("thumbnails").parse(items);
+                    })
+            })
+        }
+    };
+
+
+    function filterByString(item, value) {
+        if (item.name.toString().toLowerCase().indexOf(value.toLowerCase()) > -1)
+            return true;
+        return false;
+    }
+
+    samples_dropdown = {
+        view: "combo",
+        placeholder: "Select Sample",
+        id: "samples",
+        options: {
+            filter: filterByString,
+            body: {
+                template: "#name#"
+            }
+        },
+        on: {
+            onChange: function(id) {
+                var item = this.getPopup().getBody().getItem(id);
+
+                if (config.THIRD_MENU) {
+                    girderHelpers('listFoldersinFolder', item._id).then(function(folders) {
+                        folders = folders.filter(function(folder) {
                             return !folder.name.startsWith(".");
                         });
                         var sFoldersMenu = $$("subsamples").getPopup().getList();
                         sFoldersMenu.clearAll();
                         sFoldersMenu.parse(folders);
-                        $$("subsamples").setValue(folders[0].id);  
+                        $$("subsamples").setValue(folders[0].id);
                     });
-                } 
-                else{
-                    var thumbs = $$("thumbnails");
-                    thumbs.clearAll();
-
-                    girderHelpers('listItemsinFolder',item._id).then( function(items){
-                        items = items.filter(function(item){
+                } else {
+                    $$("thumbnails").clearAll();
+                    girderHelpers('listItemsinFolder', item._id).then(function(items) {
+                        items = items.filter(function(item) {
                             return item.largeImage != undefined;
                         });
-                        thumbs.parse(items);
+                        $$("thumbnails").parse(items);
                     })
-                }  
+                }
             }
         }
     };
@@ -204,11 +248,7 @@ define("standard/slidenav", ["config", "viewer", "slide", "session", "jquery", "
         placeholder: "Select Folders",
         id: "subsamples",
         options: {
-            filter:function(item, value){
-                if(item.name.toString().toLowerCase().indexOf(value.toLowerCase()) > -1)
-                  return true;
-                return false;
-            },
+            filter: filterByString,
             body: {
                 template: "#name#"
             }
@@ -216,23 +256,21 @@ define("standard/slidenav", ["config", "viewer", "slide", "session", "jquery", "
         on: {
             onChange: function(id) {
                 var item = this.getPopup().getBody().getItem(id);
-                var thumbs = $$("thumbnails");
-               
-                thumbs.clearAll();
+                $$("thumbnails").clearAll();
 
-//                $.get(config.BASE_URL + "/item?limit=5000&folderId=" + item._id, function(items){
-                girderHelpers('listItemsInFolder',  item._id).then (function(items){
-                    items = items.filter(function(item){
+                //                $.get(config.BASE_URL + "/item?limit=5000&folderId=" + item._id, function(items){
+                girderHelpers('listItemsInFolder', item._id).then(function(items) {
+                    items = items.filter(function(item) {
                         return item.largeImage != undefined;
                     });
-                    thumbs.parse(items);
+                    $$("thumbnails").parse(items);
                 })
             }
         }
     };
 
-    var rows = [dropdown, samples_dropdown, itemPager,  thumbnailsPanel];
-    if(config.THIRD_MENU)
+    var rows = [dropdown, samples_dropdown, itemPager, itemFilter, thumbnailsPanel];
+    if (config.THIRD_MENU)
         rows.splice(2, 0, subsamples_dropdown);
 
     //slides panel is the left panel, contains two rows 
@@ -242,48 +280,37 @@ define("standard/slidenav", ["config", "viewer", "slide", "session", "jquery", "
     var slidesPanel = {
         id: "slidenav",
         header: "Slides " + wideIcon + narrowIcon,
-        onClick:{
-            wide:function(event, id){
+        onClick: {
+            wide: function(event, id) {
                 var count = $$("thumbnails").count();
-                this.config.width = 205*6;
+                this.config.width = 205 * 6;
                 this.resize();
 
-              $$("item_pager").config.size = Math.min(30, count);
-              $$("item_pager").refresh();
-              $$("thumbnails").refresh();
-              return false;
-            }, 
-            narrow:function(event, id){
-              this.config.width = 220;
-              this.resize();
+                $$("item_pager").config.size = Math.min(30, count);
+                $$("item_pager").refresh();
+                $$("thumbnails").refresh();
+                return false;
+            },
+            narrow: function(event, id) {
+                this.config.width = 220;
+                this.resize();
 
-              $$("item_pager").config.size = 5;
-              $$("item_pager").refresh();
-              $$("thumbnails").refresh();
-              return false;
+                $$("item_pager").config.size = 5;
+                $$("item_pager").refresh();
+                $$("thumbnails").refresh();
+                return false;
             }
         },
-        body: {rows: rows},
+        body: { rows: rows },
         width: 220
     };
 
-    function shuffle(arra1) {
-        var ctr = arra1.length, temp, index;
+  /* Adding a way to dynamically change the number of thumbnails */
 
-        // While there are elements in the array
-            while (ctr > 0) {
-        // Pick a random index
-                index = Math.floor(Math.random() * ctr);
-        // Decrease ctr by 1
-                ctr--;
-        // And swap the last element with it
-                temp = arra1[ctr];
-                arra1[ctr] = arra1[index];
-                arra1[index] = temp;
-            }
+    webix.attachEvent("onResize", function() {
+        recomputePagerItems();
+    })
 
-        return arra1;
-    }
 
     return slidesPanel;
 });
