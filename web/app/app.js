@@ -61,7 +61,7 @@ define(["ui", "config", "jquery", "session", "webix"], function(ui, config, $, s
     $.each(config.MODULE_CONFIG, function(moduleName, moduleEnabled) {
             if (moduleEnabled) {
                 require([moduleName]);
-                webix.message("Enabling " + moduleName);
+              //  webix.message("Enabling " + moduleName);
                                 }
             });
 

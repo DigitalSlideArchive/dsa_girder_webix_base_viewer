@@ -11,7 +11,7 @@ Return:
 	- viewer - Openseadragon viewer object
  */
 
-define("viewer", ["osdImgHelper","osd", "pubsub"], function(oshIH, osd, pubsub) {
+define("viewer", ["osdImgHelper","osd", "pubsub","config"], function(oshIH, osd, pubsub,config) {
 
     var viewer = osd({
         id: 'image_viewer',
@@ -19,13 +19,9 @@ define("viewer", ["osdImgHelper","osd", "pubsub"], function(oshIH, osd, pubsub) 
         navigatorPosition: "BOTTOM_RIGHT",
         showNavigator: true
     });
-    
 
-    require(["zoomButtons"]);  //this loads after the viewer is created..
-
-//    var imagingHelper = new osdImgHelper.ImagingHelper({ viewer: viewer });
-
-
+      //this loads after the viewer is created..
+    if ( config.MODULE_CONFIG["zoomButtons"] )  { require(["zoomButtons"])};
 
     return viewer;
 });

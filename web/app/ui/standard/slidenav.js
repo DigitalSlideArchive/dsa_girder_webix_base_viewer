@@ -2,23 +2,34 @@ define("standard/slidenav", ["config", "viewer", "slide", "session", "jquery", "
 
 
 
-/*    if(session.valid()){
-        $.ajaxSetup({
-            headers: {'Girder-Token': session.token()}
-        });
+  
+    //Note we have a TWO or THREE DropDown version--- samples and subsamples are defined
 
-        webix.ajax().headers({
-            'Girder-Token': session.token()
-        });
 
-        webix.attachEvent("onBeforeAjax", 
-            function(mode, url, data, request, headers, files, promise){
-                headers["Girder-Token"] = session.token();
-            }
-        );
+    function girderHelpers(requestType, girderObjectID) {
+        switch (requestType) {
+            case 'getCollURL':
+                url = config.BASE_URL + "/resource/lookup?path=/collection/" + config.COLLECTION_NAME;
+                return $.get(url);
+                break;
+            case 'listFoldersInCollection':
+                url = config.BASE_URL + "/folder?limit=1000&parentType=collection&parentId=" + girderObjectID;
+                return $.get(url);
+                break;
+            case 'listFoldersinFolder':
+                url = config.BASE_URL + "/folder?parentType=folder&parentId=" + girderObjectID;
+                return $.get( url);
+                break;
+            case 'listItemsInFolder':
+                url = config.BASE_URL + "/item?limit=500&folderId=" + girderObjectID
+                return $.get(url);
+
+                break;
+        }
+                return 'RUH ROH';
     }
-    
-*/
+
+
     var thumbnailsPanel = {
         view: "dataview",
         id: "thumbnails",
@@ -73,7 +84,9 @@ define("standard/slidenav", ["config", "viewer", "slide", "session", "jquery", "
         on: {
             onChange: function(id) {
                 var item = this.getPopup().getBody().getItem(id);
-                $.get(config.BASE_URL + "/folder?parentType=folder&parentId=" + item._id, function(folders){
+                //item is an object with all the info about the currently selected slide
+
+                girderHelpers('listFoldersInCollection').then( function(folders){
                     var sFoldersMenu = $$("samples").getPopup().getList();
                     sFoldersMenu.clearAll();
                     folders = folders.filter(function(folder){
@@ -84,13 +97,11 @@ define("standard/slidenav", ["config", "viewer", "slide", "session", "jquery", "
                 });
             },
             onAfterRender: webix.once(function() {
-                /* This is a chain of AJAX calls
                 
-
-                 */
-                $.get(config.BASE_URL + "/resource/lookup?path=/collection/" + config.COLLECTION_NAME)
+                girderHelpers('getCollURL')
                  .then(function(collection){
-                    return $.get(config.BASE_URL + "/folder?limit=1000&parentType=collection&parentId=" + collection._id);
+
+                    return girderHelpers('listFoldersInCollection',collection._id);
                 }).then(function(folders){
                     var foldersMenu = $$("slideset").getPopup().getList();
                     foldersMenu.clearAll();
@@ -99,7 +110,8 @@ define("standard/slidenav", ["config", "viewer", "slide", "session", "jquery", "
                     });
                     foldersMenu.parse(folders);
                     $$("slideset").setValue(folders[0].id);
-                    return $.get(config.BASE_URL + "/folder?parentType=folder&parentId=" + folders[0]._id);
+
+                    return girderHelpers('listFoldersinFolder',folders[0]._id);
                 }).then(function(folders){
                     var sFoldersMenu = $$("samples").getPopup().getList();
                     sFoldersMenu.clearAll();
@@ -110,9 +122,9 @@ define("standard/slidenav", ["config", "viewer", "slide", "session", "jquery", "
                     $$("samples").setValue(folders[0].id);
 
                     if(config.THIRD_MENU)
-                        return $.get(config.BASE_URL + "/folder?parentType=folder&parentId=" + folders[0]._id);
+                        return  girderHelpers('listFoldersinFolder',folders[0]._id);
                     else
-                        return $.get(config.BASE_URL + "/item?limit=500&folderId=" + folders[0]._id);
+                        return  girderHelpers('listItemsInFolder', folders[0]._id);
                 }).then(function(folders){
                     if(config.THIRD_MENU){
                         var ssFoldersMenu = $$("subsamples").getPopup().getList();
@@ -122,7 +134,7 @@ define("standard/slidenav", ["config", "viewer", "slide", "session", "jquery", "
                         });
                         ssFoldersMenu.parse(folders);
                         $$("subsamples").setValue(folders[0].id);
-                        return $.get(config.BASE_URL + "/item?limit=500&folderId=" + folders[0]._id);
+                        return girderHelpers('listItemsInFolder',folders[0]._id);
                     }
                     else{
                         items = folders.filter(function(item){
@@ -162,7 +174,7 @@ define("standard/slidenav", ["config", "viewer", "slide", "session", "jquery", "
                 var item = this.getPopup().getBody().getItem(id);
 
                 if(config.THIRD_MENU){
-                    $.get(config.BASE_URL + "/folder?parentType=folder&parentId=" + item._id, function(folders){
+                    girderHelpers('listFoldersinFolder', item._id).then(function(folders){
                         folders = folders.filter(function(folder){
                             return !folder.name.startsWith(".");
                         });
@@ -174,10 +186,9 @@ define("standard/slidenav", ["config", "viewer", "slide", "session", "jquery", "
                 } 
                 else{
                     var thumbs = $$("thumbnails");
-                    var url = config.BASE_URL + "/item?folderId=" + item._id;
                     thumbs.clearAll();
 
-                    $.get(config.BASE_URL + "/item?folderId=" + item._id, function(items){
+                    girderHelpers('listItemsinFolder',item._id).then( function(items){
                         items = items.filter(function(item){
                             return item.largeImage != undefined;
                         });
@@ -206,10 +217,11 @@ define("standard/slidenav", ["config", "viewer", "slide", "session", "jquery", "
             onChange: function(id) {
                 var item = this.getPopup().getBody().getItem(id);
                 var thumbs = $$("thumbnails");
-                var url = config.BASE_URL + "/item?folderId=" + item._id;
+               
                 thumbs.clearAll();
 
-                $.get(config.BASE_URL + "/item?folderId=" + item._id, function(items){
+//                $.get(config.BASE_URL + "/item?limit=5000&folderId=" + item._id, function(items){
+                girderHelpers('listItemsInFolder',  item._id).then (function(items){
                     items = items.filter(function(item){
                         return item.largeImage != undefined;
                     });
