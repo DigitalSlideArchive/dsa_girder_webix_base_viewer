@@ -38,7 +38,8 @@ define("config", function() {
         "filters": true,
         "pathology": false,
         "annotations": true,
-        "metadata": true
+        "metadata": true,
+        "zoomButtons": false
     }
 
     return {
@@ -48,6 +49,7 @@ define("config", function() {
         UI: UI,
         LEFT_HEADER_IMG: LEFT_HEADER_IMG,
         RIGHT_HEADER_IMG: RIGHT_HEADER_IMG,
-        THIRD_MENU: THIRD_MENU
+        THIRD_MENU: THIRD_MENU,
+        MODULE_CONFIG: MODULE_CONFIG
     }
 });
