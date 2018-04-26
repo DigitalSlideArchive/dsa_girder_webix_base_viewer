@@ -17,7 +17,7 @@ require = {
         "slide": "app/slide",
         "viewer": "app/viewer",
         "routes": "app/routes",
-        "app": "app/app",
+//        "app": "app/app",
         "aperio": "app/plugins/aperio",
         "filters": "app/plugins/filters",
         "pathology": "app/plugins/pathology",
@@ -32,8 +32,8 @@ require = {
         "thumbLabeler": "app/plugins/thumbLabeler",
         "simpleMultiViewerHelper": "app/simpleMultiViewerHelper",
         "osdFilters": "app/externalJS/openseadragon-filtering",
-    	"osdImgHelper": "bower_components/openseadragon-imaginghelper/index",
-	    "folderMetadata": "app/plugins/folderMetadata",
+        "osdImgHelper": "bower_components/openseadragon-imaginghelper/index",
+        "folderMetadata": "app/plugins/folderMetadata",
         "zoomButtons": "app/plugins/zoomButtons"
 
     },
@@ -42,7 +42,7 @@ require = {
         "osdFilters": ["osd"],
         "svg": ["osd"],
         "common": ["login"],
-        "osdImgHelper": ["osd","svg"]
+        "osdImgHelper": ["osd", "svg"]
 
     },
 
@@ -61,6 +61,6 @@ require = {
         {
             name: "common",
             location: "app/ui/common"
-        }
+        },
     ]
 };
