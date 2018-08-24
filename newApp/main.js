@@ -12,6 +12,7 @@ require = {
         "svg": "js/svg-overlay/openseadragon-svg-overlay",
         "osd": "node_modules/openseadragon/build/openseadragon/openseadragon.min",
         "geo": "node_modules/geojs/geo",
+        //"geo": "js/geo",
         "webix": "node_modules/webix/webix",
         "jquery": "node_modules/jquery/dist/jquery.min",
         // "pubsub": "node_modules/PubSubJS/src/pubsub",
@@ -30,7 +31,8 @@ require = {
         "login": "app/login",
         "session": "app/session",
         "tagger": "app/plugins/tagger",
-        "hammerjs": "node_modules/hammerjs/hammer",
+//        "hammerjs": "node_modules/hammerjs/hammer",
+        "hammerjs": "js/hammer",
         "osdImgHelper": "node_modules/openseadragon-imaginghelper/index",
  
     },
