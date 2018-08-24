@@ -34,7 +34,8 @@ require = {
         "osdFilters": "app/externalJS/openseadragon-filtering",
         "osdImgHelper": "bower_components/openseadragon-imaginghelper/index",
         "folderMetadata": "app/plugins/folderMetadata",
-        "zoomButtons": "app/plugins/zoomButtons"
+        "zoomButtons": "app/plugins/zoomButtons",
+        "tagger": "app/plugins/tagger"
 
     },
 

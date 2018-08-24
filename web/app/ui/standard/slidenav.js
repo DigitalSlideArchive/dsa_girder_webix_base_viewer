@@ -19,39 +19,49 @@ define("standard/slidenav", ["config", "viewer", "slide", "session", "jquery", "
 
         pagerSize = thumbsPerCol * thumbsPerRow;
 
-        console.log(pagerSize);
+        //console.log(pagerSize);
         $$("thumbnails").getPager().define({ size: pagerSize });
         $$("thumbnails").refresh()
     }
 
-    itemFilter =
-        {
-            view: "toolbar",
-            cols: [{
-                view: "search",
-                align: "center",
-                placeholder: "Search..",
-                id: "thumbSearch",
-                width: 200,
-                on: {
-                    "onTimedKeyPress": function() {
-                        value = this.getValue().toLowerCase();
-                        $$("thumbnails").filter(function(obj) { //here it filters data!
-                            // console.log(obj);
-                            // console.log(value);
-                            // console.log(obj.name);
-                            return obj.name.toLowerCase().indexOf(value) != -1
-                        })
-                    }
+    itemFilter = {
+        view: "toolbar",
+        cols: [{
+            view: "search",
+            align: "center",
+            placeholder: "Search..",
+            id: "thumbSearch",
+            width: 200,
+            on: {
+                "onTimedKeyPress": function() {
+                    value = this.getValue().toLowerCase();
+                    $$("thumbnails").filter(function(obj) { //here it filters data!
+                        // console.log(obj);
+                        // console.log(value);
+                        // console.log(obj.name);
+                        return obj.name.toLowerCase().indexOf(value) != -1
+                    })
                 }
-            }]
-        }
+            }
+        }]
+    }
 
 
     //Note we have a TWO or THREE DropDown version--- samples and subsamples are defined
-    //note  .id is a WEBIX defined property,  ._id the Mongo/Girder Collection UID
+    //     //note  .id is a WEBIX defined property,  ._id the Mongo/Girder Collection UID
+
+    // listFolder: function(id) {
+    //         webix.ajax().sync().get( BASE_URL + 'folder?parentType=folder&parentId=' + id + '&limit=5000&sort=lowerName&sortdir=1', function(text, data) {
+    //            folders = data.json();
+    //         });
+    //         return folders;
+    //      },
+
 
     function girderHelpers(requestType, girderObjectID) {
+
+        console.log(girderObjectID);
+
         switch (requestType) {
             case 'getCollURL':
                 url = config.BASE_URL + "/resource/lookup?path=/collection/" + config.COLLECTION_NAME;
@@ -61,15 +71,20 @@ define("standard/slidenav", ["config", "viewer", "slide", "session", "jquery", "
                 url = config.BASE_URL + "/folder?limit=1000&parentType=collection&parentId=" + girderObjectID;
                 return $.get(url);
                 break;
+            case 'listItemsInFolder':
+                gob = '5a7b3e7792ca9a0017148a01'
+
+                url = config.BASE_URL + "/item?limit=1000&folderId=" + gob;
+                console.log(url);
+                return $.get(url);
+                break;
             case 'listFoldersinFolder':
                 url = config.BASE_URL + "/folder?parentType=folder&parentId=" + girderObjectID;
                 return $.get(url);
                 break;
-            case 'listItemsInFolder':
-                url = config.BASE_URL + "/item?limit=500&folderId=" + girderObjectID;
-                return $.get(url);
+            default:
+                return "RUH ROH"
 
-                break;
         }
         return 'RUH ROH';
     }
@@ -131,15 +146,15 @@ define("standard/slidenav", ["config", "viewer", "slide", "session", "jquery", "
                 var item = this.getPopup().getBody().getItem(id);
                 //item is an object with all the info about the currently selected slide
 
-                girderHelpers('listFoldersInCollection').then(function(folders) {
-                    var sFoldersMenu = $$("samples").getPopup().getList();
-                    sFoldersMenu.clearAll();
-                    folders = folders.filter(function(folder) {
-                        return !folder.name.startsWith(".");
-                    });
-                    sFoldersMenu.parse(folders);
-                    $$("samples").setValue(folders[0].id);
-                });
+                // girderHelpers('listFoldersInCollection').then(function(folders) {
+                //     var sFoldersMenu = $$("samples").getPopup().getList();
+                //     sFoldersMenu.clearAll();
+                //     folders = folders.filter(function(folder) {
+                //         return !folder.name.startsWith(".");
+                //     });
+                //     sFoldersMenu.parse(folders);
+                //     $$("samples").setValue(folders[0].id);
+                // });
             },
             onAfterRender: webix.once(function() {
 
@@ -158,36 +173,29 @@ define("standard/slidenav", ["config", "viewer", "slide", "session", "jquery", "
 
                         return girderHelpers('listFoldersinFolder', folders[0]._id);
                     }).then(function(folders) {
+                        webix.message("If you can raed this you don't need glasses");
                         var sFoldersMenu = $$("samples").getPopup().getList();
                         sFoldersMenu.clearAll();
                         folders = folders.filter(function(folder) {
                             return !folder.name.startsWith(".");
                         });
-                        sFoldersMenu.parse(folders);
+                        //                            console.log(folders);
+                        sFoldersMenu.parse(folders); //this is taking too long to run
+                        folderToGet = folders[0]._id;
+                        // console.log(folderToGet);
+                        // console.log(folders[0]);
                         $$("samples").setValue(folders[0].id);
 
-                        if (config.THIRD_MENU)
-                            return girderHelpers('listFoldersinFolder', folders[0]._id);
-                        else
-                            return girderHelpers('listItemsInFolder', folders[0]._id);
+                        return girderHelpers('listItemsInFolder', folders[0]._id);
                     }).then(function(folders) {
-                        if (config.THIRD_MENU) {
-                            var ssFoldersMenu = $$("subsamples").getPopup().getList();
-                            ssFoldersMenu.clearAll();
-                            folders = folders.filter(function(folder) {
-                                return !folder.name.startsWith(".");
-                            });
-                            ssFoldersMenu.parse(folders);
-                            $$("subsamples").setValue(folders[0].id);
-                            return girderHelpers('listItemsInFolder', folders[0]._id);
-                        } else {
-                            items = folders.filter(function(item) {
-                                return item.largeImage != undefined;
-                            });
 
-                            $$("thumbnails").clearAll();
-                            $$("thumbnails").parse(items);
-                        }
+                        items = folders.filter(function(item) {
+                            return item.largeImage != undefined;
+                        });
+
+                        $$("thumbnails").clearAll();
+                        $$("thumbnails").parse(items);
+
                     }).done(function(items) {
                         items = items.filter(function(item) {
                             return item.largeImage != undefined;
@@ -220,25 +228,27 @@ define("standard/slidenav", ["config", "viewer", "slide", "session", "jquery", "
             onChange: function(id) {
                 var item = this.getPopup().getBody().getItem(id);
 
-                if (config.THIRD_MENU) {
-                    girderHelpers('listFoldersinFolder', item._id).then(function(folders) {
-                        folders = folders.filter(function(folder) {
-                            return !folder.name.startsWith(".");
-                        });
-                        var sFoldersMenu = $$("subsamples").getPopup().getList();
-                        sFoldersMenu.clearAll();
-                        sFoldersMenu.parse(folders);
-                        $$("subsamples").setValue(folders[0].id);
-                    });
-                } else {
-                    $$("thumbnails").clearAll();
-                    girderHelpers('listItemsinFolder', item._id).then(function(items) {
-                        items = items.filter(function(item) {
-                            return item.largeImage != undefined;
-                        });
-                        $$("thumbnails").parse(items);
-                    })
-                }
+                console.log(item);
+                $$("thumbnails").clearAll();
+
+              //  girderHelpers('listItemsinFolder', item._id)
+                gob = '5a7b3e7792ca9a0017148a01'
+
+                url = config.BASE_URL + "/item?limit=1000&folderId=" + gob;
+                console.log(url);
+                // return $.get(url);
+
+
+                webix.ajax().sync().get(url, function(text,data){  
+                    
+                    // items = items.filter(function(item) {
+                    //     return item.largeImage != undefined;
+                    // });
+                    $$("thumbnails").parse(data.json());
+
+                        })
+                
+
             }
         }
     };
@@ -270,8 +280,7 @@ define("standard/slidenav", ["config", "viewer", "slide", "session", "jquery", "
     };
 
     var rows = [dropdown, samples_dropdown, itemPager, itemFilter, thumbnailsPanel];
-    if (config.THIRD_MENU)
-        rows.splice(2, 0, subsamples_dropdown);
+
 
     //slides panel is the left panel, contains two rows 
     //containing the slide group dropdown and the thumbnails panel 
@@ -305,7 +314,7 @@ define("standard/slidenav", ["config", "viewer", "slide", "session", "jquery", "
         width: 220
     };
 
-  /* Adding a way to dynamically change the number of thumbnails */
+    /* Adding a way to dynamically change the number of thumbnails */
 
     webix.attachEvent("onResize", function() {
         recomputePagerItems();

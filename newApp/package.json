@@ -1,0 +1,17 @@
+{
+  "name": "DSA_Girder_Webix_Viewer",
+  "version": "1.0.0",
+  "description": "This is a javascript framework that allows me to build a digital slide archive image repository",
+  "main": "index.html",
+  "author": "David A Gutman MD PhD",
+  "license": "MIT",
+  "dependencies": {
+    "d3": "^5.6.0",
+    "geojs": "0.15.0",
+    "hammerjs": "^2.0.8",
+    "jquery": "^3.3.1",
+    "openseadragon": "2.2.1",
+    "requirejs": "^2.3.5",
+    "webix": "^5.4.0"
+  }
+}
