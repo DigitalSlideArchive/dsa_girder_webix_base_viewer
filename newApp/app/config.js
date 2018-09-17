@@ -3,28 +3,29 @@ define(function() {
     //Header image (left side)
     var LEFT_HEADER_IMG = "img/CDSA_Slide_50.png";
 
-
-
     ///window.location.protocol  DO THIS TO ADD SWItch the URLS to HTTP or HTTP
     //  url_prefix = "http" | "https"
+   
+	if (location.protocol == 'https:')
+	{
+	url_prefix = "https:";
+	}
+	else
+	{ url_prefix = "http";}
 
 
     //Header image (right side)
-    var RIGHT_HEADER_IMG = "http://cancer.digitalslidearchive.net/imgs/Winship_06-2011/Winship_NCI_shortTag/horizontal/jpg_png/Winship_NCI_shortTag_hz_280.png";
-    var RIGHT_HEADER_IMG = "";
+    var RIGHT_HEADER_IMG = url_prefix + "/imgs/Winship_NCI_shortTag_hz_280.png";
     
+		//8080 is not needed if I am using the nginx proxy
     // //Specify the BASE API URL
-    var BASE_URL = "http://adrc.digitalslidearchive.emory.edu:8080/api/v1";
-    // var BASE_URL = "http://computablebrain.emory.edu:8080/api/v1";
+    var BASE_URL = url_prefix + "//api.digitalslidearchive.org/api/v1";
 
     // //What is the collection name we are pulling data from?
-    // var COLLECTION_NAME = "Virtual_Folders";
     var COLLECTION_NAME = 'TCGA'
-    // var COLLECTION_NAME = 'ADRC_Images';
 
     // //Do you want to include 3rd dropdown menu for the folders?
     // //ONLY APPLIES FOR THE STANDARD UI
-    // var THIRD_MENU = false;
 
     //which endpoints do we wanna use? TCGA or Girder default endpoints
     var UI = "standard";
