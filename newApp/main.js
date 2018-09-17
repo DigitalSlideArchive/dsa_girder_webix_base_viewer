@@ -66,10 +66,10 @@ require = {
             name: "standard",
             location: "app/ui/standard"
         },
-        // {
-        //     name: "tcga",
-        //     location: "app/ui/tcga"
-        // },
+        {
+            name: "tcga",
+            location: "app/ui/tcga"
+         },
         {
             name: "common",
             location: "app/ui/common"

@@ -15,7 +15,7 @@ define(function() {
 
 
     //Header image (right side)
-    var RIGHT_HEADER_IMG = url_prefix + "/imgs/Winship_NCI_shortTag_hz_280.png";
+    var RIGHT_HEADER_IMG = url_prefix + "/img/Winship_NCI_shortTag_hz_280.jpg";
     
 		//8080 is not needed if I am using the nginx proxy
     // //Specify the BASE API URL
@@ -28,7 +28,7 @@ define(function() {
     // //ONLY APPLIES FOR THE STANDARD UI
 
     //which endpoints do we wanna use? TCGA or Girder default endpoints
-    var UI = "standard";
+    var UI = "tcga";  //or standard
     var SLIDE_SELECTOR = "table";
     var SLIDE_SELECTOR = "thumbnails"
     var VIRTUAL = false;

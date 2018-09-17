@@ -15,7 +15,7 @@ Return:
  */
 
 // define("ui/main", ["standard", "tcga", "config"], function(standard, tcga, config) {
-define(["config", "standard"], function(config, standard) {
+define(["config", "standard","tcga"], function(config, standard,tcga) {
 
     function init(){
         switch(config.UI){
