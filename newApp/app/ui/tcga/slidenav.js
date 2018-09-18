@@ -41,7 +41,7 @@ define("tcga/slidenav", ["config", "viewer", "pubsub", "slide", "jquery", "webix
 
     var thumbnailsPanel = {
         view: "dataview",
-        id: "thumbnails",
+        id: "slideSelector",
         select: true,
         template: "<div class='webix_strong'>#name#</div><img src='" + config.BASE_URL + "/item/#_id#/tiles/thumbnail'/>",
         pager: "item_pager",
