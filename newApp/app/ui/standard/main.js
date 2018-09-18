@@ -14,7 +14,6 @@ Return:
     - viewer - Openseadragon viewer object
  */
 
-// define("standard/main", ["standard/slidenav", "common/toolbar", "common/header", "webix"], function(slidenav, toolbar, header) {
 define(["common/header", "standard/slidenav", "common/toolbar"], function(header, slidenav, toolbar) {
 
     function init() {
@@ -31,17 +30,18 @@ define(["common/header", "standard/slidenav", "common/toolbar"], function(header
                 }
             ]
         };
-        
+
         //Render the main layout
         //It contains the header, slidenav, Openseadragon layer
         webix.ui({
             container: "main_layout",
             id: "root",
             rows: [
-                header, 
-                {   id: "layout_body",
+                header,
+                {
+                    id: "layout_body",
                     cols: [
-                        slidenav, 
+                        slidenav,
                         {
                             view: "resizer"
                         },
@@ -54,7 +54,6 @@ define(["common/header", "standard/slidenav", "common/toolbar"], function(header
             ]
         });
     }
-
 
     return {
         init: init

@@ -27,15 +27,11 @@ are looking for, then go to the module and add the variable
 you want to return to the return object 
 */
 
-// define(["ui", "config", "jquery", "session", "webix"], function(ui, config, $, session) {
 define(["ui", "session", "config", "jquery", "webix"], function(ui, session, config, $) {
     if (session.valid()) {
         $.ajaxSetup({
             headers: { 'Girder-Token': session.token() }
         });
-        // webix.ajax().headers({
-        //     'Girder-Token': +  session.token()
-        // });
 
         webix.attachEvent("onBeforeAjax",
             function(mode, url, data, request, headers, files, promise) {
@@ -44,32 +40,25 @@ define(["ui", "session", "config", "jquery", "webix"], function(ui, session, con
         );
     }
 
-
     webix.ready(function() {
         ui.init();
 
-        // not sure what these two lines do.....
         webix.extend($$("viewer_panel"), webix.ProgressBar);
         webix.extend($$("viewer_panel"), webix.OverlayBox);
 
-        // but login is already used so does it need to be here...?
         if (config.UI == "standard") {
             // require(["login"])
             require(["routes", "login"]);
-        // }
-        //     require(["routes", "login", ]);
-        // else
-        //     require(["routes",  "login" ]);
+            // }
+            //     require(["routes", "login", ]);
+            // else
+            //     require(["routes",  "login" ]);
         }
 
-    $.each(config.MODULE_CONFIG, function(moduleName, moduleEnabled) {
-        if (moduleEnabled) {
-            require([moduleName]);
-        }
+        $.each(config.MODULE_CONFIG, function(moduleName, moduleEnabled) {
+            if (moduleEnabled) {
+                require([moduleName]);
+            }
+        });
     });
-
-    });
-
-
-
 });

@@ -33,8 +33,6 @@ define(["config", "slide", 'jquery', "webix"], function(config, slide, $) {
         })
     }
 
-
-
     $.extend({
         getQueryParameters: function(str) {
             return (str || document.location.search).replace(/(^\?)/, '').split("&").map(function(n) { return n = n.split("="), this[n[0]] = n[1], this }.bind({}))[0];
@@ -42,13 +40,6 @@ define(["config", "slide", 'jquery', "webix"], function(config, slide, $) {
     });
 
 
-
-    // http://computablebrain.emory.edu:8080/api/v1/resource/5b44c76f92ca9a001ae482ca/items?type=folder&limit=50&sort=_id&sortdir=1
-    // http://computablebrain.emory.edu:8080/api/v1/resource/5b44c76f92ca9a001ae482cb/items?type&limit=5000&sort=_id&sortdir=1
-    // http://adrc.digitalslidearchive.emory.edu:8080/api/v1/resource/lookup?path=collection/DOG_ATLAS_SLIDES
-    // http://adrc.digitalslidearchive.emory.edu:8080/api/v1/resource/lookup?path=collection/DOG_ATLAS_SLIDES
-
-    // function girderHelpers(requestType, girderObjectID) {
     function girderHelpers(requestType, girderObjectID = null) {
         switch (requestType) {
             case 'getCollURL':
@@ -79,8 +70,6 @@ define(["config", "slide", 'jquery', "webix"], function(config, slide, $) {
         }
         return promise;
     }
-
-
 
     if (config.SLIDE_SELECTOR == 'thumbnails') {
 
@@ -232,16 +221,14 @@ define(["config", "slide", 'jquery', "webix"], function(config, slide, $) {
                     firstId = $$("slideSelector").getFirstId();
                     $$("slideSelector").select(firstId);
 
-                    $$("item_pager").setPage(0); 
+                    $$("item_pager").setPage(0);
                     $$("slideSelector").scrollTo(0)
                 }
             }
         };
-
     }
 
     itemFilter =
-
         {
             view: "toolbar",
             cols: [{
@@ -257,9 +244,6 @@ define(["config", "slide", 'jquery', "webix"], function(config, slide, $) {
                             return obj.name.toLowerCase().indexOf(value) != -1
                         })
                     }
-
-
-
                 }
             }]
         }

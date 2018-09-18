@@ -4,48 +4,48 @@ define(function() {
     var user = null;
     load();
 
-    function create(token){
+    function create(token) {
         window.localStorage.setItem("Girder-Token", JSON.stringify(token));
         document.cookie = 'girderToken=' + token.authToken.token;
         user = token;
     }
 
-   function load(){
+    function load() {
         var tmp = window.localStorage.getItem("Girder-Token");
-        if(tmp){
+        if (tmp) {
             user = JSON.parse(tmp);
             return user;
         }
 
         return null;
-   }
+    }
 
-   function destroy(){
+    function destroy() {
         user = null;
         document.cookie = 'girderToken=;expires=Thu, 01 Jan 1970 00:00:01 GMT;';
         window.localStorage.removeItem("Girder-Token");
-   }
+    }
 
-   function valid(){
+    function valid() {
         return user;
-   }
+    }
 
-   function token(){
+    function token() {
         document.cookie = 'girderToken=' + user.authToken.token;
         return user.authToken.token;
-   }
+    }
 
-   function username(){
+    function username() {
         return user.user.login;
-   }
+    }
 
-   return{
+    return {
         create: create,
         load: load,
         destroy: destroy,
         valid: valid,
         token: token,
         username: username
-   }
+    }
 
 });

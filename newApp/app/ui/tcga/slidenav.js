@@ -15,6 +15,30 @@ define("tcga/slidenav", ["config", "viewer", "pubsub", "slide", "jquery", "webix
       }
     };
 
+
+     function recomputePagerItems() {
+        var itemWidth = $$("slideSelector").config.type.width;
+        var itemHeight = $$("slideSelector").config.type.height;
+        var dataWidth = $$("slideSelector").$width;
+        var dataHeight = $$("slideSelector").$height;
+
+        var pagerSize = $$("slideSelector").getPager().config.size;
+
+        /* Compute items per row and items per column */
+        thumbsPerRow = Math.floor(dataWidth / itemWidth);
+        if (thumbsPerRow < 1) { thumbsPerRow = 1 }
+
+        thumbsPerCol = Math.floor(dataHeight / itemHeight);
+        if (thumbsPerCol < 1) { thumbsPerCol = 1 }
+        //    console.log(thumbsPerCol,thumbsPerRow);
+
+        pagerSize = thumbsPerCol * thumbsPerRow;
+        $$("slideSelector").getPager().define({ size: pagerSize });
+        $$("slideSelector").refresh()
+    }
+
+    
+
     var thumbnailsPanel = {
         view: "dataview",
         id: "thumbnails",
@@ -157,6 +181,11 @@ define("tcga/slidenav", ["config", "viewer", "pubsub", "slide", "jquery", "webix
         },
         width: 220
     };
+
+        webix.attachEvent("onResize", function() {
+            recomputePagerItems();
+        })
+
 
 
     return slidesPanel;
