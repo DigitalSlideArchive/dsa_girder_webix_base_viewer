@@ -90,9 +90,9 @@ define("tcga/slidenav", ["config", "viewer", "pubsub", "slide", "jquery", "webix
                 var item = this.getPopup().getBody().getItem(id);
 
                 var url = "PagingGirderItems->" + config.BASE_URL + "/tcga/cohort/" + item._id + "/images";
-                $$("thumbnails").clearAll();
-                $$("thumbnails").setPage(0);
-                $$("thumbnails").load(url);
+                $$("slideSelector").clearAll();
+                $$("slideSelector").setPage(0);
+                $$("slideSelector").load(url);
              
                 $.get(config.BASE_URL + "/tcga/case?limit=2000&cohort=" + item._id, function(resp){
                     var cases = resp["data"]
@@ -111,8 +111,8 @@ define("tcga/slidenav", ["config", "viewer", "pubsub", "slide", "jquery", "webix
                     $$("slideset").setValue(cohorts[0].id);
 
                     var url = "PagingGirderItems->" + config.BASE_URL + "/tcga/cohort/" + cohorts[0]._id + "/images";
-                    $$("thumbnails").clearAll();
-                    $$("thumbnails").load(url); 
+                    $$("slideSelector").clearAll();
+                    $$("slideSelector").load(url); 
                 });    
             })
         }
@@ -136,7 +136,7 @@ define("tcga/slidenav", ["config", "viewer", "pubsub", "slide", "jquery", "webix
             onChange: function(id) {
                 if(id){
                     var item = this.getPopup().getBody().getItem(id);
-                    var thumbs = $$("thumbnails");
+                    var thumbs = $$("slideSelector");
                     var url = config.BASE_URL + "/tcga/case/" + item._id + "/images";
                     thumbs.clearAll();
                     thumbs.setPage(0);
