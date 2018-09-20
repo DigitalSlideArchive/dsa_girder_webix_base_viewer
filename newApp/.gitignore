@@ -4,3 +4,4 @@ js/*
 node_modules/
 bower.json
 yarn-error.log
+*.pem

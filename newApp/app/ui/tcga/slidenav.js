@@ -195,46 +195,5 @@ $.extend({
         })
 
 
- webix.delay(function() {
-                    if (folderssave != '') {
-                        ////////////////////////////    Oh crap, this is where you can set the initial stuff ... =(((())))
-
-                        qp = $.getQueryParameters();
-
-
-                        var folderssave_IDX = 0;
-                        var subfoldersave_IDX = 0;
-
-
-                        if (qp.cohort) {
-                            folderssave.forEach(function(k, v) {
-                                if (k.name == qp.cohort) {
-                                    folderssave_IDX = v;
-                                }
-                            })
-                        }
-
-
-                        $$("slideset").setValue(folderssave[folderssave_IDX].id);
-                        webix.delay(function() {
-                            if (qp.patientID) {
-                                subfoldersave.forEach(function(k, v) {
-                                    if (k.name == qp.patientID) {
-                                        subfoldersave_IDX = v;
-                                    }
-                                })
-                            }
-
-
-                            $$("subcombo").setValue(subfoldersave[subfoldersave_IDX].id)
-                            webix.delay(function() {
-                                $$("slideSelector").select(slidessave[0].id);
-                            }, '', [], 500);
-                        }, '', [], 500);
-                    }
-                }, '', [], 1000);
-
-
-
     return slidesPanel;
 });
