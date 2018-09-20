@@ -23,9 +23,9 @@ require = {
         "aperio": "app/plugins/aperio",
         "filters": "app/plugins/filters",
         "pathology": "app/plugins/pathology",
+        "tcgaSlideCache": "app/plugins/tcgaSlideCache",
         "metadata": "app/plugins/metadata",
         "annotations": "app/plugins/annotations",
-        //         "derm": "app/plugins/derm",
         "login": "app/login",
         "session": "app/session",
         "tagger": "app/plugins/tagger",
@@ -56,6 +56,10 @@ require = {
         {
             name: "tcga",
             location: "app/ui/tcga"
+        },
+        {
+            name: "tcgaCached",
+            location: "app/ui/tcgaCached"
         },
         {
             name: "common",

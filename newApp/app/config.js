@@ -19,7 +19,7 @@ define(function() {
 
 
     //which endpoints do we wanna use? TCGA or Girder default endpoints
-    var UI = "tcga"; //or standard
+    var UI = "tcgaCached"; //or standard
     var SLIDE_SELECTOR = "table";
     var SLIDE_SELECTOR = "thumbnails"
     var VIRTUAL = false;

@@ -15,7 +15,7 @@ Return:
  */
 
 // define("ui/main", ["standard", "tcga", "config"], function(standard, tcga, config) {
-define(["config", "standard","tcga"], function(config, standard,tcga) {
+define(["config", "standard","tcga","tcgaCached"], function(config, standard,tcga,tcgaCached) {
 
     function init(){
         switch(config.UI){
@@ -25,6 +25,11 @@ define(["config", "standard","tcga"], function(config, standard,tcga) {
             case "tcga":
                 tcga.init();
                 break;
+            case "tcgaCached":
+		console.log("Trying to load Cached TCGA Version...");
+                tcgaCached.init();
+                break;
+
             default:
                 console.error("Invalid configuration: " + config.UI + " UI not found");
         }

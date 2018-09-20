@@ -1,4 +1,4 @@
-define("tcga/slidenav", ["config", "viewer", "pubsub", "slide", "jquery", "webix"], function(config, viewer, pubsub, slide, $) {
+define("tcga/slidenav", ["config", "viewer", "pubsub", "slide", "jquery", "tcgaSlideCache","webix"], function(config, viewer, pubsub, slide, $, tcgaSlideCache) {
 
 
 $.extend({
