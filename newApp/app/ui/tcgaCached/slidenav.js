@@ -6,18 +6,6 @@ define("tcgaCached/slidenav", ["config", "viewer", "pubsub", "slide", "jquery", 
     cohortNameToId = {};
     caseNameToId = {};
 
-    Object(tcgaSlideCache).forEach(function(k, idx) {
-        cohortNameToId[k['name']] = idx;
-
-        cases = k['caseListData'];
-         Object(cases).forEach( function(c,v) {
-             caseNameToId[c['name']] = c['_id'];
-             })
-
-
-
-    })
-
     $.extend({
         getQueryParameters: function(str) {
             return (str || document.location.search).replace(/(^\?)/, '').split("&").map(function(n) { return n = n.split("="), this[n[0]] = n[1], this }.bind({}))[0];
@@ -116,42 +104,35 @@ define("tcgaCached/slidenav", ["config", "viewer", "pubsub", "slide", "jquery", 
                 //Migrating to using a cached list...
 
                 // $.get(config.BASE_URL + "/tcga/cohort", function(resp) {
-                var cohorts = tcgaSlideCache;
+                var cohorts = tcgaSlideCache.tcgaSlideCache;
                 var cohortList = $$("slideset").getPopup().getList();
                 cohortList.clearAll();
                 cohortList.parse(cohorts);
                 qp = $.getQueryParameters();
                 cohortIdxToLoad = 0; //asssume we load the first value unless the user has requested a valid cohort
 
-                if (qp.cohort) {
-                    cohortName = qp.cohort.toLowerCase();
-                    if (cohortNameToId[cohortName]) {
-                        cohortIdxToLoad = cohortNameToId[cohortName];
-                    }
+                if (qp.patientId) {
+                    console.log(tcgaSlideCache.ptIdCache);  
+                    //the cache converts the patientId to the cohort Id and slide Id
+                    //cohortName = qp.cohort.toLowerCase();
+                    if (tcgaSlideCache.ptIdCache[qp.patientId])
+
+                        cohortIdxToLoad = tcgaSlideCache.ptIdCache[qp.patientId].cohortId;
+                    
                 }
                 //This loads the slideSet we want
-                $$("slideset").setValue(cohorts[cohortIdxToLoad].id);
+                $$("slideset").setValue(cohortIdxToLoad);
 
 
                 if (qp.patientId) {
                     //webix.message("Also trying to load a specific patient..")
                     patientId = qp.patientId;
-                    if( caseNameToId[patientId])
-                        {
-                $$("ptSamples").setValue(caseNameToId[patientId])
-                        }
-                    // console.log(caseNameToId);
-
+            if (tcgaSlideCache.ptIdCache[patientId])
+                    //caseId is the mongoID reference for all the slides associated with the patient
+                $$("ptSamples").setValue(tcgaSlideCache.ptIdCache[qp.patientId].caseId);
 
                 }
 
-                // var url = "PagingGirderItems->" + config.BASE_URL + "/tcga/cohort/" + cohorts[0]._id + "/images";
-                // $$("slideSelector").clearAll();
-
-
-
-                // $$("slideSelector").load(url);
-                // });
             })
         }
     };

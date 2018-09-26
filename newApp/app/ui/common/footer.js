@@ -5,10 +5,13 @@ define("common/footer", function() {
         borderless: true, 
         height: 25, 
         view: "template", 
-        template: "<span>#name# | #url#</span>", 
+        template: "<span>#name# </span>", 
         data:{name: "", url: ""},
         css: "footer"
     };
+
+//        template: "<span>#name# | #url#</span>", 
+
 
     return footer;
 });
