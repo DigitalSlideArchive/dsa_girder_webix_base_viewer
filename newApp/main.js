@@ -31,6 +31,8 @@ require = {
         "tagger": "app/plugins/tagger",
         "hammerjs": "js/hammer",
         "osdImgHelper": "node_modules/openseadragon-imaginghelper/index",
+        "dsaHelperFunctions": "app/dsaHelperFunctions",
+        "deepLinker": "app/deepLinker"
 
     },
 

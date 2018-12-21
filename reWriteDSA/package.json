@@ -1,0 +1,18 @@
+{
+  "name": "dsa_webix_client",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "David A Gutman",
+  "license": "ISC",
+  "dependencies": {
+    "jquery": "^3.3.1",
+    "openseadragon": "^2.4.0",
+    "require": "^2.4.20",
+    "requirejs": "^2.3.6",
+    "webix": "^6.0.9"
+  }
+}

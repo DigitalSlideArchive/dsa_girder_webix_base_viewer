@@ -4,7 +4,7 @@ define(["config", "session", "login"], function(config, session, login) {
         loginBtn = { id:"login_btn", value:"Logout (" + session.username() + ")"}
     else
         loginBtn = { id:"login_btn", value:"Login"}
-
+    console.log(config);
     var menu = {
         view:"menu",
         width: 250,
@@ -44,7 +44,7 @@ define(["config", "session", "login"], function(config, session, login) {
                     template: "<img src='" + config.LEFT_HEADER_IMG + "' height='40'/>",
                     width: 200
                 }, 
-                {},
+                { },
                 {
                     rows:[
                         menu,

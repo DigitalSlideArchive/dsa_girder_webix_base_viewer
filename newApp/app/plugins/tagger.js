@@ -70,6 +70,7 @@ define(["config"], function(config) {
 				folders.forEach(function(fld) {
 					if(fld['name'] == 'schema') {
 						// get the metadata
+						console.log(fld);
 						schema = fld['meta']['metadata_schema'];
 					};
 				});
@@ -83,8 +84,14 @@ define(["config"], function(config) {
 	}
 
 	// loop through each tag
+	config.TAGS = { "BrainID": ["FoxA","FoxB","FoxC"] }
+
+
 	for (var tag in config.TAGS) {
 		// if the length of the options for this tag is less then 4, use segmented view
+		console.log("processing tag"+tag);
+		console.log(schema);
+
 		if(config.TAGS[tag].length == 0) {
 			config.TAGS[tag] = schema[tag];
 		}

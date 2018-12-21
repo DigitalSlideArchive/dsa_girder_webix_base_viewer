@@ -27,7 +27,7 @@ are looking for, then go to the module and add the variable
 you want to return to the return object 
 */
 
-define(["ui", "session", "config", "jquery", "webix"], function(ui, session, config, $) {
+define(["ui", "session", "config", "jquery", "deepLinker","webix"], function(ui, session, config, $, deepLinker) {
     if (session.valid()) {
         $.ajaxSetup({
             headers: { 'Girder-Token': session.token() }
@@ -60,5 +60,10 @@ define(["ui", "session", "config", "jquery", "webix"], function(ui, session, con
                 require([moduleName]);
             }
         });
+    
+
+        deepLinker.initDropdowns();
+        deepLinker.populateFolderOptions();
+
     });
 });
