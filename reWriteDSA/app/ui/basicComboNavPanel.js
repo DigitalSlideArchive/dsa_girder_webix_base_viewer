@@ -14,10 +14,16 @@ define("app/ui/basicComboNavPanel", ["app/config", "app/dsaHelperFunctions", "we
                 function(folders) {
                     //	var combo1Menu = $$("combo1").getPopup().getList();
                     folders = JSON.parse(folders);
+                    
+                    //TO DO.. add a list of names and/or name types to not render
+                    foldersToLoad = []
+                    //Ignore folers that start with a "."
+                    folders.forEach( function( row, idx) {   if ( row.name[0] != ".") { foldersToLoad.push(row)  }      } )
+
                     var depCombo1Menu = $$("depCombo1").getPopup().getList();
                     depCombo1Menu.clearAll();
-                    depCombo1Menu.parse(folders);
-                    $$("depCombo1").setValue(folders[0].id);
+                    depCombo1Menu.parse(foldersToLoad);
+                    $$("depCombo1").setValue(foldersToLoad[0].id);
 
                 })
         })
@@ -28,13 +34,23 @@ define("app/ui/basicComboNavPanel", ["app/config", "app/dsaHelperFunctions", "we
         and we need to load a new list of slides to display in our gallery */
         //console.log(this); //So this should keep track of who actually called this function
         girderItem = this.getList().getItem(newV); //this should be a folder...	
+        loadSlideGalleryItems(girderItem)
+    }
 
+    //REFACTOR REFACTOR REFACTOR!! VEERY STUPID
+  function loadSlideGalleryItems(newFolder) {
+        /* This means there has been a new selection on the terminal drop down combo
+        and we need to load a new list of slides to display in our gallery */
+        //console.log(this); //So this should keep track of who actually called this function
+        girderItem = newFolder; //this should be a folder... 
         helpers.girderHelpers("recurseGetItems", girderItem).then(function(rsrcInfo) {
 
             $$("slideGallery").clearAll();
             $$("slideGallery").parse(rsrcInfo);
         })
     }
+
+
 
     const LinkedInputs = {
         $init: function(config) {
@@ -52,7 +68,28 @@ define("app/ui/basicComboNavPanel", ["app/config", "app/dsaHelperFunctions", "we
                     
                     if (newV) {
                         combo.getList().load(config.dependentUrl + master.getList().getItem(newV)._id,
-                            function() { combo.setValue(this.getFirstId()) })
+                            function(data) { 
+                            
+                                    //See if it gets any data... if it doesn't I should probably hide the list...
+                                    data = JSON.parse(data);
+                                    if (data.length == 0 )
+                                        {
+                                        webix.message("NO DATA FOUND...");
+                                        //Load items into the slide gallery...
+                                            loadSlideGalleryItems(master.getList().getItem(newV))
+                                        //If no data.. that means this data should have items..
+                                        //basically we hit a folder that doens't hae subfolders.
+                                        //so we then try and see if there are any slides in it..
+                                        //so we need to load data into the slide gallery
+                                        combo.hide();
+
+                                        } 
+                                    else
+                                        {
+                                            combo.show();
+                                            combo.setValue(this.getFirstId()) 
+                                        }
+                            })
                         }
                     });
             }
@@ -62,7 +99,7 @@ define("app/ui/basicComboNavPanel", ["app/config", "app/dsaHelperFunctions", "we
 
         webix.protoUI({
             name: "dependent",
-            $cssName: "combo"
+            $cssName: "combo",
         }, LinkedInputs, webix.ui.combo);
 
         linkedCombos = {
@@ -73,19 +110,18 @@ define("app/ui/basicComboNavPanel", ["app/config", "app/dsaHelperFunctions", "we
                     label: "depCombo1",
                     id: "depCombo1",
                     options: {
-
                         body: {
                             template: "#name#"
                         }
                     },
                     on: {
-
                         onAfterRender: webix.once(function() { startLoadingCombos(this) })
                     }
                 },
                 {
                     view: "dependent",
                     master: "depCombo1",
+                    hidden:true,
                     dependentUrl: config.BASE_URL + "/folder?limit=2000&parentType=folder&parentId=",
                     label: "select Second Folder",
                     options: {
@@ -102,6 +138,7 @@ define("app/ui/basicComboNavPanel", ["app/config", "app/dsaHelperFunctions", "we
                 {
                     view: "dependent",
                     master: "depCombo2",
+                    hidden:true,
                     dependentUrl: config.BASE_URL + "/folder?limit=2000&parentType=folder&parentId=",
                     label: "Select Third Folder",
                     id: "depCombo3",

@@ -55,9 +55,9 @@ define("app/ui/basicSlideGallery", ["app/config", "app/dsaHelperFunctions", "web
                 {
                     margin: 10,
                     cols: [
-                        { view: "button", value: "smallThumb", click: webix.applyTemplateSmall },
-                        { view: "button", value: "medThumb", click: webix.applyTemplateMed },
-                        { view: "button", value: "largeThumb", tooltip: "large Thumb", click: webix.applyTemplateLarge },
+                        { view: "button", type:"icon", icon:"wxi-pencil",value: "smallThumb", click: webix.applyTemplateSmall },
+                        { view: "button", type:"icon", icon:"mdi mdi-bank", value: "medThumb", click: webix.applyTemplateMed },
+                        { view: "button", type:"icon", icon:"far fa-bullseye", value: "largeThumb", tooltip: "large Thumb", click: webix.applyTemplateLarge },
                         { view:"button", type:"icon", icon:"wxi-columns", label:"eXpand", width:80,
                             click: function() {webix.message("click baby click")} }
                     ]
@@ -91,7 +91,7 @@ define("app/ui/basicSlideGallery", ["app/config", "app/dsaHelperFunctions", "web
             $$("curItemInfo").clearAll();
 
             //Will flatten the curItemInfo into k/v pairs to make it easier to view in a list
-            console.log(curItemInfo);
+           // console.log(curItemInfo);
             flatItem = flattenObject(curItemInfo);
             flatArray = [];
 

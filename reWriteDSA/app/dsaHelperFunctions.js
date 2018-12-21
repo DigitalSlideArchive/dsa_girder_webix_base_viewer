@@ -9,10 +9,10 @@ define("app/dsaHelperFunctions", ["app/config", "webix"], function(config, webix
        
         i = itemInfo;
         t = JSON.parse(tileProps);
-        console.log(i);
-        console.log(t); 
+        // console.log(i);
+        // console.log(t); 
         var tileSourceFunction = (function(i) {
-            console.log(i);
+            //console.log(i);
             return function(level, x, y) {
                 return baseURL + '/item/' + i._id + '/tiles/zxy/' + level + '/' + x + '/' + y + '?edge=crop'
             }
@@ -57,16 +57,16 @@ define("app/dsaHelperFunctions", ["app/config", "webix"], function(config, webix
         switch (requestType) {
             case 'getResourceID':
                 url = config.BASE_URL + "/resource/lookup?path=" + config.RESOURCE_PATH;
-                console.log(url);
+                //console.log(url);
                 promise = makePromise(url);
                 break;
             case 'getFolders':
                 //This will determine if the passed resource is a girder Folder or girder Collection
                 //and list the childrenAppropriately
                 parentType = "folder";
-                console.log(girderObject);
+                //console.log(girderObject);
                 url = config.BASE_URL + "/folder?limit=" + itemsToGet + "&parentType=" + girderObject._modelType + "&parentId=" + girderObject._id;
-                console.log(url);
+                //console.log(url);
                 promise = makePromise(url);
                 break;
 
@@ -84,12 +84,12 @@ define("app/dsaHelperFunctions", ["app/config", "webix"], function(config, webix
                 //     break;
             case 'getLargeImageProps':
                 url = config.BASE_URL + "/item/" + girderObject._id + "/tiles";
-                console.log(url);
+               // console.log(url);
                 promise = makePromise(url);
                 break;
             case 'recurseGetItems':
                 url = config.BASE_URL + "/resource/" + girderObject._id + "/items?type=folder&limit=5000&sort=_id&sortdir=1";
-                console.log(url);
+                //console.log(url);
                 promise = makePromise(url);
                 break;
             default:
