@@ -30,14 +30,9 @@ define("app/dsaHelperFunctions", ["app/config", "webix"], function(config, webix
         }
         //Can inject additional properties into the tileSource like default color
         //note by feeding in the width instead of scaling from 0-1, we use actual pixel dimensions
-        
         tileObject = { tileSource: tileSource, width: t.sizeX }
         return tileObject
     };
-
-
-
-
 
     function makePromise(url) {
         // Sets up a promise in the proper way using webix
@@ -98,30 +93,29 @@ define("app/dsaHelperFunctions", ["app/config", "webix"], function(config, webix
         return promise;
     }
 
+    function recomputePagerItems() {
+           var itemWidth = $$("slideGallery").config.type.width;
+           var itemHeight = $$("slideGallery").config.type.height;
+           var dataWidth = $$("slideGallery").$width;
+           var dataHeight = $$("slideGallery").$height;
+           var pagerSize = $$("slideGallery").getPager().config.size;
 
-    // function recomputePagerItems() {
-    //        var itemWidth = $$("slideSelector").config.type.width;
-    //        var itemHeight = $$("slideSelector").config.type.height;
-    //        var dataWidth = $$("slideSelector").$width;
-    //        var dataHeight = $$("slideSelector").$height;
+           /* Compute items per row and items per column */
+           thumbsPerRow = Math.floor(dataWidth / itemWidth);
+           if (thumbsPerRow < 1) { thumbsPerRow = 1 }
 
-    //        var pagerSize = $$("slideSelector").getPager().config.size;
+           thumbsPerCol = Math.floor(dataHeight / itemHeight);
+           if (thumbsPerCol < 1) { thumbsPerCol = 1 }
 
-    //        /* Compute items per row and items per column */
-    //        thumbsPerRow = Math.floor(dataWidth / itemWidth);
-    //        if (thumbsPerRow < 1) { thumbsPerRow = 1 }
-
-    //        thumbsPerCol = Math.floor(dataHeight / itemHeight);
-    //        if (thumbsPerCol < 1) { thumbsPerCol = 1 }
-    //        //    console.log(thumbsPerCol,thumbsPerRow);
-
-    //        pagerSize = thumbsPerCol * thumbsPerRow;
-    //        $$("slideSelector").getPager().define({ size: pagerSize });
-    //        $$("slideSelector").refresh()
-    //    }
+           pagerSize = thumbsPerCol * thumbsPerRow;
+           $$("slideGallery").getPager().define({ size: pagerSize });
+           $$("slideGallery").refresh()
+       }
 
 
-    dsaHelperFunctions = { "girderHelpers": girderHelpers, "buildOSDTileSource": buildOSDTileSource }
+    dsaHelperFunctions = {  "girderHelpers": girderHelpers, 
+                            "buildOSDTileSource": buildOSDTileSource,
+                            "recomputePagerItems": recomputePagerItems }
 
     return dsaHelperFunctions;
 });

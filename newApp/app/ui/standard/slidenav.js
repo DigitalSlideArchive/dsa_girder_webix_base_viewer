@@ -117,7 +117,7 @@ define(["config", "slide", "dsaHelperFunctions", "jquery", "webix"], function(co
 
     itemPager = {
         view: "pager",
-        id: "item_pager",
+        id: "itemPager",
         template: "<center>{common.prev()}{common.page()}/#limit#{common.next()}(#count# slides)</center>",
         animate: true,
         size: 5,

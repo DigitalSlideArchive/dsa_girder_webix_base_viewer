@@ -1,12 +1,18 @@
 /* This is a slide gallery panel */
 
-
-
 define("app/ui/basicSlideGallery", ["app/config", "app/dsaHelperFunctions", "webix"],
     function(config, helpers, webix) {
 
         ///To Do:: Only add Items that have the largeImage flag set.. 
         //This shows a small thumbnail and below it shows the name or template for the slide
+        var itemPager = {
+            view: "pager",
+            id: "itemPager",
+            template: "<center>{common.prev()}{common.page()}/#limit#{common.next()}(#count# slides)</center>",
+            animate: true,
+            size: 5,
+            group: 4
+        };
 
         webix.type(webix.ui.dataview, {
             name: "smallThumb",
@@ -52,18 +58,38 @@ define("app/ui/basicSlideGallery", ["app/config", "app/dsaHelperFunctions", "web
         var galleryViewSelector = {
             rows: [
                 { view: "template", template: "Change Template", type: "header" },
+                itemPager,
                 {
                     margin: 10,
                     cols: [
-                        { view: "button", type:"icon", icon:"wxi-pencil",value: "smallThumb", click: webix.applyTemplateSmall },
-                        { view: "button", type:"icon", icon:"mdi mdi-bank", value: "medThumb", click: webix.applyTemplateMed },
-                        { view: "button", type:"icon", icon:"far fa-bullseye", value: "largeThumb", tooltip: "large Thumb", click: webix.applyTemplateLarge },
-                        { view:"button", type:"icon", icon:"wxi-columns", label:"eXpand", width:80,
-                            click: function() {webix.message("click baby click")} }
+                        { view: "button", type: "icon", icon: "wxi-pencil", value: "smallThumb", click: webix.applyTemplateSmall },
+                        { view: "button", type: "icon", icon: "mdi mdi-bank", value: "medThumb", click: webix.applyTemplateMed },
+                        { view: "button", type: "icon", icon: "fas fa-bullseye", value: "largeThumb", tooltip: "large Thumb", click: webix.applyTemplateLarge },
+                        {
+                            view: "button",
+                            type: "icon",
+                            icon: "wxi-columns",
+                            label: "eXpand",
+                            width: 80,
+                            click: function() {
+
+                                //Toggle the width of the view from either FULL Screen (need to figure out how to get that)
+                                //Vs the width of the currently selected thumb
+                                curWidth = $$("leftPanel").config.width;
+
+                                $$("leftPanel").config.width = 1000;
+                                $$("leftPanel").resize()
+
+                                helpers.recomputePagerItems()
+                            }
+                        },
                     ]
                 }
             ]
         }
+        //https://snippet.webix.com/vnxlf960 to play around
+        //      Icon name spaces are complicated
+        //        https://forum.webix.com/discussion/32371/webix-5-3-font-awesome-5-0-10
 
         var flattenObject = function(ob) {
             var toReturn = {};
@@ -87,11 +113,8 @@ define("app/ui/basicSlideGallery", ["app/config", "app/dsaHelperFunctions", "web
 
         var slideItemSelected = function(newV) {
             curItemInfo = this.getSelectedItem();
-
             $$("curItemInfo").clearAll();
-
             //Will flatten the curItemInfo into k/v pairs to make it easier to view in a list
-           // console.log(curItemInfo);
             flatItem = flattenObject(curItemInfo);
             flatArray = [];
 
@@ -99,25 +122,23 @@ define("app/ui/basicSlideGallery", ["app/config", "app/dsaHelperFunctions", "web
             //an itemID..
 
             for (var key in flatItem) {
-               if (flatItem.hasOwnProperty(key)) {
-                  flatArray.push( { key:key, value: flatItem[key]})
-               }
-            }            
+                if (flatItem.hasOwnProperty(key)) {
+                    flatArray.push({ key: key, value: flatItem[key] })
+                }
+            }
 
             $$("curItemInfo").parse(flatArray);
             $$("dsaFooter").parse(curItemInfo);
             //console.log(curItemInfo);
-            helpers.girderHelpers('getLargeImageProps',curItemInfo).then(function(tileData){
-                    //console.log(tileData)
-                    //going to add these additional properties to the curren ItemInfo display
-                    $$("curItemInfo").parse(tileData);
+            helpers.girderHelpers('getLargeImageProps', curItemInfo).then(function(tileData) {
+                //console.log(tileData)
+                //going to add these additional properties to the curren ItemInfo display
+                $$("curItemInfo").parse(tileData);
 
-
-
-                    newTileSource = helpers.buildOSDTileSource(config.BASE_URL,curItemInfo,tileData)
-                    //I need to reformat the tileData into a tilesource...
-                    console.log(newTileSource)  
-                    globalViewer.open([newTileSource]);
+                newTileSource = helpers.buildOSDTileSource(config.BASE_URL, curItemInfo, tileData)
+                //I need to reformat the tileData into a tilesource...
+                console.log(newTileSource)
+                globalViewer.open([newTileSource]);
 
             });
         }
@@ -127,27 +148,14 @@ define("app/ui/basicSlideGallery", ["app/config", "app/dsaHelperFunctions", "web
             type: "smallThumb",
             id: "slideGallery",
             select: true,
+            pager: "itemPager",
             on: {
                 onAfterSelect: slideItemSelected,
-                onAfterLoad: function() { 
-                                    firstSlideId = this.getFirstId();
-                                    this.select(firstSlideId);
-                                        }
+                onAfterLoad: function() {
+                    firstSlideId = this.getFirstId();
+                    this.select(firstSlideId);
+                }
             }
         }
         return { rows: [galleryViewSelector, slideGallery] }
     })
-
-
-// slideSelector = {
-//     view: "dataview",
-//     id: "slideSelector",
-//     select: true,
-//     template: "<div class='webix_strong'>#name#</div><img src='" + config.BASE_URL + "/item/#_id#/tiles/thumbnail'/>",
-//     datatype: "json",
-//     datafetch: 5,
-//     type: {
-//         height: 170,
-//         width: 200
-//     },
-//     pager: "item_pager",

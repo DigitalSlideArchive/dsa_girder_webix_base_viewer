@@ -14,7 +14,6 @@ define("app/ui/basicComboNavPanel", ["app/config", "app/dsaHelperFunctions", "we
                 function(folders) {
                     //	var combo1Menu = $$("combo1").getPopup().getList();
                     folders = JSON.parse(folders);
-                    
                     //TO DO.. add a list of names and/or name types to not render
                     foldersToLoad = []
                     //Ignore folers that start with a "."
@@ -37,20 +36,15 @@ define("app/ui/basicComboNavPanel", ["app/config", "app/dsaHelperFunctions", "we
         loadSlideGalleryItems(girderItem)
     }
 
-    //REFACTOR REFACTOR REFACTOR!! VEERY STUPID
   function loadSlideGalleryItems(newFolder) {
-        /* This means there has been a new selection on the terminal drop down combo
-        and we need to load a new list of slides to display in our gallery */
-        //console.log(this); //So this should keep track of who actually called this function
+        /* This expects a folder and/or entire girder Item with an _id; this
+        can than recursively get all the items and load them into the gallery */
         girderItem = newFolder; //this should be a folder... 
         helpers.girderHelpers("recurseGetItems", girderItem).then(function(rsrcInfo) {
-
             $$("slideGallery").clearAll();
             $$("slideGallery").parse(rsrcInfo);
         })
     }
-
-
 
     const LinkedInputs = {
         $init: function(config) {
@@ -129,11 +123,11 @@ define("app/ui/basicComboNavPanel", ["app/config", "app/dsaHelperFunctions", "we
 
                     },
                     id: "depCombo2",
-                    on: {
-                        onAfterRender: function() { console.log(this.getPopup().getList().getFirstId()) }
-
-
-                    }
+                    // on: {
+                    //     onAfterRender: function() { 
+                    //         console.log(this.getPopup().getList().getFirstId())
+                    //          }
+                    // }
                 },
                 {
                     view: "dependent",
@@ -146,18 +140,12 @@ define("app/ui/basicComboNavPanel", ["app/config", "app/dsaHelperFunctions", "we
                         body: { template: "#name#" }
                     },
                     on: {
-
                         onChange: updateSlideGalleryItems
                     }
                 }
             ]
         };
-
-
-
-
         return { rows: [linkedCombos] }
-
     })
 
 
