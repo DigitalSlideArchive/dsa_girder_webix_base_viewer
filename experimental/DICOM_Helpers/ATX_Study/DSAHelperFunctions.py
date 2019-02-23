@@ -49,7 +49,7 @@ def OpenslideGetImageMetadata(full_file_path):
             ###WIP:  This is very likely not true in all cases-- just happens to be true @ Emory
         else:
             """NEED TO ADD CODE TO OPEN OTHER FILE TYPES?? LIKE A TIFF.. NOT SURE WHAT HAPENS"""
-            print "Can't open",base_file_name
+            print( "Can't open",base_file_name)
             sys.exit()
         
         sldScan_properties = im.properties
@@ -57,13 +57,13 @@ def OpenslideGetImageMetadata(full_file_path):
                       'scanProperties': sldScan_properties}
         return(True,sldMetaData)
        
-    except OpenSlideError, e:
+    except (OpenSlideError, e):
         #print "Openslide returned an error",full_file_path
         #print >>sys.stderr, "Verify failed with:", repr(e.args)
         #print "Openslide returned an error",full_file_path
         #eclean = clean_openslide_keys(e), 'ErrorCode': eclean}
         return(False,{'FileWErrors': full_file_path, 'ErrorType': 'OpenSlideError'})
-    except StandardError, e:
+    except (StandardError, e):
         #file name likely not valid
         #print >>sys.stderr, "Verify failed with:", repr(e.args)
         #print "Openslide returned an error om the StandardError block",full_file_path

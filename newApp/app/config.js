@@ -16,10 +16,10 @@ define(function() {
     //8080 is not needed if I am using the nginx proxy
     // //Specify the BASE API URL
     var BASE_URL =  "http://computablebrain.emory.edu:8080/api/v1";
-    var BASE_URL =  "http://winship.digitalslidearchive.emory.edu:8080/api/v1";
+//	    var BASE_URL =  "http://winship.digitalslidearchive.emory.edu:8080/api/v1";
 
     // //What is the collection name we are pulling data from?
-    var COLLECTION_NAME = 'TPS_BioBank'
+    var COLLECTION_NAME = 'FOX_DATA'
 
 
     //which endpoints do we wanna use? TCGA or Girder default endpoints
